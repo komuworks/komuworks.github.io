@@ -83,7 +83,7 @@
                   <tr>
                     <td>${escapeHtml(skill.name)}</td>
                     <td>${escapeHtml(skill.years)}年</td>
-                    <td>${levelToStars(skill.level)}（${escapeHtml(skill.level)} / 10）</td>
+                    <td>${levelToStars(skill.level)}</td>
                   </tr>
                 `
                 )
