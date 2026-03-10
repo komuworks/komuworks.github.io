@@ -1,32 +1,32 @@
 [
   {
-    "date": "2026-03-01",
-    "totalChars": 182,
-    "correctChars": 170,
-    "errorChars": 12
+    "date": "2026-03-09",
+    "totalChars": 905,
+    "correctChars": 1520,
+    "errorChars": 59
   },
   {
-    "date": "2026-03-02",
-    "totalChars": 196,
-    "correctChars": 183,
-    "errorChars": 13
+    "date": "2026-03-10",
+    "totalChars": 850,
+    "correctChars": 1432,
+    "errorChars": 21
   },
   {
-    "date": "2026-03-03",
-    "totalChars": 205,
-    "correctChars": 191,
-    "errorChars": 14
+    "date": "2026-03-11",
+    "totalChars": 912,
+    "correctChars": 1540,
+    "errorChars": 40
   },
   {
-    "date": "2026-03-04",
-    "totalChars": 214,
-    "correctChars": 199,
-    "errorChars": 15
+    "date": "2026-03-12",
+    "totalChars": 895,
+    "correctChars": 1500,
+    "errorChars": 35
   },
   {
-    "date": "2026-03-05",
-    "totalChars": 228,
-    "correctChars": 211,
-    "errorChars": 17
+    "date": "2026-03-13",
+    "totalChars": 900,
+    "correctChars": 1530,
+    "errorChars": 45
   }
 ]
