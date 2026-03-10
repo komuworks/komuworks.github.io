@@ -1,5 +1,5 @@
 (() => {
-  const METRICS_JSON_PATH = '../assets/data/typing-metrics.json';
+  const METRICS_JSON_PATH = '../../assets/data/typing-metrics.json';
 
   const status = document.getElementById('typing-detail-status');
   const detailGrid = document.getElementById('typing-detail-grid');

@@ -152,7 +152,7 @@
 
   const loadProfile = async () => {
     try {
-      const response = await fetch(`${basePath}data/profile.json`);
+      const response = await fetch(`${basePath}assets/data/profile.json`);
       if (!response.ok) {
         throw new Error('プロフィールデータの読み込みに失敗しました');
       }
