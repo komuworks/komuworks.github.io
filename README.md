@@ -12,9 +12,11 @@ GitHub Pages 向けの静的サイトです（HTML/CSS/Vanilla JS）。
   - `assets/js/blog.js`: `data/posts.json` を読み込み、一覧表示・詳細表示・タグ絞り込みを制御。
   - `data/posts.json`: ブログ記事データ本体。
 - タイピング
-  - `typing/index.html`: タイピング計測グラフ表示ページ。
-  - `assets/js/typing.js`: 計測データJSONの読み込み、期間フィルタ、グラフ描画を制御。
-  - `assets/data/typing-metrics.json`: タイピング計測データ本体。
+  - `typing/index.html`: タイピング計測グラフ表示ページ（クリックで詳細へ遷移）。
+  - `typing/detail.html`: 日別のタイピング詳細表示ページ。
+  - `assets/js/typing.js`: 計測データJSONの読み込み、期間フィルタ、グラフ描画、詳細ページ遷移を制御。
+  - `assets/js/typing-detail.js`: 指定日の詳細データ表示（率/WPM/KPM算出）を制御。
+  - `assets/data/typing-metrics.json`: タイピング計測データ本体（計測時間と履歴）。
 - 共通
   - `assets/js/layout.js`: ヘッダー／フッターの共通描画。
   - `assets/css/style.css`: 全ページ共通スタイル。
@@ -66,8 +68,29 @@ GitHub Pages 向けの静的サイトです（HTML/CSS/Vanilla JS）。
 
 ### リセット手順
 
-- 計測データを完全リセットする場合: `assets/data/typing-metrics.json` を `[]`（空配列）にする。
+- 計測データを完全リセットする場合: `assets/data/typing-metrics.json` の `history` を `[]`（空配列）にする。
 - 特定日のみ削除する場合: 対象日のオブジェクトを削除して保存する。
+
+### データ形式
+
+`assets/data/typing-metrics.json` は以下の形式です。
+
+```json
+{
+  "sessionMinutes": 5,
+  "history": [
+    {
+      "date": "2026-03-10",
+      "totalChars": 858,
+      "correctChars": 1440,
+      "errorChars": 64
+    }
+  ]
+}
+```
+
+- `sessionMinutes`: 1回あたりの計測時間（分）。WPM/KPM算出に使用。
+- `history[]`: 日別の計測結果。
 
 ## GitHub Pages で公開する手順
 

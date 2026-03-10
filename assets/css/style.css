@@ -235,8 +235,27 @@ button {
   z-index: 1;
 }
 
+
+.typing-detail-grid {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 0.5rem 1rem;
+}
+
+.typing-detail-grid dt {
+  font-weight: 700;
+}
+
+.typing-detail-grid dd {
+  margin: 0;
+}
+
 @media (max-width: 640px) {
   .profile-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .typing-detail-grid {
     grid-template-columns: 1fr;
   }
 }

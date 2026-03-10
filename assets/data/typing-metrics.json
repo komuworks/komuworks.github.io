@@ -1,32 +1,35 @@
-[
-  {
-    "date": "2026-03-09",
-    "totalChars": 905,
-    "correctChars": 1520,
-    "errorChars": 59
-  },
-  {
-    "date": "2026-03-10",
-    "totalChars": 858,
-    "correctChars": 1440,
-    "errorChars": 64
-  },
-  {
-    "date": "2026-03-11",
-    "totalChars": 912,
-    "correctChars": 1540,
-    "errorChars": 40
-  },
-  {
-    "date": "2026-03-12",
-    "totalChars": 895,
-    "correctChars": 1500,
-    "errorChars": 35
-  },
-  {
-    "date": "2026-03-13",
-    "totalChars": 900,
-    "correctChars": 1530,
-    "errorChars": 45
-  }
-]
+{
+  "sessionMinutes": 5,
+  "history": [
+    {
+      "date": "2026-03-09",
+      "totalChars": 905,
+      "correctChars": 1520,
+      "errorChars": 59
+    },
+    {
+      "date": "2026-03-10",
+      "totalChars": 858,
+      "correctChars": 1440,
+      "errorChars": 64
+    },
+    {
+      "date": "2026-03-11",
+      "totalChars": 912,
+      "correctChars": 1540,
+      "errorChars": 40
+    },
+    {
+      "date": "2026-03-12",
+      "totalChars": 895,
+      "correctChars": 1500,
+      "errorChars": 35
+    },
+    {
+      "date": "2026-03-13",
+      "totalChars": 900,
+      "correctChars": 1530,
+      "errorChars": 45
+    }
+  ]
+}

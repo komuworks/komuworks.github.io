@@ -11,6 +11,7 @@
 
   let chart = null;
   let allHistory = [];
+  let sessionMinutes = 5;
 
   const parseDate = (value) => {
     const date = new Date(`${value}T00:00:00`);
@@ -29,11 +30,13 @@
   };
 
   const validateMetrics = (data) => {
-    if (!Array.isArray(data)) {
+    const historyRaw = Array.isArray(data) ? data : data?.history;
+
+    if (!Array.isArray(historyRaw)) {
       return [];
     }
 
-    return data
+    return historyRaw
       .filter(
         (item) =>
           item &&
@@ -43,6 +46,11 @@
           Number.isFinite(item.errorChars),
       )
       .sort((a, b) => (a.date > b.date ? 1 : -1));
+  };
+
+  const parseSessionMinutes = (data) => {
+    const rawMinutes = Array.isArray(data) ? 5 : data?.sessionMinutes;
+    return Number.isFinite(rawMinutes) && rawMinutes > 0 ? rawMinutes : 5;
   };
 
   const filterByPeriod = (history, periodValue) => {
@@ -67,6 +75,16 @@
     });
   };
 
+  const toDetailUrl = (item) => {
+    const params = new URLSearchParams({ date: item.date });
+    return `./detail.html?${params.toString()}`;
+  };
+
+  const calcCorrectRate = (item) => {
+    const totalTypes = item.correctChars + item.errorChars;
+    return totalTypes > 0 ? (item.correctChars / totalTypes) * 100 : 0;
+  };
+
   const renderChart = (history) => {
     const labels = history.map((item) => formatDate(item.date));
 
@@ -80,33 +98,31 @@
         labels,
         datasets: [
           {
-            label: '入力文字数',
-            data: history.map((item) => item.totalChars),
-            yAxisID: 'yInput',
+            label: '正タイプ数',
+            data: history.map((item) => item.correctChars),
+            yAxisID: 'yType',
+            borderColor: '#2ecc71',
+            backgroundColor: 'rgba(46,204,113,0.2)',
+            tension: 0.2,
+            fill: false,
+          },
+          {
+            label: '総タイプ数',
+            data: history.map((item) => item.correctChars + item.errorChars),
+            yAxisID: 'yType',
             borderColor: '#3498db',
             backgroundColor: 'rgba(52,152,219,0.2)',
             tension: 0.2,
             fill: false,
           },
           {
-            label: '正タイプ数',
-            data: history.map((item) => item.correctChars),
-            yAxisID: 'yType',
-            stack: 'typing',
-            borderColor: '#2ecc71',
-            backgroundColor: 'rgba(46,204,113,0.35)',
+            label: '正タイプ率(%)',
+            data: history.map((item) => calcCorrectRate(item)),
+            yAxisID: 'yRate',
+            borderColor: '#f59e0b',
+            backgroundColor: 'rgba(245,158,11,0.2)',
             tension: 0.2,
-            fill: true,
-          },
-          {
-            label: '誤タイプ数',
-            data: history.map((item) => item.errorChars),
-            yAxisID: 'yType',
-            stack: 'typing',
-            borderColor: '#e74c3c',
-            backgroundColor: 'rgba(231,76,60,0.35)',
-            tension: 0.2,
-            fill: true,
+            fill: false,
           },
         ],
       },
@@ -118,8 +134,8 @@
         },
         elements: {
           point: {
-            radius: 0,
-            hoverRadius: 4,
+            radius: 3,
+            hoverRadius: 5,
           },
         },
         plugins: {
@@ -130,27 +146,36 @@
             },
           },
         },
+        onClick: (_event, elements) => {
+          if (!elements || elements.length === 0) {
+            return;
+          }
+          const clickedIndex = elements[0].index;
+          const selected = history[clickedIndex];
+          if (selected) {
+            window.location.href = toDetailUrl(selected);
+          }
+        },
         scales: {
-          yInput: {
-            type: 'linear',
-            position: 'left',
-            beginAtZero: true,
-            title: {
-              display: true,
-              text: '入力文字数',
-            },
-          },
           yType: {
             type: 'linear',
+            position: 'left',
+            beginAtZero: false,
+            title: {
+              display: true,
+              text: 'タイプ数',
+            },
+          },
+          yRate: {
+            type: 'linear',
             position: 'right',
-            beginAtZero: true,
-            stacked: true,
+            beginAtZero: false,
             grid: {
               drawOnChartArea: false,
             },
             title: {
               display: true,
-              text: 'タイプ数',
+              text: '正タイプ率(%)',
             },
           },
           x: {
@@ -176,7 +201,7 @@
     }
 
     renderChart(filtered);
-    status.textContent = `ステータス: ${filtered.length}件のデータを表示中`;
+    status.textContent = `ステータス: ${filtered.length}件のデータを表示中（${sessionMinutes}分計測）`;
   };
 
   const loadAndRender = async () => {
@@ -188,6 +213,7 @@
 
       const rawData = await response.json();
       allHistory = validateMetrics(rawData);
+      sessionMinutes = parseSessionMinutes(rawData);
 
       if (allHistory.length === 0) {
         status.textContent = 'ステータス: 表示できる計測データがありません。';
