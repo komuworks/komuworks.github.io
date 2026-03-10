@@ -90,3 +90,50 @@ GitHub Pages 向けの静的サイトです（HTML/CSS/Vanilla JS）。
 2. GitHub の **Actions** タブ、または **Settings > Pages** でデプロイ完了を確認する。
 3. 公開URLをハードリロード（Windows/Linux: `Ctrl + F5`, macOS: `Cmd + Shift + R`）して最新化を確認する。
 4. 反映されない場合は数分待って再読込し、必要に応じてブラウザキャッシュを削除する。
+
+## プロフィールTOPのデータ運用方法
+
+プロフィールTOPは `data/profile.json` を編集することで内容を更新できます。`index.html` はデータ表示枠のみ持ち、描画は `assets/js/profile.js` が担当します。
+
+### 管理ファイル
+
+- `data/profile.json`: プロフィール本体（自己紹介 / スキルセット / 保有資格 / 個人目標）
+- `assets/js/profile.js`: JSON読み込み、資格の有効期限判定、画面描画
+- `index.html`: 各セクションの表示領域
+
+### `data/profile.json` の構造
+
+- `selfIntroduction`
+  - `name`: 名前
+  - `specialty`: 得意領域
+  - `careerPreference`: 現在の志向
+- `skillSet.categories[]`
+  - `name`: カテゴリ名（例: 言語, FW, クラウド, DB, ツール）
+  - `skills[]`
+    - `name`: スキル名
+    - `years`: 実務年数（数値）
+    - `level`: レベル（1〜10）
+- `certifications[]`
+  - `name`: 資格名
+  - `acquiredDate`: 取得日（`YYYY-MM-DD`）
+  - `expiryDate`: 有効期限（`YYYY-MM-DD` または `null`）
+- `personalGoals`
+  - `goal`: 個人目標
+  - `recentLearning`: 直近の学習内容
+
+### スキルレベル表示ルール
+
+- `level` は 1〜10 の10段階で管理します。
+- 画面では 5つ星相当（例: 7 → `★★★☆・`）として表示し、合わせて数値（`7 / 10`）も表示します。
+
+### 保有資格の表示ルール
+
+- `expiryDate` が `null` の資格は常に表示します。
+- `expiryDate` がある資格は、当日を過ぎると自動的に非表示になります。
+- 期限切れ資格を残しておいても、画面上には出ません（履歴管理用途でJSONには保持可能）。
+
+### 更新手順
+
+1. `data/profile.json` を編集する。
+2. 日付形式（`YYYY-MM-DD`）とカンマ位置を確認する。
+3. ローカル表示または GitHub Pages 反映後、プロフィールTOPを確認する。

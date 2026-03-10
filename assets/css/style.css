@@ -166,3 +166,45 @@ button {
 .blog-body p {
   margin: 0 0 1rem;
 }
+
+.profile-grid {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 0.5rem 1rem;
+}
+
+.profile-grid dt {
+  font-weight: 700;
+}
+
+.profile-grid dd {
+  margin: 0;
+}
+
+.skill-category + .skill-category {
+  margin-top: 1rem;
+}
+
+.skill-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0.5rem;
+}
+
+.skill-table th,
+.skill-table td {
+  border: 1px solid var(--border);
+  padding: 0.5rem;
+  text-align: left;
+}
+
+.certification-list {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+@media (max-width: 640px) {
+  .profile-grid {
+    grid-template-columns: 1fr;
+  }
+}
