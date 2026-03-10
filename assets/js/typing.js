@@ -150,7 +150,7 @@
             },
             title: {
               display: true,
-              text: 'タイプ数（正 + 誤の積み上げ）',
+              text: 'タイプ数',
             },
           },
           x: {
