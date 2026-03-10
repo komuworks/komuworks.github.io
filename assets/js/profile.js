@@ -18,6 +18,11 @@
       .replace(/'/g, '&#039;');
 
   const toDisplayText = (value) => (value == null || value === '' ? DEFAULT_TEXT : escapeHtml(value));
+  const normalizeArray = (value) => (Array.isArray(value) ? value : []);
+  const clampLimit = (value, fallback) => {
+    const parsed = Number(value);
+    return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
+  };
 
   const buildLayeredStar = (backAsset) =>
     `<span class="skill-star-stack"><img src="${basePath}assets/${backAsset}" alt="" class="skill-star-icon skill-star-icon-back" /><img src="${basePath}assets/${STAR_ASSETS.frame}" alt="" class="skill-star-icon skill-star-icon-front" /></span>`;
@@ -37,8 +42,6 @@
 
     return `<span class="skill-star-rating" aria-label="${normalized} / 10">${stars.join('')}</span>`;
   };
-
-  const normalizeArray = (value) => (Array.isArray(value) ? value : []);
 
   const isCertificationValid = (certification, today) => {
     if (!certification?.expiryDate) {
@@ -118,12 +121,29 @@
     `;
   };
 
-  const renderGoals = (goals = {}) => `
-    <dl class="profile-grid">
-      <dt>個人目標</dt><dd>${toDisplayText(goals.goal)}</dd>
-      <dt>直近の学習内容</dt><dd>${toDisplayText(goals.recentLearning)}</dd>
-    </dl>
-  `;
+  const renderGoalList = (goals) => {
+    const items = normalizeArray(goals);
+    if (items.length === 0) {
+      return '<p>個人目標はありません。</p>';
+    }
+
+    return `
+      <ul class="goal-list">
+        ${items
+          .map(
+            (goal) => `
+              <li>
+                <a href="${basePath}pages/profile/goal-detail.html?id=${encodeURIComponent(goal.id || '')}">${toDisplayText(goal?.title)}</a>
+                <p>${toDisplayText(goal?.summary)}</p>
+              </li>
+            `,
+          )
+          .join('')}
+      </ul>
+    `;
+  };
+
+  const renderSectionLink = () => `<p><a href="${basePath}pages/profile/index.html">一覧を見る</a></p>`;
 
   const getElement = (id) => document.getElementById(id);
 
@@ -137,10 +157,21 @@
       throw new Error('プロフィール描画先の要素が見つかりません');
     }
 
+    const limits = data?.displayLimits || {};
+    const skillLimit = clampLimit(limits.skillCategories, 3);
+    const certificationLimit = clampLimit(limits.certifications, 3);
+    const goalLimit = clampLimit(limits.personalGoals, 2);
+
     introContainer.innerHTML = renderIntro(data?.selfIntroduction);
-    skillContainer.innerHTML = renderSkillCategories(data?.skillSet?.categories);
-    certContainer.innerHTML = renderCertifications(data?.certifications, new Date());
-    goalContainer.innerHTML = renderGoals(data?.personalGoals);
+    skillContainer.innerHTML =
+      renderSkillCategories(normalizeArray(data?.skillSet?.categories).slice(0, skillLimit)) + renderSectionLink();
+
+    const activeCertifications = normalizeArray(data?.certifications)
+      .filter((cert) => isCertificationValid(cert, new Date()))
+      .slice(0, certificationLimit);
+    certContainer.innerHTML = renderCertifications(activeCertifications, new Date()) + renderSectionLink();
+
+    goalContainer.innerHTML = renderGoalList(normalizeArray(data?.personalGoals).slice(0, goalLimit)) + renderSectionLink();
   };
 
   const renderError = () => {
