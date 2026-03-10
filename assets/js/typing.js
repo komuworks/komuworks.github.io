@@ -55,12 +55,10 @@
       return history;
     }
 
-    const latest = parseDate(history[history.length - 1].date);
-    if (!latest) {
-      return history;
-    }
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-    const threshold = new Date(latest);
+    const threshold = new Date(today);
     threshold.setDate(threshold.getDate() - (days - 1));
 
     return history.filter((item) => {
@@ -173,7 +171,7 @@
         chart.destroy();
         chart = null;
       }
-      status.textContent = 'ステータス: 選択期間に表示できる計測データがありません。';
+      status.textContent = 'ステータス: 現在日付基準で対象なし（選択期間に表示できる計測データがありません）。';
       return;
     }
 
