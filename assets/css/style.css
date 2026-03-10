@@ -227,7 +227,6 @@ button {
 }
 
 .skill-star-icon-back {
-  transform: scale(1.08);
   transform-origin: center;
   z-index: 0;
 }
