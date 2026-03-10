@@ -9,8 +9,8 @@
       .replace(/'/g, "&#039;");
   }
 
-  function buildLayeredStar(frontAsset) {
-    return `<span class="skill-star-stack"><img src="${basePath}assets/star-empty.svg" alt="" class="skill-star-icon skill-star-icon-back" /><img src="${basePath}assets/${frontAsset}" alt="" class="skill-star-icon skill-star-icon-front" /></span>`;
+  function buildLayeredStar(backAsset) {
+    return `<span class="skill-star-stack"><img src="${basePath}assets/${backAsset}" alt="" class="skill-star-icon skill-star-icon-back" /><img src="${basePath}assets/star-frame.svg" alt="" class="skill-star-icon skill-star-icon-front" /></span>`;
   }
 
   function levelToStars(level) {
