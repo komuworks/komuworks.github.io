@@ -104,3 +104,65 @@ button {
   color: var(--subtext);
   font-size: 0.9rem;
 }
+
+.tag-filter-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1rem 0 1.25rem;
+}
+
+.tag-chip {
+  background: #eef2ff;
+  color: #1e3a8a;
+  border: 1px solid #c7d2fe;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.tag-chip.is-active {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+
+.blog-post-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 1rem;
+}
+
+.blog-post-item {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem;
+}
+
+.blog-post-item h2 {
+  margin: 0.35rem 0 0.5rem;
+}
+
+.blog-date {
+  color: var(--subtext);
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.blog-tags {
+  color: #334155;
+  font-size: 0.95rem;
+  margin-bottom: 0;
+}
+
+.blog-summary {
+  color: var(--subtext);
+  border-left: 3px solid var(--border);
+  padding-left: 0.75rem;
+}
+
+.blog-body p {
+  margin: 0 0 1rem;
+}

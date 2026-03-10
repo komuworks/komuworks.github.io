@@ -3,19 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>komuworks | 記事一覧</title>
+    <title>komuworks | 記事詳細</title>
     <link rel="stylesheet" href="../assets/css/style.css" />
   </head>
   <body data-base-path="../">
     <div id="site-header"></div>
 
     <main class="container">
-      <section class="card">
-        <h1>記事一覧</h1>
-        <p>data/posts.json を更新すると、この一覧と詳細ページに反映されます。</p>
-        <div id="tag-filters" class="tag-filter-group" aria-label="タグ絞り込み"></div>
-        <div id="blog-list" aria-live="polite"></div>
-      </section>
+      <section class="card" id="post-detail" aria-live="polite"></section>
     </main>
 
     <div id="site-footer"></div>
