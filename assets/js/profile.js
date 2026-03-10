@@ -73,7 +73,7 @@
               <tr>
                 <th>スキル</th>
                 <th>実務年数</th>
-                <th>レベル（10段階）</th>
+                <th>レベル</th>
               </tr>
             </thead>
             <tbody>
