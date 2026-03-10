@@ -230,7 +230,6 @@ button {
   transform: scale(1.08);
   transform-origin: center;
   z-index: 0;
-  filter: brightness(0);
 }
 
 .skill-star-icon-front {
