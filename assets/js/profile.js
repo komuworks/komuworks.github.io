@@ -109,8 +109,7 @@
               (cert) => `
               <li>
                 <strong>${escapeHtml(cert.name)}</strong><br />
-                取得日: ${escapeHtml(cert.acquiredDate || "-")} /
-                有効期限: ${escapeHtml(cert.expiryDate || "なし")}
+                取得日: ${escapeHtml(cert.acquiredDate || "-")}
               </li>
             `
             )
