@@ -12,18 +12,22 @@
     <main class="container">
       <section class="card">
         <h1>タイピング計測</h1>
-        <p>ボタンを押して 10 秒間のタイプ数を計測します。</p>
-        <div class="typing-controls">
-          <button id="start-btn" type="button">計測スタート</button>
-          <input id="typing-input" type="text" placeholder="ここに入力" disabled />
-        </div>
-        <p id="typing-status">ステータス: 待機中</p>
-        <p id="typing-result">結果: -</p>
+        <p>JSONファイルに保存された計測データを折れ線グラフで表示します。</p>
+        <label for="typing-period-select">表示期間:</label>
+        <select id="typing-period-select">
+          <option value="7">直近7日</option>
+          <option value="30" selected>直近30日</option>
+          <option value="90">直近90日</option>
+          <option value="all">全期間</option>
+        </select>
+        <p id="typing-status">ステータス: 読み込み中...</p>
+        <canvas id="typing-metrics-chart" aria-label="タイピング計測グラフ" role="img"></canvas>
       </section>
     </main>
 
     <div id="site-footer"></div>
     <script src="../assets/js/layout.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="../assets/js/typing.js"></script>
   </body>
 </html>
