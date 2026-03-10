@@ -129,29 +129,6 @@
               pointStyle: 'line',
             },
           },
-          tooltip: {
-            callbacks: {
-              afterBody(tooltipItems) {
-                if (!Array.isArray(tooltipItems) || tooltipItems.length === 0) {
-                  return [];
-                }
-
-                const pointIndex = tooltipItems[0].dataIndex;
-                const metrics = history[pointIndex];
-                if (!metrics || !Number.isFinite(metrics.totalChars) || metrics.totalChars <= 0) {
-                  return ['正タイプ率: -', '誤タイプ率: -'];
-                }
-
-                const correctRate = (metrics.correctChars / metrics.totalChars) * 100;
-                const errorRate = (metrics.errorChars / metrics.totalChars) * 100;
-
-                return [
-                  `正タイプ率: ${correctRate.toFixed(1)}%`,
-                  `誤タイプ率: ${errorRate.toFixed(1)}%`,
-                ];
-              },
-            },
-          },
         },
         scales: {
           yInput: {
