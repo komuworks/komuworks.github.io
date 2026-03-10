@@ -12,11 +12,11 @@ GitHub Pages 向けの静的サイトです（HTML/CSS/Vanilla JS）。
   - `assets/js/blog.js`: `data/posts.json` を読み込み、一覧表示・詳細表示・タグ絞り込みを制御。
   - `data/posts.json`: ブログ記事データ本体。
 - タイピング
-  - `typing/index.html`: タイピング計測グラフ表示ページ（クリックで詳細へ遷移）。
+  - `typing/index.html`: タイピング記録グラフ表示ページ（クリックで詳細へ遷移）。
   - `typing/detail.html`: 日別のタイピング詳細表示ページ。
   - `assets/js/typing.js`: 計測データJSONの読み込み、期間フィルタ、グラフ描画、詳細ページ遷移を制御。
   - `assets/js/typing-detail.js`: 指定日の詳細データ表示（率/WPM/KPM算出）を制御。
-  - `assets/data/typing-metrics.json`: タイピング計測データ本体（計測時間と履歴）。
+  - `assets/data/typing-metrics.json`: タイピング記録データ本体（計測時間と履歴）。
 - 共通
   - `assets/js/layout.js`: ヘッダー／フッターの共通描画。
   - `assets/css/style.css`: 全ページ共通スタイル。
@@ -61,7 +61,7 @@ GitHub Pages 向けの静的サイトです（HTML/CSS/Vanilla JS）。
 - 例: 「直近7日」は「本日を含む過去7日間」のデータを表示します。
 - 選択期間内に該当データがない場合は、画面上に「現在日付基準で対象なし」のステータスを表示します。
 
-## タイピング計測データの保存先とリセット手順
+## タイピング記録データの保存先とリセット手順
 
 - 現行実装の計測データ保存先は `localStorage` ではなく `assets/data/typing-metrics.json` です。
 - そのため `localStorage` キーは現状未使用（定義なし）です。

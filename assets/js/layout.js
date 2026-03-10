@@ -14,7 +14,7 @@
             <ul>
               <li><a href="${basePath}index.html">プロフィールTOP</a></li>
               <li><a href="${basePath}blog/index.html">記事一覧</a></li>
-              <li><a href="${basePath}typing/index.html">タイピング計測</a></li>
+              <li><a href="${basePath}typing/index.html">タイピング記録</a></li>
             </ul>
           </nav>
         </div>
