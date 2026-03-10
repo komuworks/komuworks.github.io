@@ -7,13 +7,13 @@ GitHub Pages 向けの静的サイトです（HTML/CSS/Vanilla JS）。
 - TOP（プロフィール）
   - `index.html`: サイトの入口ページ。
 - ブログ
-  - `blog/index.html`: 記事一覧ページ（タグ絞り込みUIを表示）。
-  - `blog/post.html`: 記事詳細ページ（クエリ `?id=...` で対象記事を表示）。
-  - `assets/js/blog.js`: `data/posts.json` を読み込み、一覧表示・詳細表示・タグ絞り込みを制御。
-  - `data/posts.json`: ブログ記事データ本体。
+  - `pages/blog/index.html`: 記事一覧ページ（タグ絞り込みUIを表示）。
+  - `pages/blog/post.html`: 記事詳細ページ（クエリ `?id=...` で対象記事を表示）。
+  - `assets/js/blog.js`: `assets/data/posts.json` を読み込み、一覧表示・詳細表示・タグ絞り込みを制御。
+  - `assets/data/posts.json`: ブログ記事データ本体。
 - タイピング
-  - `typing/index.html`: タイピング記録グラフ表示ページ（クリックで詳細へ遷移）。
-  - `typing/detail.html`: 日別のタイピング詳細表示ページ。
+  - `pages/typing/index.html`: タイピング記録グラフ表示ページ（クリックで詳細へ遷移）。
+  - `pages/typing/detail.html`: 日別のタイピング詳細表示ページ。
   - `assets/js/typing.js`: 計測データJSONの読み込み、期間フィルタ、グラフ描画、詳細ページ遷移を制御。
   - `assets/js/typing-detail.js`: 指定日の詳細データ表示（率/WPM/KPM算出）を制御。
   - `assets/data/typing-metrics.json`: タイピング記録データ本体（計測時間と履歴）。
@@ -21,9 +21,9 @@ GitHub Pages 向けの静的サイトです（HTML/CSS/Vanilla JS）。
   - `assets/js/layout.js`: ヘッダー／フッターの共通描画。
   - `assets/css/style.css`: 全ページ共通スタイル。
 
-## ブログ記事追加手順（`data/posts.json`）
+## ブログ記事追加手順（`assets/data/posts.json`）
 
-1. `data/posts.json` を開き、配列の末尾に新しい記事オブジェクトを追加する。
+1. `assets/data/posts.json` を開き、配列の末尾に新しい記事オブジェクトを追加する。
 2. 追加後、JSONのカンマ位置や配列構造が壊れていないことを確認する。
 3. ページ表示時に `assets/js/blog.js` が日付降順で並び替え、`title` から自動でslug（URL用ID）を生成するため、slugの手動入力は不要。
 
@@ -53,11 +53,11 @@ GitHub Pages 向けの静的サイトです（HTML/CSS/Vanilla JS）。
 ### 文字列描画時の注意（HTMLタグを含む場合）
 
 - `assets/js/blog.js` では、記事タイトル・要約・タグ・本文を `textContent` ベースで描画しています。
-- そのため `data/posts.json` の各文字列に `<b>`, `<script>` などのHTMLタグが含まれていても、タグとして解釈されず文字列のまま表示されます。
+- そのため `assets/data/posts.json` の各文字列に `<b>`, `<script>` などのHTMLタグが含まれていても、タグとして解釈されず文字列のまま表示されます。
 
 ## タイピング期間フィルタの仕様
 
-- `typing/index.html` の「直近7日 / 30日 / 90日」は **現在日付（当日0:00）** を基準に絞り込みます。
+- `pages/typing/index.html` の「直近7日 / 30日 / 90日」は **現在日付（当日0:00）** を基準に絞り込みます。
 - 例: 「直近7日」は「本日を含む過去7日間」のデータを表示します。
 - 選択期間内に該当データがない場合は、画面上に「現在日付基準で対象なし」のステータスを表示します。
 
@@ -116,15 +116,15 @@ GitHub Pages 向けの静的サイトです（HTML/CSS/Vanilla JS）。
 
 ## プロフィールTOPのデータ運用方法
 
-プロフィールTOPは `data/profile.json` を編集することで内容を更新できます。`index.html` はデータ表示枠のみ持ち、描画は `assets/js/profile.js` が担当します。
+プロフィールTOPは `assets/data/profile.json` を編集することで内容を更新できます。`index.html` はデータ表示枠のみ持ち、描画は `assets/js/profile.js` が担当します。
 
 ### 管理ファイル
 
-- `data/profile.json`: プロフィール本体（自己紹介 / スキルセット / 保有資格 / 個人目標）
+- `assets/data/profile.json`: プロフィール本体（自己紹介 / スキルセット / 保有資格 / 個人目標）
 - `assets/js/profile.js`: JSON読み込み、資格の有効期限判定、画面描画
 - `index.html`: 各セクションの表示領域
 
-### `data/profile.json` の構造
+### `assets/data/profile.json` の構造
 
 - `selfIntroduction`
   - `name`: 名前
@@ -157,6 +157,6 @@ GitHub Pages 向けの静的サイトです（HTML/CSS/Vanilla JS）。
 
 ### 更新手順
 
-1. `data/profile.json` を編集する。
+1. `assets/data/profile.json` を編集する。
 2. 日付形式（`YYYY-MM-DD`）とカンマ位置を確認する。
 3. ローカル表示または GitHub Pages 反映後、プロフィールTOPを確認する。

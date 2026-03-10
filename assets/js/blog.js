@@ -1,5 +1,5 @@
 (() => {
-  const POSTS_PATH = '../data/posts.json';
+  const POSTS_PATH = '../../assets/data/posts.json';
 
   const slugify = (title) =>
     title
