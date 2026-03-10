@@ -9,14 +9,31 @@
       .replace(/'/g, "&#039;");
   }
 
+  function buildLayeredStar(frontAsset) {
+    return `<span class="skill-star-stack"><img src="${basePath}assets/star-empty.svg" alt="" class="skill-star-icon skill-star-icon-back" /><img src="${basePath}assets/${frontAsset}" alt="" class="skill-star-icon skill-star-icon-front" /></span>`;
+  }
+
   function levelToStars(level) {
     const normalized = Math.max(1, Math.min(10, Number(level) || 1));
     const starsOutOfFive = normalized / 2;
     const fullStars = Math.floor(starsOutOfFive);
     const hasHalfStar = starsOutOfFive % 1 !== 0;
     const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+    const stars = [];
 
-    return "★".repeat(fullStars) + (hasHalfStar ? "☆" : "") + "・".repeat(emptyStars);
+    for (let i = 0; i < fullStars; i += 1) {
+      stars.push(buildLayeredStar("star-full.svg"));
+    }
+
+    if (hasHalfStar) {
+      stars.push(buildLayeredStar("star-half.svg"));
+    }
+
+    for (let i = 0; i < emptyStars; i += 1) {
+      stars.push(buildLayeredStar("star-empty.svg"));
+    }
+
+    return `<span class="skill-star-rating" aria-label="${normalized} / 10">${stars.join("")}</span>`;
   }
 
   function isCertificationValid(certification, today) {
