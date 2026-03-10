@@ -47,7 +47,7 @@
     const tags = ['すべて', ...new Set(posts.flatMap((post) => post.tags))];
 
     const renderTags = () => {
-      tagContainer.innerHTML = '';
+      tagContainer.textContent = '';
       tags.forEach((tag) => {
         tagContainer.appendChild(createTagButton(tag, activeTag));
       });
@@ -57,7 +57,7 @@
       const targetPosts =
         activeTag === 'すべて' ? posts : posts.filter((post) => post.tags.includes(activeTag));
 
-      listContainer.innerHTML = '';
+      listContainer.textContent = '';
 
       if (targetPosts.length === 0) {
         const empty = document.createElement('p');
@@ -72,14 +72,28 @@
       targetPosts.forEach((post) => {
         const li = document.createElement('li');
         li.className = 'blog-post-item';
-        li.innerHTML = `
-          <article>
-            <p class="blog-date">${formatDate(post.date)}</p>
-            <h2><a href="./post.html?id=${encodeURIComponent(post.slug)}">${post.title}</a></h2>
-            <p>${post.summary}</p>
-            <p class="blog-tags">${post.tags.map((tag) => `#${tag}`).join(' ')}</p>
-          </article>
-        `;
+
+        const article = document.createElement('article');
+
+        const date = document.createElement('p');
+        date.className = 'blog-date';
+        date.textContent = formatDate(post.date);
+
+        const title = document.createElement('h2');
+        const link = document.createElement('a');
+        link.href = `./post.html?id=${encodeURIComponent(post.slug)}`;
+        link.textContent = post.title;
+        title.appendChild(link);
+
+        const summary = document.createElement('p');
+        summary.textContent = post.summary;
+
+        const tagsElement = document.createElement('p');
+        tagsElement.className = 'blog-tags';
+        tagsElement.textContent = post.tags.map((tag) => `#${tag}`).join(' ');
+
+        article.append(date, title, summary, tagsElement);
+        li.appendChild(article);
         ul.appendChild(li);
       });
 
@@ -108,30 +122,60 @@
     const post = posts.find((entry) => entry.slug === targetSlug);
 
     if (!post) {
-      articleContainer.innerHTML = `
-        <article>
-          <h1>記事が見つかりませんでした</h1>
-          <p><a href="./index.html">記事一覧に戻る</a></p>
-        </article>
-      `;
+      articleContainer.textContent = '';
+      const article = document.createElement('article');
+      const title = document.createElement('h1');
+      title.textContent = '記事が見つかりませんでした';
+      const backWrap = document.createElement('p');
+      const backLink = document.createElement('a');
+      backLink.href = './index.html';
+      backLink.textContent = '記事一覧に戻る';
+      backWrap.appendChild(backLink);
+      article.append(title, backWrap);
+      articleContainer.appendChild(article);
       return;
     }
 
-    const paragraphs = post.body
-      .split(/\n\s*\n/g)
-      .map((line) => `<p>${line.replace(/\n/g, '<br>')}</p>`)
-      .join('');
+    articleContainer.textContent = '';
 
-    articleContainer.innerHTML = `
-      <article>
-        <p class="blog-date">${formatDate(post.date)}</p>
-        <h1>${post.title}</h1>
-        <p class="blog-tags">${post.tags.map((tag) => `#${tag}`).join(' ')}</p>
-        <p class="blog-summary">${post.summary}</p>
-        <div class="blog-body">${paragraphs}</div>
-        <p><a href="./index.html">← 記事一覧に戻る</a></p>
-      </article>
-    `;
+    const article = document.createElement('article');
+
+    const date = document.createElement('p');
+    date.className = 'blog-date';
+    date.textContent = formatDate(post.date);
+
+    const title = document.createElement('h1');
+    title.textContent = post.title;
+
+    const tags = document.createElement('p');
+    tags.className = 'blog-tags';
+    tags.textContent = post.tags.map((tag) => `#${tag}`).join(' ');
+
+    const summary = document.createElement('p');
+    summary.className = 'blog-summary';
+    summary.textContent = post.summary;
+
+    const body = document.createElement('div');
+    body.className = 'blog-body';
+    post.body.split(/\n\s*\n/g).forEach((paragraphText) => {
+      const paragraph = document.createElement('p');
+      paragraphText.split('\n').forEach((line, index) => {
+        if (index > 0) {
+          paragraph.appendChild(document.createElement('br'));
+        }
+        paragraph.appendChild(document.createTextNode(line));
+      });
+      body.appendChild(paragraph);
+    });
+
+    const backWrap = document.createElement('p');
+    const backLink = document.createElement('a');
+    backLink.href = './index.html';
+    backLink.textContent = '← 記事一覧に戻る';
+    backWrap.appendChild(backLink);
+
+    article.append(date, title, tags, summary, body, backWrap);
+    articleContainer.appendChild(article);
   };
 
   fetch(POSTS_PATH)
@@ -149,7 +193,10 @@
     .catch((error) => {
       const area = document.getElementById('blog-list') || document.getElementById('post-detail');
       if (area) {
-        area.innerHTML = `<p>${error.message}</p>`;
+        area.textContent = '';
+        const message = document.createElement('p');
+        message.textContent = error.message;
+        area.appendChild(message);
       }
     });
 })();
