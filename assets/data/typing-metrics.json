@@ -4,32 +4,32 @@
     {
       "date": "2026-03-09",
       "totalChars": 905,
-      "correctChars": 1520,
-      "errorChars": 59
+      "correctKeys": 1520,
+      "errorKeys": 59
     },
     {
       "date": "2026-03-10",
       "totalChars": 858,
-      "correctChars": 1440,
-      "errorChars": 64
+      "correctKeys": 1440,
+      "errorKeys": 64
     },
     {
       "date": "2026-03-11",
       "totalChars": 874,
-      "correctChars": 1481,
-      "errorChars": 56
+      "correctKeys": 1481,
+      "errorKeys": 56
     },
     {
       "date": "2026-03-12",
       "totalChars": 907,
-      "correctChars": 1520,
-      "errorChars": 47
+      "correctKeys": 1520,
+      "errorKeys": 47
     },
     {
       "date": "2026-03-13",
       "totalChars": 900,
-      "correctChars": 1530,
-      "errorChars": 45
+      "correctKeys": 1530,
+      "errorKeys": 45
     }
   ]
 }

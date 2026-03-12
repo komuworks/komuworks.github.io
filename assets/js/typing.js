@@ -13,6 +13,7 @@
   let chart = null;
   let allHistory = [];
   let sessionMinutes = 5;
+  let validationWarnings = [];
 
   const parseDate = (value) => {
     const date = new Date(`${value}T00:00:00`);
@@ -30,23 +31,50 @@
     });
   };
 
+  const isNonNegativeNumber = (value) => Number.isFinite(value) && value >= 0;
+
   const validateMetrics = (data) => {
     const historyRaw = Array.isArray(data) ? data : data?.history;
-
     if (!Array.isArray(historyRaw)) {
-      return [];
+      return { history: [], warnings: ['history が配列ではありません。'] };
     }
 
-    return historyRaw
-      .filter(
-        (item) =>
-          item &&
-          typeof item.date === 'string' &&
-          Number.isFinite(item.totalChars) &&
-          Number.isFinite(item.correctChars) &&
-          Number.isFinite(item.errorChars),
-      )
-      .sort((a, b) => (a.date > b.date ? 1 : -1));
+    const warnings = [];
+    const history = historyRaw.filter((item, index) => {
+      const hasRequiredFields =
+        item &&
+        typeof item.date === 'string' &&
+        isNonNegativeNumber(item.totalChars) &&
+        isNonNegativeNumber(item.correctKeys) &&
+        isNonNegativeNumber(item.errorKeys);
+
+      if (!hasRequiredFields) {
+        warnings.push(`index ${index}: 必須項目不足または数値が不正のため除外しました。`);
+        return false;
+      }
+
+      const parsedDate = parseDate(item.date);
+      if (!parsedDate) {
+        warnings.push(`index ${index}: date が不正なため除外しました。`);
+        return false;
+      }
+
+      const totalKeys = item.correctKeys + item.errorKeys;
+      if (totalKeys <= 0) {
+        warnings.push(`index ${index}: 総タイプ数(correctKeys + errorKeys)が0以下のため除外しました。`);
+        return false;
+      }
+
+      if (item.totalChars > item.correctKeys) {
+        warnings.push(`index ${index}: totalChars が correctKeys を超えているため除外しました。`);
+        return false;
+      }
+
+      return true;
+    });
+
+    history.sort((a, b) => (a.date > b.date ? 1 : -1));
+    return { history, warnings };
   };
 
   const parseSessionMinutes = (data) => {
@@ -84,8 +112,8 @@
   };
 
   const calcCorrectRate = (item) => {
-    const totalTypes = item.correctChars + item.errorChars;
-    return totalTypes > 0 ? (item.correctChars / totalTypes) * 100 : 0;
+    const totalKeys = item.correctKeys + item.errorKeys;
+    return totalKeys > 0 ? (item.correctKeys / totalKeys) * 100 : 0;
   };
 
   const renderChart = (history) => {
@@ -102,7 +130,7 @@
         datasets: [
           {
             label: '正タイプ数',
-            data: history.map((item) => item.correctChars),
+            data: history.map((item) => item.correctKeys),
             yAxisID: 'yType',
             borderColor: '#2ecc71',
             backgroundColor: 'rgba(46,204,113,0.2)',
@@ -111,7 +139,7 @@
           },
           {
             label: '総タイプ数',
-            data: history.map((item) => item.correctChars + item.errorChars),
+            data: history.map((item) => item.correctKeys + item.errorKeys),
             yAxisID: 'yType',
             borderColor: '#3498db',
             backgroundColor: 'rgba(52,152,219,0.2)',
@@ -192,6 +220,13 @@
     });
   };
 
+  const buildStatusMessage = (baseMessage) => {
+    if (validationWarnings.length === 0) {
+      return baseMessage;
+    }
+    return `${baseMessage}（警告: ${validationWarnings.length}件の不整合データを除外）`;
+  };
+
   const updateByPeriod = () => {
     const filtered = filterByPeriod(allHistory, periodSelect.value);
     if (filtered.length === 0) {
@@ -199,12 +234,12 @@
         chart.destroy();
         chart = null;
       }
-      status.textContent = 'ステータス: 現在日付基準で対象なし（選択期間に表示できる計測データがありません）。';
+      status.textContent = buildStatusMessage('ステータス: 現在日付基準で対象なし（選択期間に表示できる計測データがありません）。');
       return;
     }
 
     renderChart(filtered);
-    status.textContent = `ステータス: ${filtered.length}件のデータを表示中（${sessionMinutes}分計測）`;
+    status.textContent = buildStatusMessage(`ステータス: ${filtered.length}件のデータを表示中（${sessionMinutes}分計測）`);
   };
 
   const loadAndRender = async () => {
@@ -215,11 +250,13 @@
       }
 
       const rawData = await response.json();
-      allHistory = validateMetrics(rawData);
+      const validated = validateMetrics(rawData);
+      allHistory = validated.history;
+      validationWarnings = validated.warnings;
       sessionMinutes = parseSessionMinutes(rawData);
 
       if (allHistory.length === 0) {
-        status.textContent = 'ステータス: 表示できる計測データがありません。';
+        status.textContent = buildStatusMessage('ステータス: 表示できる計測データがありません。');
         return;
       }
 
