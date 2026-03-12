@@ -129,7 +129,7 @@
       const backWrap = document.createElement('p');
       const backLink = document.createElement('a');
       backLink.href = './index.html';
-      backLink.textContent = '記事一覧に戻る';
+      backLink.textContent = 'Back to Articles';
       backWrap.appendChild(backLink);
       article.append(title, backWrap);
       articleContainer.appendChild(article);
@@ -171,7 +171,7 @@
     const backWrap = document.createElement('p');
     const backLink = document.createElement('a');
     backLink.href = './index.html';
-    backLink.textContent = '← 記事一覧に戻る';
+    backLink.textContent = '← Back to Articles';
     backWrap.appendChild(backLink);
 
     article.append(date, title, tags, summary, body, backWrap);

@@ -10,12 +10,12 @@
       <header class="site-header">
         <div class="header-inner">
           <p class="logo">komuworks</p>
-          <nav class="site-nav" aria-label="グローバルナビゲーション">
+          <nav class="site-nav" aria-label="Global Navigation">
             <ul>
-              <li><a href="${basePath}index.html">ホーム</a></li>
-              <li><a href="${basePath}pages/profile/index.html">プロフィール</a></li>
-              <li><a href="${basePath}pages/blog/index.html">記事一覧</a></li>
-              <li><a href="${basePath}pages/typing/index.html">タイピング記録</a></li>
+              <li><a href="${basePath}index.html">Home</a></li>
+              <li><a href="${basePath}pages/profile/index.html">Profile</a></li>
+              <li><a href="${basePath}pages/blog/index.html">Articles</a></li>
+              <li><a href="${basePath}pages/typing/index.html">Typing Log</a></li>
             </ul>
           </nav>
         </div>

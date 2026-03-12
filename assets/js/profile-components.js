@@ -121,7 +121,7 @@
           .map((cert) => {
             const detailLink =
               includeDetailLink && cert?.id
-                ? `<a href="${detailBasePath}certification-detail.html?id=${encodeURIComponent(cert.id)}">詳細を見る</a>`
+                ? `<a href="${detailBasePath}certification-detail.html?id=${encodeURIComponent(cert.id)}">View details</a>`
                 : '';
 
             return `
@@ -155,7 +155,7 @@
           .map((goal, index) => {
             const learning = learningItems[index];
             const learningLink = learning?.id
-              ? `<a href="${basePath}pages/profile/learning-detail.html?id=${encodeURIComponent(learning.id)}">直近の学習内容を見る</a>`
+              ? `<a href="${basePath}pages/profile/learning-detail.html?id=${encodeURIComponent(learning.id)}">View latest learning detail</a>`
               : '学習内容は未登録です。';
 
             return `
@@ -163,7 +163,7 @@
                 <strong>${toDisplayText(goal?.title)}</strong>
                 <p>${toDisplayText(goal?.summary)}</p>
                 <p>
-                  <a href="${basePath}pages/profile/goal-detail.html?id=${encodeURIComponent(goal?.id || '')}">個人目標詳細を見る</a> /
+                  <a href="${basePath}pages/profile/goal-detail.html?id=${encodeURIComponent(goal?.id || '')}">View personal goal detail</a> /
                   ${learningLink}
                 </p>
               </li>

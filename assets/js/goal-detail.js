@@ -39,7 +39,7 @@
           <dt>目標期限</dt><dd>${goal.targetPeriod || '-'}</dd>
           <dt>概要</dt><dd>${goal.summary || '-'}</dd>
         </dl>
-        <h3>詳細</h3>
+        <h3>Details</h3>
         <ul>${detailItems}</ul>
       `;
 
