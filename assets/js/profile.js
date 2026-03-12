@@ -1,60 +1,16 @@
 (() => {
-  const DEFAULT_TEXT = '-';
-  const STAR_ASSETS = {
-    full: 'star-full.svg',
-    half: 'star-half.svg',
-    empty: 'star-empty.svg',
-    frame: 'star-frame.svg',
-  };
-
   const basePath = document.body?.dataset?.basePath || './';
+  const components = window.ProfileComponents;
 
-  const escapeHtml = (value) =>
-    String(value)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;');
+  if (!components) {
+    return;
+  }
 
-  const toDisplayText = (value) => (value == null || value === '' ? DEFAULT_TEXT : escapeHtml(value));
-  const normalizeArray = (value) => (Array.isArray(value) ? value : []);
+  const { toDisplayText, renderSkillTable, renderCertifications, renderGoalList } = components;
+
   const clampLimit = (value, fallback) => {
     const parsed = Number(value);
     return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
-  };
-
-  const buildLayeredStar = (backAsset) =>
-    `<span class="skill-star-stack"><img src="${basePath}assets/${backAsset}" alt="" class="skill-star-icon skill-star-icon-back" /><img src="${basePath}assets/${STAR_ASSETS.frame}" alt="" class="skill-star-icon skill-star-icon-front" /></span>`;
-
-  const levelToStars = (level) => {
-    const normalized = Math.max(1, Math.min(10, Number(level) || 1));
-    const starsOutOfFive = normalized / 2;
-    const fullStars = Math.floor(starsOutOfFive);
-    const hasHalfStar = starsOutOfFive % 1 !== 0;
-    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
-
-    const stars = [
-      ...Array.from({ length: fullStars }, () => buildLayeredStar(STAR_ASSETS.full)),
-      ...(hasHalfStar ? [buildLayeredStar(STAR_ASSETS.half)] : []),
-      ...Array.from({ length: emptyStars }, () => buildLayeredStar(STAR_ASSETS.empty)),
-    ];
-
-    return `<span class="skill-star-rating" aria-label="${normalized} / 10">${stars.join('')}</span>`;
-  };
-
-  const isCertificationValid = (certification, today) => {
-    if (!certification?.expiryDate) {
-      return true;
-    }
-
-    const expiry = new Date(certification.expiryDate);
-    if (Number.isNaN(expiry.getTime())) {
-      return true;
-    }
-
-    expiry.setHours(23, 59, 59, 999);
-    return expiry >= today;
   };
 
   const renderIntro = (intro = {}) => `
@@ -65,86 +21,7 @@
     </dl>
   `;
 
-  const renderSkillCategories = (categories) =>
-    normalizeArray(categories)
-      .map(
-        (category) => `
-          <section class="skill-category">
-            <h3>${toDisplayText(category?.name)}</h3>
-            <table class="skill-table">
-              <thead>
-                <tr>
-                  <th>スキル</th>
-                  <th>実務年数</th>
-                  <th>レベル</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${normalizeArray(category?.skills)
-                  .map(
-                    (skill) => `
-                      <tr>
-                        <td>${toDisplayText(skill?.name)}</td>
-                        <td>${toDisplayText(skill?.years)}年</td>
-                        <td>${levelToStars(skill?.level)}</td>
-                      </tr>
-                    `,
-                  )
-                  .join('')}
-              </tbody>
-            </table>
-          </section>
-        `,
-      )
-      .join('');
-
-  const renderCertifications = (certifications, today) => {
-    const validCertifications = normalizeArray(certifications).filter((cert) => isCertificationValid(cert, today));
-
-    if (validCertifications.length === 0) {
-      return '<p>表示可能な資格はありません。</p>';
-    }
-
-    return `
-      <ul class="certification-list">
-        ${validCertifications
-          .map(
-            (cert) => `
-              <li>
-                <strong>${toDisplayText(cert?.name)}</strong><br />
-                取得日: ${toDisplayText(cert?.acquiredDate)}
-              </li>
-            `,
-          )
-          .join('')}
-      </ul>
-    `;
-  };
-
-  const renderGoalList = (goals) => {
-    const items = normalizeArray(goals);
-    if (items.length === 0) {
-      return '<p>個人目標はありません。</p>';
-    }
-
-    return `
-      <ul class="goal-list">
-        ${items
-          .map(
-            (goal) => `
-              <li>
-                <a href="${basePath}pages/profile/goal-detail.html?id=${encodeURIComponent(goal.id || '')}">${toDisplayText(goal?.title)}</a>
-                <p>${toDisplayText(goal?.summary)}</p>
-              </li>
-            `,
-          )
-          .join('')}
-      </ul>
-    `;
-  };
-
-  const renderSectionLink = () => `<p><a href="${basePath}pages/profile/index.html">一覧を見る</a></p>`;
-
+  const renderSectionLink = (path) => `<p><a href="${basePath}pages/profile/${path}">一覧を見る</a></p>`;
   const getElement = (id) => document.getElementById(id);
 
   const renderProfile = (data) => {
@@ -164,14 +41,10 @@
 
     introContainer.innerHTML = renderIntro(data?.selfIntroduction);
     skillContainer.innerHTML =
-      renderSkillCategories(normalizeArray(data?.skillSet?.categories).slice(0, skillLimit)) + renderSectionLink();
-
-    const activeCertifications = normalizeArray(data?.certifications)
-      .filter((cert) => isCertificationValid(cert, new Date()))
-      .slice(0, certificationLimit);
-    certContainer.innerHTML = renderCertifications(activeCertifications, new Date()) + renderSectionLink();
-
-    goalContainer.innerHTML = renderGoalList(normalizeArray(data?.personalGoals).slice(0, goalLimit)) + renderSectionLink();
+      renderSkillTable(data?.skillSet?.categories, { categoryLimit: skillLimit, basePath }) + renderSectionLink('skill-set.html');
+    certContainer.innerHTML = renderCertifications(data?.certifications, { limit: certificationLimit }) + renderSectionLink('certifications.html');
+    goalContainer.innerHTML =
+      renderGoalList(data?.personalGoals, { limit: goalLimit, basePath, learnings: data?.recentLearnings }) + renderSectionLink('personal-goals.html');
   };
 
   const renderError = () => {
