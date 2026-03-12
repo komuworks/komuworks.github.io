@@ -186,7 +186,8 @@ button {
 }
 
 .skill-table {
-  width: 100%;
+  width: fit-content;
+  max-width: 100%;
   border-collapse: collapse;
   margin-top: 0.5rem;
 }
@@ -196,6 +197,18 @@ button {
   border: 1px solid var(--border);
   padding: 0.5rem;
   text-align: left;
+}
+
+.skill-table th:nth-child(3),
+.skill-table td:nth-child(3),
+.skill-table th:nth-child(4),
+.skill-table td:nth-child(4) {
+  white-space: nowrap;
+}
+
+.skill-category-cell {
+  vertical-align: top;
+  font-weight: 700;
 }
 
 .certification-list {

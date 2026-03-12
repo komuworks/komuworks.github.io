@@ -1,0 +1,24 @@
+{
+  "certifications": [
+    {
+      "name": "普通自動車第一種運転免許 取得",
+      "acquiredDate": "2022-08",
+      "expiryDate": "2028-07"
+    },
+    {
+      "name": "独立行政法人情報処理推進機構 主催　基本情報技術者試験 合格",
+      "acquiredDate": "2022-11",
+      "expiryDate": null
+    },
+    {
+      "name": "Amazon Web Services 主催　AWS Certified Cloud Practitioner 認定",
+      "acquiredDate": "2023-10",
+      "expiryDate": "2026-10"
+    },
+    {
+      "name": "JSTQB 主催　JSTQB認定テスト技術者資格 Foundation Level 認定",
+      "acquiredDate": "2025-10",
+      "expiryDate": null
+    }
+  ]
+}
