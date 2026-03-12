@@ -119,18 +119,27 @@
       <ul class="certification-list">
         ${items
           .map((cert) => {
-            const detailLink =
+            const detailHref =
               includeDetailLink && cert?.id
-                ? `<a href="${detailBasePath}certification-detail.html?id=${encodeURIComponent(cert.id)}">View details</a>`
+                ? `${detailBasePath}certification-detail.html?id=${encodeURIComponent(cert.id)}`
                 : '';
 
             return `
-              <li>
-                <span class="certification-row">
-                  <span class="certification-date">${toDisplayText(cert?.acquiredDate)}</span>
-                  <strong class="certification-name">${toDisplayText(cert?.name)}</strong>
-                </span>
-                ${detailLink ? `<br />${detailLink}` : ''}
+              <li class="interactive-list-item">
+                ${
+                  detailHref
+                    ? `<a class="interactive-row-link" href="${detailHref}">
+                        <span class="certification-row">
+                          <span class="certification-date">${toDisplayText(cert?.acquiredDate)}</span>
+                          <strong class="certification-name">${toDisplayText(cert?.name)}</strong>
+                        </span>
+                        <span class="interactive-row-icon" aria-hidden="true">→</span>
+                      </a>`
+                    : `<span class="certification-row">
+                        <span class="certification-date">${toDisplayText(cert?.acquiredDate)}</span>
+                        <strong class="certification-name">${toDisplayText(cert?.name)}</strong>
+                      </span>`
+                }
               </li>
             `;
           })
@@ -140,31 +149,69 @@
   };
 
   const renderGoalList = (goals, options = {}) => {
-    const { limit, basePath = './', learnings = [] } = options;
+    const { limit, basePath = './' } = options;
     const source = normalizeArray(goals);
     const items = Number.isInteger(limit) && limit > 0 ? source.slice(0, limit) : source;
     if (items.length === 0) {
       return '<p>個人目標はありません。</p>';
     }
 
-    const learningItems = normalizeArray(learnings);
-
     return `
       <ul class="goal-list">
         ${items
-          .map((goal, index) => {
-            const learning = learningItems[index];
-            const learningLink = learning?.id
-              ? `<a href="${basePath}pages/profile/learning-detail.html?id=${encodeURIComponent(learning.id)}">View latest learning detail</a>`
-              : '学習内容は未登録です。';
+          .map((goal) => {
+            const goalDetailHref = `${basePath}pages/profile/goal-detail.html?id=${encodeURIComponent(goal?.id || '')}`;
 
             return `
-              <li>
-                <strong>${toDisplayText(goal?.title)}</strong>
+              <li class="interactive-list-item goal-item-card">
+                <a class="goal-primary-link" href="${goalDetailHref}">
+                  <strong>${toDisplayText(goal?.title)}</strong>
+                </a>
                 <p>${toDisplayText(goal?.summary)}</p>
-                <p>
-                  <a href="${basePath}pages/profile/goal-detail.html?id=${encodeURIComponent(goal?.id || '')}">View personal goal detail</a> /
-                  ${learningLink}
+                <p class="goal-action-row">
+                  <a class="goal-sub-link goal-inline-cta" href="${goalDetailHref}">詳細を見る→</a>
+                </p>
+              </li>
+            `;
+          })
+          .join('')}
+      </ul>
+    `;
+  };
+
+  const renderLearningList = (learnings, options = {}) => {
+    const { limit, basePath = './', goals = [] } = options;
+    const source = normalizeArray(learnings);
+    const items = Number.isInteger(limit) && limit > 0 ? source.slice(0, limit) : source;
+
+    if (items.length === 0) {
+      return '<p>学習内容はありません。</p>';
+    }
+
+    const goalMap = new Map(normalizeArray(goals).map((goal) => [goal?.id, goal]));
+
+    return `
+      <ul class="goal-list learning-list">
+        ${items
+          .map((learning) => {
+            const learningDetailHref = `${basePath}pages/profile/learning-detail.html?id=${encodeURIComponent(learning?.id || '')}`;
+            const relatedGoalIds = normalizeArray(learning?.goalIds).filter((goalId) => goalMap.has(goalId));
+            const relatedLinks = relatedGoalIds
+              .map((goalId) => {
+                const goal = goalMap.get(goalId);
+                return `<a class="goal-sub-link" href="${basePath}pages/profile/goal-detail.html?id=${encodeURIComponent(goalId)}">${toDisplayText(goal?.title)}</a>`;
+              })
+              .join('<span class="goal-action-divider">・</span>');
+
+            return `
+              <li class="interactive-list-item goal-item-card">
+                <a class="goal-primary-link" href="${learningDetailHref}">
+                  <strong>${toDisplayText(learning?.title)}</strong>
+                </a>
+                <p>${toDisplayText(learning?.summary)}</p>
+                ${relatedLinks ? `<p class="goal-action-row"><span class="learning-related-label">関連目標:</span>${relatedLinks}</p>` : ''}
+                <p class="goal-action-row">
+                  <a class="goal-sub-link goal-inline-cta" href="${learningDetailHref}">詳細を見る→</a>
                 </p>
               </li>
             `;
@@ -181,5 +228,6 @@
     renderSkillTable,
     renderCertifications,
     renderGoalList,
+    renderLearningList,
   };
 })();

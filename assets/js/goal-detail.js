@@ -1,5 +1,5 @@
 (() => {
-  const PROFILE_JSON_PATH = '../../assets/data/profile.json';
+  const PROFILE_JSON_PATH = '../../assets/data/personal-goals.json';
 
   const status = document.getElementById('goal-detail-status');
   const content = document.getElementById('goal-detail-content');
@@ -32,6 +32,15 @@
       }
 
       const detailItems = (Array.isArray(goal.detail) ? goal.detail : []).map((line) => `<li>${line}</li>`).join('');
+      const relatedLearnings = (Array.isArray(data?.recentLearnings) ? data.recentLearnings : []).filter((learning) =>
+        Array.isArray(learning?.goalIds) && learning.goalIds.includes(goal.id),
+      );
+      const relatedLearningLinks = relatedLearnings
+        .map(
+          (learning) =>
+            `<li><a href="./learning-detail.html?id=${encodeURIComponent(learning.id)}">${learning.title || '-'}</a></li>`,
+        )
+        .join('');
       content.innerHTML = `
         <h2>${goal.title || '-'}</h2>
         <dl class="profile-grid">
@@ -41,6 +50,7 @@
         </dl>
         <h3>Details</h3>
         <ul>${detailItems}</ul>
+        ${relatedLearningLinks ? `<h3>関連する学習</h3><ul>${relatedLearningLinks}</ul>` : ''}
       `;
 
       content.hidden = false;
