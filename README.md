@@ -8,6 +8,13 @@ GitHub Pages 向けの静的サイトです（HTML/CSS/Vanilla JS）。
   - `index.html`: サイトの入口ページ（ホーム）。
 - プロフィール
   - `pages/profile/index.html`: プロフィールTOPページ。
+  - `pages/profile/skill-set.html`: スキルセット一覧ページ。
+  - `pages/profile/certifications.html`: 保有資格一覧ページ。
+  - `pages/profile/personal-goals.html`: 個人目標・学習一覧ページ。
+  - `assets/js/profile.js`: プロフィールTOP向けのデータ読み込みと描画制御。
+  - `assets/js/skill-set-list.js`: スキルセット一覧ページ向け描画制御。
+  - `assets/js/certification-list.js`: 保有資格一覧ページ向け描画制御。
+  - `assets/js/personal-goal-list.js`: 個人目標・学習一覧ページ向け描画制御。
 - ブログ
   - `pages/blog/index.html`: 記事一覧ページ（タグ絞り込みUIを表示）。
   - `pages/blog/post.html`: 記事詳細ページ（クエリ `?id=...` で対象記事を表示）。
@@ -119,6 +126,8 @@ GitHub Pages 向けの静的サイトです（HTML/CSS/Vanilla JS）。
 ## プロフィールTOPのデータ運用方法
 
 プロフィールTOPは `assets/data/profile.json` を編集することで内容を更新できます。`pages/profile/index.html` はデータ表示枠のみ持ち、描画は `assets/js/profile.js` が担当します。
+
+※ 旧 `assets/js/profile-list.js` は未参照だったため削除し、一覧ページは `skill-set-list.js` / `certification-list.js` / `personal-goal-list.js` の個別スクリプトで運用します。
 
 ### 管理ファイル
 
