@@ -12,7 +12,8 @@
           <p class="logo">komuworks</p>
           <nav class="site-nav" aria-label="グローバルナビゲーション">
             <ul>
-              <li><a href="${basePath}index.html">プロフィールTOP</a></li>
+              <li><a href="${basePath}index.html">ホーム</a></li>
+              <li><a href="${basePath}pages/profile/index.html">プロフィール</a></li>
               <li><a href="${basePath}pages/blog/index.html">記事一覧</a></li>
               <li><a href="${basePath}pages/typing/index.html">タイピング記録</a></li>
             </ul>

@@ -4,8 +4,10 @@ GitHub Pages 向けの静的サイトです（HTML/CSS/Vanilla JS）。
 
 ## サイト構成とファイル役割
 
-- TOP（プロフィール）
-  - `index.html`: サイトの入口ページ。
+- ホーム
+  - `index.html`: サイトの入口ページ（ホーム）。
+- プロフィール
+  - `pages/profile/index.html`: プロフィールTOPページ。
 - ブログ
   - `pages/blog/index.html`: 記事一覧ページ（タグ絞り込みUIを表示）。
   - `pages/blog/post.html`: 記事詳細ページ（クエリ `?id=...` で対象記事を表示）。
@@ -116,13 +118,13 @@ GitHub Pages 向けの静的サイトです（HTML/CSS/Vanilla JS）。
 
 ## プロフィールTOPのデータ運用方法
 
-プロフィールTOPは `assets/data/profile.json` を編集することで内容を更新できます。`index.html` はデータ表示枠のみ持ち、描画は `assets/js/profile.js` が担当します。
+プロフィールTOPは `assets/data/profile.json` を編集することで内容を更新できます。`pages/profile/index.html` はデータ表示枠のみ持ち、描画は `assets/js/profile.js` が担当します。
 
 ### 管理ファイル
 
 - `assets/data/profile.json`: プロフィール本体（自己紹介 / スキルセット / 保有資格 / 個人目標）
 - `assets/js/profile.js`: JSON読み込み、資格の有効期限判定、画面描画
-- `index.html`: 各セクションの表示領域
+- `pages/profile/index.html`: 各セクションの表示領域
 
 ### `assets/data/profile.json` の構造
 
