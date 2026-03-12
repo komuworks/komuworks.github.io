@@ -91,8 +91,8 @@ GitHub Pages 向けの静的サイトです（HTML/CSS/Vanilla JS）。
     {
       "date": "2026-03-10",
       "totalChars": 858,
-      "correctChars": 1440,
-      "errorChars": 64
+      "correctKeys": 1440,
+      "errorKeys": 64
     }
   ]
 }
@@ -100,6 +100,27 @@ GitHub Pages 向けの静的サイトです（HTML/CSS/Vanilla JS）。
 
 - `sessionMinutes`: 1回あたりの計測時間（分）。WPM/KPM算出に使用。
 - `history[]`: 日別の計測結果。
+  - `date`: 計測日（`YYYY-MM-DD`）。
+  - `totalChars`: 入力文字数（完成した文字数）。
+  - `correctKeys`: 正タイプ数（正しく押下したキー数）。
+  - `errorKeys`: 誤タイプ数（誤って押下したキー数）。
+- 実装では `総タイプ数 = correctKeys + errorKeys` で統一して扱います。
+
+### WPM / KPM 算出
+
+- `WPM = totalChars / sessionMinutes`
+- `KPM = correctKeys / sessionMinutes`
+- `正タイプ率(%) = correctKeys / (correctKeys + errorKeys) * 100`
+- `誤タイプ率(%) = errorKeys / (correctKeys + errorKeys) * 100`
+
+### 整合性チェック（validateMetrics）
+
+`assets/js/typing.js` / `assets/js/typing-detail.js` では、以下に当てはまるデータを不整合として除外し、画面ステータスに警告件数を表示します。
+
+- 必須項目（`date`, `totalChars`, `correctKeys`, `errorKeys`）が欠けている。
+- 数値が負数または有限数でない。
+- `correctKeys + errorKeys <= 0`。
+- `totalChars > correctKeys`（入力文字数が正タイプ数を超えている）。
 
 ## GitHub Pages で公開する手順
 
