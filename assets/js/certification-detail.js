@@ -36,10 +36,8 @@
       content.innerHTML = `
         <h2>${toDisplayText(certification.name)}</h2>
         <dl class="profile-grid">
-          <dt>主催名</dt><dd>${toDisplayText(certification.organizer)}</dd>
-          <dt>資格名</dt><dd>${toDisplayText(certification.name)}</dd>
-          <dt>合格名</dt><dd>${toDisplayText(certification.result)}</dd>
           <dt>取得日</dt><dd>${toDisplayText(certification.acquiredDate)}</dd>
+          <dt>試験名</dt><dd>${toDisplayText(certification.organizer)}　${toDisplayText(certification.name)} ${toDisplayText(certification.result)}</dd>
         </dl>
       `;
 
