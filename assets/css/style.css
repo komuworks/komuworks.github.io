@@ -295,3 +295,45 @@ button {
 .detail-content h2 {
   margin-top: 0;
 }
+
+
+.home-hero {
+  text-align: center;
+}
+
+.home-hero-image {
+  width: 100%;
+  max-height: 420px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+}
+
+
+.home-hero-media {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.home-hero-title {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+  color: #fff;
+  font-size: clamp(2rem, 5vw, 3.8rem);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+.home-profile-link {
+  display: inline-block;
+  font-weight: 700;
+  text-decoration: none;
+  color: #fff;
+  background: var(--primary);
+  border-radius: 999px;
+  padding: 0.55rem 1rem;
+}

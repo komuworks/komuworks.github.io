@@ -3,41 +3,27 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>komuworks | プロフィールTOP</title>
+    <title>komuworks | ホーム</title>
     <link rel="stylesheet" href="assets/css/style.css" />
   </head>
   <body data-base-path="./">
     <div id="site-header"></div>
 
     <main class="container">
-      <section class="card" id="profile-root">
-        <h1>プロフィールTOP</h1>
-
-        <section>
-          <h2>自己紹介</h2>
-          <div id="self-introduction"></div>
-        </section>
-
-        <section>
-          <h2>スキルセット</h2>
-          <div id="skill-set"></div>
-        </section>
-
-        <section>
-          <h2>保有資格</h2>
-          <div id="certifications"></div>
-        </section>
-
-        <section>
-          <h2>個人目標</h2>
-          <div id="personal-goals"></div>
-        </section>
+      <section class="card home-hero">
+        <div class="home-hero-media">
+          <img src="assets/home-hero.svg" alt="komuworksのホームイメージ" class="home-hero-image" />
+          <h1 class="home-hero-title">komuworks</h1>
+        </div>
+        <p>
+          学習記録や開発メモ、タイピングの成長をまとめている個人サイトです。
+          日々の取り組みをわかりやすく残していきます。
+        </p>
+        <p><a class="home-profile-link" href="pages/profile/index.html">プロフィールを見る</a></p>
       </section>
     </main>
 
     <div id="site-footer"></div>
     <script src="assets/js/layout.js"></script>
-    <script src="assets/js/profile-components.js"></script>
-    <script src="assets/js/profile.js"></script>
   </body>
 </html>

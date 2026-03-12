@@ -1,0 +1,29 @@
+<svg width="1600" height="700" viewBox="0 0 1600 700" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">komuworks ホーム画像</title>
+  <desc id="desc">青のグラデーション背景にカードやグラフを模した図形を配置したホームのイメージ画像</desc>
+  <rect width="1600" height="700" fill="url(#bg)"/>
+  <g opacity="0.85">
+    <rect x="140" y="110" width="500" height="480" rx="28" fill="white"/>
+    <rect x="210" y="190" width="210" height="28" rx="10" fill="#BFDBFE"/>
+    <rect x="210" y="248" width="360" height="16" rx="8" fill="#E5E7EB"/>
+    <rect x="210" y="282" width="300" height="16" rx="8" fill="#E5E7EB"/>
+    <rect x="210" y="316" width="330" height="16" rx="8" fill="#E5E7EB"/>
+    <rect x="210" y="380" width="110" height="140" rx="12" fill="#60A5FA"/>
+    <rect x="340" y="340" width="110" height="180" rx="12" fill="#2563EB"/>
+    <rect x="470" y="280" width="110" height="240" rx="12" fill="#1D4ED8"/>
+  </g>
+  <g opacity="0.9">
+    <rect x="760" y="150" width="700" height="400" rx="28" fill="white"/>
+    <rect x="830" y="220" width="250" height="26" rx="10" fill="#DBEAFE"/>
+    <circle cx="884" cy="370" r="70" fill="#93C5FD"/>
+    <circle cx="1054" cy="370" r="70" fill="#60A5FA"/>
+    <circle cx="1224" cy="370" r="70" fill="#2563EB"/>
+    <rect x="830" y="470" width="560" height="20" rx="10" fill="#E5E7EB"/>
+  </g>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1600" y2="700" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1D4ED8"/>
+      <stop offset="1" stop-color="#38BDF8"/>
+    </linearGradient>
+  </defs>
+</svg>
