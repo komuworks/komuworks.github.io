@@ -22,7 +22,7 @@
       }
 
       const data = await response.json();
-      container.innerHTML = renderCertifications(data?.certifications);
+      container.innerHTML = renderCertifications(data?.certifications, { includeDetailLink: true, detailBasePath: "./" });
     } catch {
       root.innerHTML = '<p>保有資格一覧の読み込みに失敗しました。</p>';
     }

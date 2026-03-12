@@ -139,9 +139,12 @@ GitHub Pages 向けの静的サイトです（HTML/CSS/Vanilla JS）。
     - `years`: 実務年数（数値）
     - `level`: レベル（1〜10）
 - `certifications[]`
+  - `id`: 資格詳細ページ用ID
+  - `organizer`: 主催名
   - `name`: 資格名
-  - `acquiredDate`: 取得日（`YYYY-MM-DD`）
-  - `expiryDate`: 有効期限（`YYYY-MM-DD` または `null`）
+  - `result`: 合格名 / 認定名 / 取得名
+  - `acquiredDate`: 取得日（`YYYY-MM`）
+  - `expiryDate`: 有効期限（`YYYY-MM` または `null`）
 - `personalGoals`
   - `goal`: 個人目標
   - `recentLearning`: 直近の学習内容
@@ -160,5 +163,5 @@ GitHub Pages 向けの静的サイトです（HTML/CSS/Vanilla JS）。
 ### 更新手順
 
 1. `assets/data/profile.json` を編集する。
-2. 日付形式（`YYYY-MM-DD`）とカンマ位置を確認する。
+2. 日付形式（`YYYY-MM`）とカンマ位置を確認する。
 3. ローカル表示または GitHub Pages 反映後、プロフィールTOPを確認する。

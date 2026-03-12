@@ -217,6 +217,18 @@ button {
 }
 
 
+
+.certification-row {
+  display: inline-flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.certification-date {
+  white-space: nowrap;
+}
+
 .skill-star-rating {
   display: inline-flex;
   align-items: center;

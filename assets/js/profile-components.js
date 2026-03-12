@@ -107,7 +107,7 @@
   };
 
   const renderCertifications = (certifications, options = {}) => {
-    const { limit, today = new Date() } = options;
+    const { limit, today = new Date(), includeDetailLink = false, detailBasePath = './pages/profile/' } = options;
     const filtered = normalizeArray(certifications).filter((cert) => isCertificationValid(cert, today));
     const items = Number.isInteger(limit) && limit > 0 ? filtered.slice(0, limit) : filtered;
 
@@ -118,14 +118,22 @@
     return `
       <ul class="certification-list">
         ${items
-          .map(
-            (cert) => `
+          .map((cert) => {
+            const detailLink =
+              includeDetailLink && cert?.id
+                ? `<a href="${detailBasePath}certification-detail.html?id=${encodeURIComponent(cert.id)}">詳細を見る</a>`
+                : '';
+
+            return `
               <li>
-                <strong>${toDisplayText(cert?.name)}</strong><br />
-                取得日: ${toDisplayText(cert?.acquiredDate)}
+                <span class="certification-row">
+                  <span class="certification-date">取得日: ${toDisplayText(cert?.acquiredDate)}</span>
+                  <strong class="certification-name">${toDisplayText(cert?.name)}</strong>
+                </span>
+                ${detailLink ? `<br />${detailLink}` : ''}
               </li>
-            `,
-          )
+            `;
+          })
           .join('')}
       </ul>
     `;
