@@ -15,7 +15,8 @@
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#039;');
 
-  const toDisplayText = (value) => (value == null || value === '' ? DEFAULT_TEXT : escapeHtml(value));
+  const toDisplayValue = (value) => (value == null || value === '' ? DEFAULT_TEXT : String(value));
+  const toDisplayText = (value) => escapeHtml(toDisplayValue(value));
   const normalizeArray = (value) => (Array.isArray(value) ? value : []);
 
   const buildLayeredStar = (basePath, backAsset) =>
@@ -223,6 +224,7 @@
 
   window.ProfileComponents = {
     normalizeArray,
+    toDisplayValue,
     toDisplayText,
     isCertificationValid,
     renderSkillTable,
