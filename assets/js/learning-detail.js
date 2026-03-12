@@ -40,7 +40,7 @@
           <dt>学習期間</dt><dd>${learning.period || '-'}</dd>
           <dt>概要</dt><dd>${learning.summary || '-'}</dd>
         </dl>
-        <h3>詳細</h3>
+        <h3>Details</h3>
         <ul>${detailItems}</ul>
       `;
 

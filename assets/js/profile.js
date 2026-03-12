@@ -21,7 +21,7 @@
     </dl>
   `;
 
-  const renderSectionLink = (path) => `<p><a href="${basePath}pages/profile/${path}">一覧を見る</a></p>`;
+  const renderSectionLink = (path) => `<p><a href="${basePath}pages/profile/${path}">View all</a></p>`;
   const getElement = (id) => document.getElementById(id);
 
   const renderProfile = (data) => {
