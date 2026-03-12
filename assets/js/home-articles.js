@@ -8,14 +8,6 @@
     return;
   }
 
-  const slugify = (title) =>
-    title
-      .toLowerCase()
-      .trim()
-      .replace(/[\s_]+/g, '-')
-      .replace(/[^\p{Letter}\p{Number}-]/gu, '')
-      .replace(/-+/g, '-');
-
   const formatDate = (dateText) => {
     const date = new Date(`${dateText}T00:00:00`);
     if (Number.isNaN(date.getTime())) {
@@ -28,13 +20,7 @@
     }).format(date);
   };
 
-  const normalizePosts = (posts) =>
-    posts
-      .map((post) => ({
-        ...post,
-        slug: slugify(post.title),
-      }))
-      .sort((a, b) => new Date(b.date) - new Date(a.date));
+  const normalizePosts = (posts) => posts.sort((a, b) => new Date(b.date) - new Date(a.date));
 
   const renderPosts = (posts) => {
     const displayPosts = posts.slice(0, MAX_HOME_ARTICLES);
@@ -57,7 +43,7 @@
 
       const cardLink = document.createElement('a');
       cardLink.className = 'card-link';
-      cardLink.href = `./pages/blog/post.html?id=${encodeURIComponent(post.slug)}`;
+      cardLink.href = `./pages/blog/post.html?id=${encodeURIComponent(post.id)}`;
 
       const article = document.createElement('article');
 

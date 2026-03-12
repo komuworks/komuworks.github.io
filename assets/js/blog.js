@@ -25,9 +25,21 @@
     posts
       .map((post) => ({
         ...post,
-        slug: slugify(post.title),
+        legacySlug: slugify(post.title),
       }))
       .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  const findPostByQueryId = (posts, queryId) => {
+    if (!queryId) {
+      return null;
+    }
+
+    return (
+      posts.find((entry) => entry.id === queryId) ||
+      posts.find((entry) => entry.legacySlug === queryId) ||
+      null
+    );
+  };
 
   const createTagButton = (tag, activeTag) => {
     const button = document.createElement('button');
@@ -75,7 +87,7 @@
 
         const cardLink = document.createElement('a');
         cardLink.className = 'card-link';
-        cardLink.href = `./post.html?id=${encodeURIComponent(post.slug)}`;
+        cardLink.href = `./post.html?id=${encodeURIComponent(post.id)}`;
 
         const article = document.createElement('article');
 
@@ -126,9 +138,9 @@
     if (!articleContainer) return;
 
     const query = new URLSearchParams(window.location.search);
-    const targetSlug = query.get('id');
+    const targetId = query.get('id');
 
-    const post = posts.find((entry) => entry.slug === targetSlug);
+    const post = findPostByQueryId(posts, targetId);
 
     if (!post) {
       articleContainer.textContent = '';

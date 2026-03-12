@@ -34,12 +34,13 @@ GitHub Pages 向けの静的サイトです（HTML/CSS/Vanilla JS）。
 
 1. `assets/data/posts.json` を開き、配列の末尾に新しい記事オブジェクトを追加する。
 2. 追加後、JSONのカンマ位置や配列構造が壊れていないことを確認する。
-3. ページ表示時に `assets/js/blog.js` が日付降順で並び替え、`title` から自動でslug（URL用ID）を生成するため、slugの手動入力は不要。
+3. 各記事に `id`（不変・一意のURL用ID）を設定してください。ページ表示時に `assets/js/blog.js` が日付降順で並び替え、リンクと詳細検索は `?id=<post.id>` を使用します。
 
 ### 必須フィールド
 
 各記事は以下のフィールドを必ず持たせてください。
 
+- `id`（文字列）: 記事ID（不変・一意。URLクエリ `?id=...` に利用）
 - `title`（文字列）: 記事タイトル
 - `date`（文字列）: `YYYY-MM-DD` 形式の日付
 - `tags`（文字列配列）: 1件以上のタグ
@@ -50,6 +51,7 @@ GitHub Pages 向けの静的サイトです（HTML/CSS/Vanilla JS）。
 
 ```json
 {
+  "id": "example-post-id",
   "title": "記事タイトル",
   "date": "2026-03-10",
   "tags": ["運用", "メモ"],
