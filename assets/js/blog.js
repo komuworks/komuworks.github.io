@@ -73,6 +73,10 @@
         const li = document.createElement('li');
         li.className = 'blog-post-item';
 
+        const cardLink = document.createElement('a');
+        cardLink.className = 'card-link';
+        cardLink.href = `./post.html?id=${encodeURIComponent(post.slug)}`;
+
         const article = document.createElement('article');
 
         const date = document.createElement('p');
@@ -80,8 +84,8 @@
         date.textContent = formatDate(post.date);
 
         const title = document.createElement('h2');
-        const link = document.createElement('a');
-        link.href = `./post.html?id=${encodeURIComponent(post.slug)}`;
+        const link = document.createElement('span');
+        link.className = 'card-link-title';
         link.textContent = post.title;
         title.appendChild(link);
 
@@ -92,8 +96,13 @@
         tagsElement.className = 'blog-tags';
         tagsElement.textContent = post.tags.map((tag) => `#${tag}`).join(' ');
 
-        article.append(date, title, summary, tagsElement);
-        li.appendChild(article);
+        const more = document.createElement('span');
+        more.className = 'card-link-more';
+        more.textContent = '記事を読む→';
+
+        article.append(date, title, summary, tagsElement, more);
+        cardLink.appendChild(article);
+        li.appendChild(cardLink);
         ul.appendChild(li);
       });
 

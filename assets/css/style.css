@@ -363,3 +363,146 @@ button {
 .section-anchor {
   scroll-margin-top: 90px;
 }
+
+.card {
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+}
+
+.blog-post-item,
+.interactive-list-item {
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.card-link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+  border-radius: 10px;
+  padding: 0.1rem;
+}
+
+.card-link:hover,
+.card-link:focus-visible {
+  transform: translateY(-2px);
+}
+
+.blog-post-item:has(.card-link:hover),
+.blog-post-item:has(.card-link:focus-visible),
+.interactive-list-item:hover,
+.interactive-list-item:focus-within {
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+  transform: translateY(-2px);
+}
+
+.card-link-title {
+  color: var(--text);
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  transition: color 0.18s ease, text-decoration-color 0.18s ease;
+}
+
+.card-link:hover .card-link-title,
+.card-link:focus-visible .card-link-title {
+  color: var(--primary);
+  text-decoration-color: currentColor;
+}
+
+.card-link-more {
+  display: inline-block;
+  margin-top: 0.25rem;
+  color: var(--primary);
+  font-weight: 700;
+}
+
+@media (min-width: 640px) {
+  .card-link-more {
+    margin-top: auto;
+    align-self: flex-end;
+  }
+}
+
+.certification-list,
+.goal-list {
+  list-style: none;
+  padding-left: 0;
+  display: grid;
+  gap: 0.65rem;
+}
+
+.interactive-list-item {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.7rem 0.9rem;
+  background: #fff;
+}
+
+.interactive-row-link {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: inherit;
+  text-decoration: none;
+  gap: 1rem;
+}
+
+.interactive-row-icon {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.goal-primary-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.goal-primary-link strong {
+  color: var(--text);
+}
+
+.goal-primary-link:hover strong,
+.goal-primary-link:focus-visible strong {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+.goal-action-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0;
+}
+
+.goal-item-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.goal-sub-link {
+  color: var(--primary);
+}
+
+.goal-action-divider {
+  color: var(--subtext);
+}
+
+.card-link article {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.goal-inline-cta {
+  font-weight: 700;
+}
+
+@media (min-width: 640px) {
+  .goal-inline-cta {
+    margin-left: auto;
+  }
+}
+
+.learning-related-label {
+  color: var(--subtext);
+}

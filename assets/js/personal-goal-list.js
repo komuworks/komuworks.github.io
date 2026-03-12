@@ -6,11 +6,12 @@
     return;
   }
 
-  const { renderGoalList } = components;
+  const { renderGoalList, renderLearningList } = components;
   const root = document.getElementById('goal-list-root');
   const container = document.getElementById('all-personal-goals');
+  const learningContainer = document.getElementById('all-recent-learnings');
 
-  if (!root || !container) {
+  if (!root || !container || !learningContainer) {
     return;
   }
 
@@ -22,7 +23,8 @@
       }
 
       const data = await response.json();
-      container.innerHTML = renderGoalList(data?.personalGoals, { basePath: '../../', learnings: data?.recentLearnings });
+      container.innerHTML = renderGoalList(data?.personalGoals, { basePath: '../../' });
+      learningContainer.innerHTML = renderLearningList(data?.recentLearnings, { basePath: '../../', goals: data?.personalGoals });
     } catch {
       root.innerHTML = '<p>個人目標一覧の読み込みに失敗しました。</p>';
     }

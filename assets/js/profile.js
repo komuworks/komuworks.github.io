@@ -6,7 +6,7 @@
     return;
   }
 
-  const { toDisplayText, renderSkillTable, renderCertifications, renderGoalList } = components;
+  const { toDisplayText, renderSkillTable, renderCertifications, renderGoalList, renderLearningList } = components;
 
   const clampLimit = (value, fallback) => {
     const parsed = Number(value);
@@ -38,13 +38,19 @@
     const skillLimit = clampLimit(limits.skillCategories, 3);
     const certificationLimit = clampLimit(limits.certifications, 3);
     const goalLimit = clampLimit(limits.personalGoals, 2);
+    const learningLimit = clampLimit(limits.recentLearnings, 2);
 
     introContainer.innerHTML = renderIntro(data?.selfIntroduction);
     skillContainer.innerHTML =
       renderSkillTable(data?.skillSet?.categories, { categoryLimit: skillLimit, basePath }) + renderSectionLink('skill-set.html');
     certContainer.innerHTML = renderCertifications(data?.certifications, { limit: certificationLimit }) + renderSectionLink('certifications.html');
     goalContainer.innerHTML =
-      renderGoalList(data?.personalGoals, { limit: goalLimit, basePath, learnings: data?.recentLearnings }) + renderSectionLink('personal-goals.html');
+      `
+        <h3>Personal Goals</h3>
+        ${renderGoalList(data?.personalGoals, { limit: goalLimit, basePath })}
+        <h3>Learnings</h3>
+        ${renderLearningList(data?.recentLearnings, { limit: learningLimit, basePath, goals: data?.personalGoals })}
+      ` + renderSectionLink('personal-goals.html');
   };
 
   const renderError = () => {
