@@ -1,5 +1,6 @@
 (() => {
-  const METRICS_JSON_PATH = '../../assets/data/typing-metrics.json';
+  const basePath = document.body?.dataset?.basePath || './';
+  const METRICS_JSON_PATH = `${basePath}assets/data/typing-metrics.json`;
 
   const status = document.getElementById('typing-status');
   const chartCanvas = document.getElementById('typing-metrics-chart');
@@ -75,9 +76,11 @@
     });
   };
 
+  const detailBasePath = chartCanvas.dataset.detailBasePath || './';
+
   const toDetailUrl = (item) => {
     const params = new URLSearchParams({ date: item.date });
-    return `./detail.html?${params.toString()}`;
+    return `${detailBasePath}detail.html?${params.toString()}`;
   };
 
   const calcCorrectRate = (item) => {

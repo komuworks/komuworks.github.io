@@ -12,6 +12,10 @@
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   margin: 0;
   background: var(--bg);
@@ -348,4 +352,14 @@ button {
   background: var(--primary);
   border-radius: 999px;
   padding: 0.55rem 1rem;
+}
+
+
+.home-sections {
+  display: grid;
+  gap: 1rem;
+}
+
+.section-anchor {
+  scroll-margin-top: 90px;
 }
