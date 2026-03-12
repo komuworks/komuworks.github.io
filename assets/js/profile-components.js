@@ -127,7 +127,7 @@
             return `
               <li>
                 <span class="certification-row">
-                  <span class="certification-date">取得日: ${toDisplayText(cert?.acquiredDate)}</span>
+                  <span class="certification-date">${toDisplayText(cert?.acquiredDate)}</span>
                   <strong class="certification-name">${toDisplayText(cert?.name)}</strong>
                 </span>
                 ${detailLink ? `<br />${detailLink}` : ''}
