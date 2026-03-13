@@ -1,0 +1,22 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { getEntry } from 'astro:content';
+
+export async function getStaticPaths() {
+  const profileEntry = await getEntry('profile', 'index');
+  const goals = profileEntry?.data.goals ?? [];
+
+  return goals.map((goal) => ({
+    params: { id: goal.slug },
+    props: { goal },
+  }));
+}
+
+const { goal } = Astro.props;
+---
+
+<BaseLayout title={goal.title}>
+  <h1>{goal.title}</h1>
+  <p>優先度: {goal.priority}</p>
+  <p>期間: {goal.targetPeriod}</p>
+</BaseLayout>

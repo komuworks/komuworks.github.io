@@ -1,0 +1,21 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const typingEntries = await getCollection('typing');
+
+  return typingEntries.map((entry) => ({
+    params: { date: entry.data.date },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+---
+
+<BaseLayout title={`Typing ${entry.data.date}`}>
+  <h1>タイピング詳細</h1>
+  <p>日付: {entry.data.date}</p>
+  <p>総入力文字数: {entry.data.totalChars}</p>
+</BaseLayout>

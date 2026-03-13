@@ -1,0 +1,17 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const typingEntries = await getCollection('typing');
+---
+
+<BaseLayout title="Typing">
+  <h1>タイピング一覧</h1>
+  <ul>
+    {typingEntries.map((entry) => (
+      <li>
+        <a href={`/typing/${entry.data.date}/`}>{entry.data.date}</a>
+      </li>
+    ))}
+  </ul>
+</BaseLayout>
