@@ -1,6 +1,7 @@
 ---
-import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { getEntry } from 'astro:content';
+import GoalList from '../../../components/profile/GoalList.astro';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
 
 export async function getStaticPaths() {
   const profileEntry = await getEntry('profile', 'index');
@@ -8,15 +9,23 @@ export async function getStaticPaths() {
 
   return goals.map((goal) => ({
     params: { id: goal.slug },
-    props: { goal },
+    props: { goal, goals },
   }));
 }
 
-const { goal } = Astro.props;
+const { goal, goals } = Astro.props;
 ---
 
 <BaseLayout title={goal.title}>
-  <h1>{goal.title}</h1>
+  <h2>{goal.title}</h2>
   <p>優先度: {goal.priority}</p>
   <p>期間: {goal.targetPeriod}</p>
+  <ul>
+    {goal.detail.map((item) => (
+      <li>{item}</li>
+    ))}
+  </ul>
+
+  <h2>目標一覧</h2>
+  <GoalList goals={goals} />
 </BaseLayout>

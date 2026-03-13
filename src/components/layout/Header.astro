@@ -1,0 +1,15 @@
+---
+import Nav from './Nav.astro';
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<header>
+  <a href="/">komuworks.github.io</a>
+  <h1>{title}</h1>
+  <Nav />
+</header>

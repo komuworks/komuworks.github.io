@@ -1,0 +1,32 @@
+---
+import { formatCount } from '../../lib/format';
+
+interface Goal {
+  slug: string;
+  title: string;
+  summary: string;
+  priority: string;
+  targetPeriod: string;
+  detail: string[];
+}
+
+interface Props {
+  goals: Goal[];
+}
+
+const { goals } = Astro.props;
+---
+
+<section>
+  <p>登録目標: {formatCount(goals.length)}</p>
+  <ul>
+    {goals.map((goal) => (
+      <li>
+        <a href={`/profile/goals/${goal.slug}/`}>{goal.title}</a>
+        <p>{goal.summary}</p>
+        <p>優先度: {goal.priority}</p>
+        <p>期間: {goal.targetPeriod}</p>
+      </li>
+    ))}
+  </ul>
+</section>

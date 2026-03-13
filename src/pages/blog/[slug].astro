@@ -1,21 +1,32 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
+import ArticleCard from '../../components/blog/ArticleCard.astro';
+import TagFilter from '../../components/blog/TagFilter.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { formatDate } from '../../lib/format';
 
 export async function getStaticPaths() {
   const blogEntries = await getCollection('blog');
 
   return blogEntries.map((entry) => ({
     params: { slug: entry.data.slug },
-    props: { entry },
+    props: { entry, tags: [...new Set(blogEntries.flatMap((item) => item.data.tags))].sort() },
   }));
 }
 
-const { entry } = Astro.props;
+const { entry, tags } = Astro.props;
 ---
 
 <BaseLayout title={entry.data.title}>
-  <h1>{entry.data.title}</h1>
-  <p>日付: {entry.data.date}</p>
-  <p>{entry.data.summary}</p>
+  <TagFilter tags={tags} selectedTag={undefined} />
+  <ArticleCard
+    slug={entry.data.slug}
+    title={entry.data.title}
+    summary={entry.data.summary}
+    date={entry.data.date}
+    tags={entry.data.tags}
+  />
+  <h2>本文</h2>
+  <p>日付: {formatDate(entry.data.date)}</p>
+  <p>{entry.data.body}</p>
 </BaseLayout>

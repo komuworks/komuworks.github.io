@@ -1,12 +1,14 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getEntry } from 'astro:content';
+import SkillTable from '../../components/profile/SkillTable.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { formatCount } from '../../lib/format';
 
 const profileEntry = await getEntry('profile', 'index');
 const skills = profileEntry?.data.skills ?? [];
 ---
 
 <BaseLayout title="Profile Skills">
-  <h1>スキル</h1>
-  <p>カテゴリ数: {skills.length}</p>
+  <p>カテゴリ数: {formatCount(skills.length)}</p>
+  <SkillTable skills={skills} />
 </BaseLayout>

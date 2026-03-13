@@ -1,0 +1,16 @@
+---
+const links = [
+  { href: '/', label: 'Home' },
+  { href: '/blog/', label: 'Blog' },
+  { href: '/profile/', label: 'Profile' },
+  { href: '/typing/', label: 'Typing' },
+];
+---
+
+<nav aria-label="Global Navigation">
+  <ul>
+    {links.map((link) => (
+      <li><a href={link.href}>{link.label}</a></li>
+    ))}
+  </ul>
+</nav>

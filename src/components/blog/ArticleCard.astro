@@ -1,0 +1,22 @@
+---
+import { formatDate } from '../../lib/format';
+
+interface Props {
+  slug: string;
+  title: string;
+  summary: string;
+  date: string;
+  tags: string[];
+}
+
+const { slug, title, summary, date, tags } = Astro.props;
+---
+
+<article>
+  <h2>
+    <a href={`/blog/${slug}/`}>{title}</a>
+  </h2>
+  <p>{summary}</p>
+  <p>公開日: {formatDate(date)}</p>
+  <p>タグ: {tags.join(' / ')}</p>
+</article>

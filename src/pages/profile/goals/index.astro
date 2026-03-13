@@ -1,18 +1,12 @@
 ---
-import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { getEntry } from 'astro:content';
+import GoalList from '../../../components/profile/GoalList.astro';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
 
 const profileEntry = await getEntry('profile', 'index');
 const goals = profileEntry?.data.goals ?? [];
 ---
 
 <BaseLayout title="Profile Goals">
-  <h1>目標一覧</h1>
-  <ul>
-    {goals.map((goal) => (
-      <li>
-        <a href={`/profile/goals/${goal.slug}/`}>{goal.title}</a>
-      </li>
-    ))}
-  </ul>
+  <GoalList goals={goals} />
 </BaseLayout>

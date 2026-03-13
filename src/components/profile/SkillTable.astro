@@ -1,0 +1,44 @@
+---
+import { formatExperienceYears, formatLevel } from '../../lib/format';
+
+interface SkillItem {
+  name: string;
+  years: number;
+  level: number;
+}
+
+interface SkillCategory {
+  category: string;
+  items: SkillItem[];
+}
+
+interface Props {
+  skills: SkillCategory[];
+}
+
+const { skills } = Astro.props;
+---
+
+{skills.map((skill) => (
+  <section>
+    <h2>{skill.category}</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>スキル</th>
+          <th>経験年数</th>
+          <th>レベル</th>
+        </tr>
+      </thead>
+      <tbody>
+        {skill.items.map((item) => (
+          <tr>
+            <td>{item.name}</td>
+            <td>{formatExperienceYears(item.years)}</td>
+            <td>{formatLevel(item.level)}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </section>
+))}

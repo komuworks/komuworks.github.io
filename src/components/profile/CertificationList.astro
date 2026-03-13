@@ -1,0 +1,30 @@
+---
+import { formatYearMonth } from '../../lib/format';
+
+interface Certification {
+  slug: string;
+  organizer: string;
+  name: string;
+  result: string;
+  acquiredDate: string;
+  expiryDate: string | null;
+}
+
+interface Props {
+  certifications: Certification[];
+}
+
+const { certifications } = Astro.props;
+---
+
+<ul>
+  {certifications.map((certification) => (
+    <li>
+      <strong>{certification.name}</strong>
+      <p>{certification.organizer}</p>
+      <p>結果: {certification.result}</p>
+      <p>取得: {formatYearMonth(certification.acquiredDate)}</p>
+      <p>有効期限: {formatYearMonth(certification.expiryDate)}</p>
+    </li>
+  ))}
+</ul>
