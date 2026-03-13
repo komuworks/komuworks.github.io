@@ -15,6 +15,25 @@
 
   const clampIndex = (index) => Math.max(0, Math.min(sections.length - 1, index));
 
+  const canSnapFromSection = (sectionIndex, direction) => {
+    const section = sections[sectionIndex];
+    if (!section) {
+      return false;
+    }
+
+    const viewportTop = window.scrollY;
+    const viewportBottom = viewportTop + window.innerHeight;
+    const sectionTop = section.offsetTop;
+    const sectionBottom = sectionTop + section.offsetHeight;
+    const scrollTolerance = 2;
+
+    if (direction > 0) {
+      return sectionBottom - viewportBottom <= scrollTolerance;
+    }
+
+    return viewportTop - sectionTop <= scrollTolerance;
+  };
+
   const getCurrentSectionIndex = () => {
     const viewportCenter = window.scrollY + window.innerHeight / 2;
     let closestIndex = 0;
@@ -97,9 +116,15 @@
         return;
       }
 
-      event.preventDefault();
       activeSectionIndex = getCurrentSectionIndex();
       const direction = wheelAccumulator > 0 ? 1 : -1;
+
+      if (!canSnapFromSection(activeSectionIndex, direction)) {
+        wheelAccumulator = 0;
+        return;
+      }
+
+      event.preventDefault();
       snapToSection(activeSectionIndex + direction);
     },
     { passive: false }
@@ -125,6 +150,11 @@
     event.preventDefault();
     activeSectionIndex = getCurrentSectionIndex();
     const direction = event.key === 'ArrowDown' || event.key === 'PageDown' ? 1 : -1;
+
+    if (!canSnapFromSection(activeSectionIndex, direction)) {
+      return;
+    }
+
     snapToSection(activeSectionIndex + direction);
   });
 })();
