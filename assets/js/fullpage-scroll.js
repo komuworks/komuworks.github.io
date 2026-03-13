@@ -71,7 +71,8 @@
     isAnimating = true;
     activeSectionIndex = boundedIndex;
     wheelAccumulator = 0;
-    animateScrollTo(target.offsetTop - 8);
+    const targetY = boundedIndex === 0 ? 0 : target.offsetTop - 8;
+    animateScrollTo(targetY);
   };
 
   window.addEventListener(
