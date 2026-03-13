@@ -1,0 +1,4 @@
+/blog/:slug /blog/:slug/ 301
+/profile/goals/:id /profile/goals/:id/ 301
+/profile/learnings/:id /profile/learnings/:id/ 301
+/typing/:date /typing/:date/ 301

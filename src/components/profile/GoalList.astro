@@ -1,5 +1,6 @@
 ---
 import { formatCount } from '../../lib/format';
+import { toGoalDetail } from '../../lib/url';
 
 interface Goal {
   slug: string;
@@ -22,7 +23,7 @@ const { goals } = Astro.props;
   <ul>
     {goals.map((goal) => (
       <li>
-        <a href={`/profile/goals/${goal.slug}/`}>{goal.title}</a>
+        <a href={toGoalDetail(goal.slug)}>{goal.title}</a>
         <p>{goal.summary}</p>
         <p>優先度: {goal.priority}</p>
         <p>期間: {goal.targetPeriod}</p>

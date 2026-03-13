@@ -1,5 +1,6 @@
 ---
 import type { TypingMetric } from '../../lib/typing';
+import { toTypingDetail } from '../../lib/url';
 
 interface Props {
   metrics: TypingMetric[];
@@ -80,7 +81,7 @@ const { metrics } = Astro.props;
         const index = firstPoint.index;
         const targetDate = chart.data.labels?.[index];
         if (typeof targetDate === 'string') {
-          window.location.href = `/typing/${targetDate}/`;
+          window.location.href = toTypingDetail(targetDate);
         }
       },
       plugins: {

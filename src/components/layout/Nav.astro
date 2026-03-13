@@ -1,9 +1,11 @@
 ---
+import { toBlogIndex, toHome, toProfileIndex, toTypingIndex } from '../../lib/url';
+
 const links = [
-  { href: '/', label: 'Home' },
-  { href: '/blog/', label: 'Blog' },
-  { href: '/profile/', label: 'Profile' },
-  { href: '/typing/', label: 'Typing' },
+  { href: toHome(), label: 'Home' },
+  { href: toBlogIndex(), label: 'Blog' },
+  { href: toProfileIndex(), label: 'Profile' },
+  { href: toTypingIndex(), label: 'Typing' },
 ];
 ---
 

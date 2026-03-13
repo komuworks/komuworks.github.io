@@ -1,4 +1,6 @@
 ---
+import { toBlogIndex } from '../../lib/url';
+
 interface Props {
   tags: string[];
   selectedTag?: string;
@@ -11,14 +13,11 @@ const { tags, selectedTag } = Astro.props;
   <p>タグで絞り込み:</p>
   <ul>
     <li>
-      <a href="/blog/" aria-current={selectedTag ? undefined : 'page'}>すべて</a>
+      <a href={toBlogIndex()} aria-current={selectedTag ? undefined : 'page'}>すべて</a>
     </li>
     {tags.map((tag) => (
       <li>
-        <a
-          href={`/blog/?tag=${encodeURIComponent(tag)}`}
-          aria-current={selectedTag === tag ? 'page' : undefined}
-        >
+        <a href={toBlogIndex(tag)} aria-current={selectedTag === tag ? 'page' : undefined}>
           {tag}
         </a>
       </li>
