@@ -1,5 +1,14 @@
 # komuworks.github.io
 
+> ⚠️ 現在このリポジトリは Astro への移行作業中です。
+> 既存の静的サイト（旧版）は `old/` 配下に移動済みです。
+
+## 現行版参照先
+
+- 旧版トップ: `old/index.html`
+- 旧版ページ群: `old/pages/`
+- 旧版アセット: `old/assets/`
+
 GitHub Pages 向けの静的サイトです（HTML/CSS/Vanilla JS）。
 
 ## サイト構成とファイル役割
