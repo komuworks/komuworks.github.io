@@ -170,7 +170,9 @@
                 </a>
                 <p>${toDisplayText(goal?.summary)}</p>
                 <p class="goal-action-row">
-                  <a class="goal-sub-link goal-inline-cta" href="${goalDetailHref}">詳細を見る→</a>
+                  <a class="goal-sub-link interactive-row-link goal-inline-cta" href="${goalDetailHref}" aria-label="詳細を見る">
+                    <span class="interactive-row-icon" aria-hidden="true">→</span>
+                  </a>
                 </p>
               </li>
             `;
@@ -212,7 +214,9 @@
                 <p>${toDisplayText(learning?.summary)}</p>
                 ${relatedLinks ? `<p class="goal-action-row"><span class="learning-related-label">関連目標:</span>${relatedLinks}</p>` : ''}
                 <p class="goal-action-row">
-                  <a class="goal-sub-link goal-inline-cta" href="${learningDetailHref}">詳細を見る→</a>
+                  <a class="goal-sub-link interactive-row-link goal-inline-cta" href="${learningDetailHref}" aria-label="詳細を見る">
+                    <span class="interactive-row-icon" aria-hidden="true">→</span>
+                  </a>
                 </p>
               </li>
             `;
