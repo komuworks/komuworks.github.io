@@ -1,0 +1,31 @@
+---
+import { formatCount } from '../../lib/format';
+
+interface Learning {
+  slug: string;
+  title: string;
+  summary: string;
+  period: string;
+  detail: string[];
+  goalSlugs: string[];
+}
+
+interface Props {
+  learnings: Learning[];
+}
+
+const { learnings } = Astro.props;
+---
+
+<section>
+  <p>学習テーマ: {formatCount(learnings.length)}</p>
+  <ul>
+    {learnings.map((learning) => (
+      <li>
+        <a href={`/profile/learnings/${learning.slug}/`}>{learning.title}</a>
+        <p>{learning.summary}</p>
+        <p>期間: {learning.period}</p>
+      </li>
+    ))}
+  </ul>
+</section>

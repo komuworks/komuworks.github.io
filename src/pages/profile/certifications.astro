@@ -1,12 +1,14 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getEntry } from 'astro:content';
+import CertificationList from '../../components/profile/CertificationList.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { formatCount } from '../../lib/format';
 
 const profileEntry = await getEntry('profile', 'index');
 const certifications = profileEntry?.data.certifications ?? [];
 ---
 
 <BaseLayout title="Profile Certifications">
-  <h1>資格</h1>
-  <p>登録数: {certifications.length}</p>
+  <p>登録数: {formatCount(certifications.length)}</p>
+  <CertificationList certifications={certifications} />
 </BaseLayout>

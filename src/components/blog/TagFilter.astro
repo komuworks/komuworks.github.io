@@ -1,0 +1,27 @@
+---
+interface Props {
+  tags: string[];
+  selectedTag?: string;
+}
+
+const { tags, selectedTag } = Astro.props;
+---
+
+<section aria-label="Tag Filter">
+  <p>タグで絞り込み:</p>
+  <ul>
+    <li>
+      <a href="/blog/" aria-current={selectedTag ? undefined : 'page'}>すべて</a>
+    </li>
+    {tags.map((tag) => (
+      <li>
+        <a
+          href={`/blog/?tag=${encodeURIComponent(tag)}`}
+          aria-current={selectedTag === tag ? 'page' : undefined}
+        >
+          {tag}
+        </a>
+      </li>
+    ))}
+  </ul>
+</section>

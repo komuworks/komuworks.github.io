@@ -1,17 +1,28 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
+import ArticleCard from '../../components/blog/ArticleCard.astro';
+import TagFilter from '../../components/blog/TagFilter.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { formatCount } from '../../lib/format';
 
 const blogEntries = await getCollection('blog');
+const selectedTag = Astro.url.searchParams.get('tag') ?? undefined;
+const tags = [...new Set(blogEntries.flatMap((entry) => entry.data.tags))].sort();
+const filteredEntries = selectedTag
+  ? blogEntries.filter((entry) => entry.data.tags.includes(selectedTag))
+  : blogEntries;
 ---
 
 <BaseLayout title="Blog">
-  <h1>ブログ一覧</h1>
-  <ul>
-    {blogEntries.map((entry) => (
-      <li>
-        <a href={`/blog/${entry.data.slug}/`}>{entry.data.title}</a>
-      </li>
-    ))}
-  </ul>
+  <p>記事数: {formatCount(filteredEntries.length)}</p>
+  <TagFilter tags={tags} selectedTag={selectedTag} />
+  {filteredEntries.map((entry) => (
+    <ArticleCard
+      slug={entry.data.slug}
+      title={entry.data.title}
+      summary={entry.data.summary}
+      date={entry.data.date}
+      tags={entry.data.tags}
+    />
+  ))}
 </BaseLayout>

@@ -1,6 +1,7 @@
 ---
-import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { getEntry } from 'astro:content';
+import LearningList from '../../../components/profile/LearningList.astro';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
 
 export async function getStaticPaths() {
   const profileEntry = await getEntry('profile', 'index');
@@ -8,15 +9,23 @@ export async function getStaticPaths() {
 
   return learnings.map((learning) => ({
     params: { id: learning.slug },
-    props: { learning },
+    props: { learning, learnings },
   }));
 }
 
-const { learning } = Astro.props;
+const { learning, learnings } = Astro.props;
 ---
 
 <BaseLayout title={learning.title}>
-  <h1>{learning.title}</h1>
+  <h2>{learning.title}</h2>
   <p>期間: {learning.period}</p>
   <p>{learning.summary}</p>
+  <ul>
+    {learning.detail.map((item) => (
+      <li>{item}</li>
+    ))}
+  </ul>
+
+  <h2>学習一覧</h2>
+  <LearningList learnings={learnings} />
 </BaseLayout>

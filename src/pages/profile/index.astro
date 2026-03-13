@@ -1,12 +1,22 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getEntry } from 'astro:content';
+import GoalList from '../../components/profile/GoalList.astro';
+import LearningList from '../../components/profile/LearningList.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
 
 const profileEntry = await getEntry('profile', 'index');
+const goals = profileEntry?.data.goals ?? [];
+const learnings = profileEntry?.data.learnings ?? [];
 ---
 
 <BaseLayout title="Profile">
-  <h1>プロフィール</h1>
   <p>名前: {profileEntry?.data.selfIntroduction.name}</p>
   <p>専門: {profileEntry?.data.selfIntroduction.specialty}</p>
+  <p>志向: {profileEntry?.data.selfIntroduction.careerPreference}</p>
+
+  <h2>目標</h2>
+  <GoalList goals={goals} />
+
+  <h2>学習</h2>
+  <LearningList learnings={learnings} />
 </BaseLayout>
