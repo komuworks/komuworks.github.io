@@ -1,21 +1,35 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import { calcCorrectRate, validateMetrics } from '../../lib/typing';
 import { getCollection } from 'astro:content';
 
 export async function getStaticPaths() {
   const typingEntries = await getCollection('typing');
 
-  return typingEntries.map((entry) => ({
-    params: { date: entry.data.date },
-    props: { entry },
-  }));
+  return typingEntries
+    .map((entry) => {
+      const metric = validateMetrics(entry.data);
+      if (!metric) {
+        return null;
+      }
+
+      return {
+        params: { date: metric.date },
+        props: { metric },
+      };
+    })
+    .filter((item): item is NonNullable<typeof item> => item !== null);
 }
 
-const { entry } = Astro.props;
+const { metric } = Astro.props;
 ---
 
-<BaseLayout title={`Typing ${entry.data.date}`}>
+<BaseLayout title={`Typing ${metric.date}`}>
   <h1>タイピング詳細</h1>
-  <p>日付: {entry.data.date}</p>
-  <p>総入力文字数: {entry.data.totalChars}</p>
+  <p>日付: {metric.date}</p>
+  <p>総入力文字数: {metric.totalChars}</p>
+  <p>正確キー数: {metric.correctKeys}</p>
+  <p>エラーキー数: {metric.errorKeys}</p>
+  <p>セッション時間: {metric.sessionMinutes.toFixed(2)} 分</p>
+  <p>正確率: {calcCorrectRate(metric.correctKeys, metric.errorKeys).toFixed(2)}%</p>
 </BaseLayout>

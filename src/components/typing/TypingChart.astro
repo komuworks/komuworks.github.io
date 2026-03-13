@@ -1,0 +1,135 @@
+---
+import type { TypingMetric } from '../../lib/typing';
+
+interface Props {
+  metrics: TypingMetric[];
+}
+
+const { metrics } = Astro.props;
+---
+
+<section>
+  <h2>推移チャート</h2>
+  <label for="period-filter">期間:</label>
+  <select id="period-filter">
+    <option value="7">直近7日</option>
+    <option value="30">直近30日</option>
+    <option value="all" selected>全期間</option>
+  </select>
+  <canvas id="typing-chart" aria-label="タイピング推移" role="img"></canvas>
+</section>
+
+<script type="module" define:vars={{ metrics }}>
+  import {
+    Chart,
+    CategoryScale,
+    Legend,
+    LineController,
+    LineElement,
+    LinearScale,
+    PointElement,
+    Title,
+    Tooltip,
+  } from 'https://cdn.jsdelivr.net/npm/chart.js@4.4.2/+esm';
+
+  Chart.register(
+    CategoryScale,
+    Legend,
+    LineController,
+    LineElement,
+    LinearScale,
+    PointElement,
+    Title,
+    Tooltip,
+  );
+
+  const sortedMetrics = [...metrics].sort(
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+  );
+
+  const canvas = document.getElementById('typing-chart');
+  const periodFilter = document.getElementById('period-filter');
+
+  if (!(canvas instanceof HTMLCanvasElement) || !(periodFilter instanceof HTMLSelectElement)) {
+    throw new Error('TypingChart initialization failed: required elements not found.');
+  }
+
+  const chart = new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels: sortedMetrics.map((item) => item.date),
+      datasets: [
+        {
+          label: '総入力文字数',
+          data: sortedMetrics.map((item) => item.totalChars),
+          borderColor: '#2563eb',
+          backgroundColor: 'rgba(37, 99, 235, 0.2)',
+          tension: 0.2,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      onClick: (_, elements) => {
+        const [firstPoint] = elements;
+        if (!firstPoint) {
+          return;
+        }
+
+        const index = firstPoint.index;
+        const targetDate = chart.data.labels?.[index];
+        if (typeof targetDate === 'string') {
+          window.location.href = `/typing/${targetDate}/`;
+        }
+      },
+      plugins: {
+        legend: {
+          display: true,
+        },
+      },
+    },
+  });
+
+  function filterByDays(days) {
+    if (days === 'all') {
+      return sortedMetrics;
+    }
+
+    const dayCount = Number(days);
+    if (!Number.isFinite(dayCount) || dayCount <= 0) {
+      return sortedMetrics;
+    }
+
+    return sortedMetrics.slice(-dayCount);
+  }
+
+  function updateChart(days) {
+    const filtered = filterByDays(days);
+    chart.data.labels = filtered.map((item) => item.date);
+    chart.data.datasets[0].data = filtered.map((item) => item.totalChars);
+    chart.update();
+  }
+
+  periodFilter.addEventListener('change', (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLSelectElement)) {
+      return;
+    }
+
+    updateChart(target.value);
+  });
+
+  updateChart(periodFilter.value);
+</script>
+
+<style>
+  section {
+    margin-bottom: 2rem;
+  }
+
+  #typing-chart {
+    min-height: 320px;
+    margin-top: 1rem;
+  }
+</style>

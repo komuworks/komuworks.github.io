@@ -1,16 +1,27 @@
 ---
+import TypingChart from '../../components/typing/TypingChart.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import { calcCorrectRate, validateMetrics } from '../../lib/typing';
 import { getCollection } from 'astro:content';
 
 const typingEntries = await getCollection('typing');
+const metrics = typingEntries
+  .map((entry) => validateMetrics(entry.data))
+  .filter((entry): entry is NonNullable<typeof entry> => entry !== null)
+  .sort((a, b) => b.date.localeCompare(a.date));
 ---
 
 <BaseLayout title="Typing">
   <h1>タイピング一覧</h1>
+
+  <TypingChart metrics={metrics} />
+
   <ul>
-    {typingEntries.map((entry) => (
+    {metrics.map((entry) => (
       <li>
-        <a href={`/typing/${entry.data.date}/`}>{entry.data.date}</a>
+        <a href={`/typing/${entry.date}/`}>{entry.date}</a>
+        {' - '}
+        正確率: {calcCorrectRate(entry.correctKeys, entry.errorKeys).toFixed(2)}%
       </li>
     ))}
   </ul>

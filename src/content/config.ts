@@ -69,7 +69,7 @@ const typing = defineCollection({
     totalChars: z.number(),
     correctKeys: z.number(),
     errorKeys: z.number(),
-    sessionMinutes: z.number(),
+    sessionMinutes: z.union([z.number(), z.string()]),
   }),
 });
 
