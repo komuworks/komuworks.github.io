@@ -43,7 +43,12 @@
     introContainer.innerHTML = renderIntro(data?.selfIntroduction);
     skillContainer.innerHTML =
       renderSkillTable(data?.skillSet?.categories, { categoryLimit: skillLimit, basePath }) + renderSectionLink('skill-set.html');
-    certContainer.innerHTML = renderCertifications(data?.certifications, { limit: certificationLimit }) + renderSectionLink('certifications.html');
+    certContainer.innerHTML =
+      renderCertifications(data?.certifications, {
+        limit: certificationLimit,
+        includeDetailLink: true,
+        detailBasePath: `${basePath}pages/profile/`,
+      }) + renderSectionLink('certifications.html');
     goalContainer.innerHTML =
       `
         <h3>Personal Goals</h3>
