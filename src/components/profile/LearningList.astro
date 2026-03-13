@@ -1,5 +1,6 @@
 ---
 import { formatCount } from '../../lib/format';
+import { toLearningDetail } from '../../lib/url';
 
 interface Learning {
   slug: string;
@@ -22,7 +23,7 @@ const { learnings } = Astro.props;
   <ul>
     {learnings.map((learning) => (
       <li>
-        <a href={`/profile/learnings/${learning.slug}/`}>{learning.title}</a>
+        <a href={toLearningDetail(learning.slug)}>{learning.title}</a>
         <p>{learning.summary}</p>
         <p>期間: {learning.period}</p>
       </li>

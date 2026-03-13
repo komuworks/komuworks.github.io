@@ -2,6 +2,7 @@
 import TypingChart from '../../components/typing/TypingChart.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { calcCorrectRate, validateMetrics } from '../../lib/typing';
+import { toTypingDetail } from '../../lib/url';
 import { getCollection } from 'astro:content';
 
 const typingEntries = await getCollection('typing');
@@ -19,7 +20,7 @@ const metrics = typingEntries
   <ul>
     {metrics.map((entry) => (
       <li>
-        <a href={`/typing/${entry.date}/`}>{entry.date}</a>
+        <a href={toTypingDetail(entry.date)}>{entry.date}</a>
         {' - '}
         正確率: {calcCorrectRate(entry.correctKeys, entry.errorKeys).toFixed(2)}%
       </li>

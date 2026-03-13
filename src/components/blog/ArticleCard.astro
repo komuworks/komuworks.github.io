@@ -1,5 +1,6 @@
 ---
 import { formatDate } from '../../lib/format';
+import { toBlogPost } from '../../lib/url';
 
 interface Props {
   slug: string;
@@ -14,7 +15,7 @@ const { slug, title, summary, date, tags } = Astro.props;
 
 <article>
   <h2>
-    <a href={`/blog/${slug}/`}>{title}</a>
+    <a href={toBlogPost(slug)}>{title}</a>
   </h2>
   <p>{summary}</p>
   <p>公開日: {formatDate(date)}</p>
