@@ -80,7 +80,21 @@
     window.requestAnimationFrame(step);
   };
 
-  const snapToSection = (nextIndex) => {
+  const getSectionScrollTop = (sectionIndex, direction) => {
+    const target = sections[sectionIndex];
+    if (!target) {
+      return 0;
+    }
+
+    if (direction < 0) {
+      const sectionBottom = target.offsetTop + target.offsetHeight;
+      return Math.max(0, sectionBottom - window.innerHeight + 8);
+    }
+
+    return sectionIndex === 0 ? 0 : target.offsetTop - 8;
+  };
+
+  const snapToSection = (nextIndex, direction) => {
     const boundedIndex = clampIndex(nextIndex);
     const target = sections[boundedIndex];
     if (!target) {
@@ -90,7 +104,7 @@
     isAnimating = true;
     activeSectionIndex = boundedIndex;
     wheelAccumulator = 0;
-    const targetY = boundedIndex === 0 ? 0 : target.offsetTop - 8;
+    const targetY = getSectionScrollTop(boundedIndex, direction);
     animateScrollTo(targetY);
   };
 
@@ -125,7 +139,7 @@
       }
 
       event.preventDefault();
-      snapToSection(activeSectionIndex + direction);
+      snapToSection(activeSectionIndex + direction, direction);
     },
     { passive: false }
   );
@@ -155,6 +169,6 @@
       return;
     }
 
-    snapToSection(activeSectionIndex + direction);
+    snapToSection(activeSectionIndex + direction, direction);
   });
 })();
