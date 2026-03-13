@@ -325,7 +325,8 @@ button {
 
 .home-hero-image {
   width: 100%;
-  max-height: 420px;
+  height: 100%;
+  max-height: none;
   object-fit: cover;
   border-radius: 10px;
   border: 1px solid var(--border);
@@ -334,6 +335,8 @@ button {
 
 .home-hero-media {
   position: relative;
+  height: calc(100vh - 180px);
+  min-height: 360px;
   margin-bottom: 1rem;
 }
 
@@ -347,6 +350,20 @@ button {
   font-size: clamp(2rem, 5vw, 3.8rem);
   font-weight: 800;
   letter-spacing: 0.08em;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+
+.home-hero-description {
+  position: absolute;
+  top: calc(50% + clamp(2.4rem, 5vw, 4rem));
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  width: min(92%, 760px);
+  padding: 0.75rem 1rem;
+  color: #fff;
+  text-align: center;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
 }
 
