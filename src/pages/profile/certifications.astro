@@ -1,0 +1,12 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getEntry } from 'astro:content';
+
+const profileEntry = await getEntry('profile', 'index');
+const certifications = profileEntry?.data.certifications ?? [];
+---
+
+<BaseLayout title="Profile Certifications">
+  <h1>資格</h1>
+  <p>登録数: {certifications.length}</p>
+</BaseLayout>

@@ -1,0 +1,12 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getEntry } from 'astro:content';
+
+const profileEntry = await getEntry('profile', 'index');
+---
+
+<BaseLayout title="Profile">
+  <h1>プロフィール</h1>
+  <p>名前: {profileEntry?.data.selfIntroduction.name}</p>
+  <p>専門: {profileEntry?.data.selfIntroduction.specialty}</p>
+</BaseLayout>

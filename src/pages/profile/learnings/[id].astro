@@ -1,0 +1,22 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { getEntry } from 'astro:content';
+
+export async function getStaticPaths() {
+  const profileEntry = await getEntry('profile', 'index');
+  const learnings = profileEntry?.data.learnings ?? [];
+
+  return learnings.map((learning) => ({
+    params: { id: learning.slug },
+    props: { learning },
+  }));
+}
+
+const { learning } = Astro.props;
+---
+
+<BaseLayout title={learning.title}>
+  <h1>{learning.title}</h1>
+  <p>期間: {learning.period}</p>
+  <p>{learning.summary}</p>
+</BaseLayout>
