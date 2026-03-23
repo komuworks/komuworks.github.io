@@ -20,25 +20,27 @@ const { skills } = Astro.props;
 ---
 
 {skills.map((skill) => (
-  <section>
+  <section class="surface-card stack" data-reveal>
     <h2>{skill.category}</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>スキル</th>
-          <th>経験年数</th>
-          <th>レベル</th>
-        </tr>
-      </thead>
-      <tbody>
-        {skill.items.map((item) => (
+    <div class="table-wrap">
+      <table>
+        <thead>
           <tr>
-            <td>{item.name}</td>
-            <td>{formatExperienceYears(item.years)}</td>
-            <td>{formatLevel(item.level)}</td>
+            <th>スキル</th>
+            <th>経験年数</th>
+            <th>レベル</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {skill.items.map((item) => (
+            <tr>
+              <td>{item.name}</td>
+              <td>{formatExperienceYears(item.years)}</td>
+              <td>{formatLevel(item.level)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   </section>
 ))}

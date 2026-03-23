@@ -17,15 +17,17 @@ const { learning, learnings } = Astro.props;
 ---
 
 <BaseLayout title={learning.title}>
-  <h2>{learning.title}</h2>
-  <p>期間: {learning.period}</p>
-  <p>{learning.summary}</p>
-  <ul>
-    {learning.detail.map((item) => (
-      <li>{item}</li>
-    ))}
-  </ul>
+  <section class="surface-card stack" data-reveal>
+    <h2>{learning.title}</h2>
+    <p>期間: {learning.period}</p>
+    <p>{learning.summary}</p>
+    <ul>
+      {learning.detail.map((item) => (
+        <li>{item}</li>
+      ))}
+    </ul>
+  </section>
 
-  <h2>学習一覧</h2>
+  <h2 data-reveal>学習一覧</h2>
   <LearningList learnings={learnings} />
 </BaseLayout>

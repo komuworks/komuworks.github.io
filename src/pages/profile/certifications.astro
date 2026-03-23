@@ -9,6 +9,8 @@ const certifications = profileEntry?.data.certifications ?? [];
 ---
 
 <BaseLayout title="Profile Certifications">
-  <p>登録数: {formatCount(certifications.length)}</p>
+  <section class="surface-card stack" data-reveal>
+    <p class="blog-meta">登録数: {formatCount(certifications.length)}</p>
+  </section>
   <CertificationList certifications={certifications} />
 </BaseLayout>
