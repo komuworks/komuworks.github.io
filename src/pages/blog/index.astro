@@ -6,21 +6,17 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import { formatCount } from '../../lib/format';
 
 const blogEntries = await getCollection('blog');
-const selectedTag = Astro.url.searchParams.get('tag') ?? undefined;
 const tags = [...new Set(blogEntries.flatMap((entry) => entry.data.tags))].sort();
-const filteredEntries = selectedTag
-  ? blogEntries.filter((entry) => entry.data.tags.includes(selectedTag))
-  : blogEntries;
 ---
 
 <BaseLayout title="Blog">
   <section class="surface-card stack" data-reveal>
-    <p class="blog-meta">記事数: {formatCount(filteredEntries.length)}</p>
-    <TagFilter tags={tags} selectedTag={selectedTag} />
+    <p class="blog-meta" data-blog-count>記事数: {formatCount(blogEntries.length)}</p>
+    <TagFilter tags={tags} />
   </section>
 
-  <section class="blog-list">
-    {filteredEntries.map((entry) => (
+  <section class="blog-list" data-blog-list>
+    {blogEntries.map((entry) => (
       <ArticleCard
         slug={entry.data.slug}
         title={entry.data.title}
@@ -31,3 +27,33 @@ const filteredEntries = selectedTag
     ))}
   </section>
 </BaseLayout>
+
+<script>
+  const selectedTag = new URL(window.location.href).searchParams.get('tag') ?? '';
+  const articleElements = Array.from(document.querySelectorAll('[data-article-tags]'));
+  const tagLinks = Array.from(document.querySelectorAll('[data-tag-filter] a'));
+  const countElement = document.querySelector('[data-blog-count]');
+
+  const visibleCount = articleElements.reduce((count, element) => {
+    const rawTags = element.getAttribute('data-article-tags') ?? '[]';
+    const entryTags = JSON.parse(rawTags);
+    const shouldShow = !selectedTag || entryTags.includes(selectedTag);
+
+    element.hidden = !shouldShow;
+
+    return shouldShow ? count + 1 : count;
+  }, 0);
+
+  tagLinks.forEach((link) => {
+    const linkTag = link.getAttribute('data-tag') ?? '';
+    if (linkTag === selectedTag) {
+      link.setAttribute('aria-current', 'page');
+    } else {
+      link.removeAttribute('aria-current');
+    }
+  });
+
+  if (countElement) {
+    countElement.textContent = `記事数: ${visibleCount}件`;
+  }
+</script>
