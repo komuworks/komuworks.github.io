@@ -12,7 +12,11 @@
     "format": "prettier --write \"src/**/*.{astro,css,js,jsx,json,md,ts,tsx}\""
   },
   "dependencies": {
-    "astro": "^5.5.5"
+    "@astrojs/react": "^4.2.0",
+    "astro": "^5.5.5",
+    "gsap": "^3.12.7",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.28.0",
