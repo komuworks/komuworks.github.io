@@ -12,9 +12,6 @@ const [blogEntries, typingEntries] = await Promise.all([
 
 <BaseLayout title="Home" showPageHeading={false} mainClass="home-main">
   <section class="stack feature-photo" data-reveal>
-    <div class="feature-photo-heading">
-      <h2>Feature Photo</h2>
-    </div>
     <div class="feature-photo-media">
       <picture class="responsive-photo">
         <source
@@ -45,6 +42,7 @@ const [blogEntries, typingEntries] = await Promise.all([
           decoding="async"
         />
       </picture>
+      <p class="feature-photo-title" aria-label="KOMUWORKS">KOMUWORKS</p>
     </div>
   </section>
 
