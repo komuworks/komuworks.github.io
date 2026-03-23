@@ -14,8 +14,11 @@ const filteredEntries = selectedTag
 ---
 
 <BaseLayout title="Blog">
-  <p class="blog-meta">記事数: {formatCount(filteredEntries.length)}</p>
-  <TagFilter tags={tags} selectedTag={selectedTag} />
+  <section class="surface-card stack" data-reveal>
+    <p class="blog-meta">記事数: {formatCount(filteredEntries.length)}</p>
+    <TagFilter tags={tags} selectedTag={selectedTag} />
+  </section>
+
   <section class="blog-list">
     {filteredEntries.map((entry) => (
       <ArticleCard

@@ -13,7 +13,7 @@ interface Props {
 const { slug, title, summary, date, tags } = Astro.props;
 ---
 
-<article class="blog-card">
+<article class="blog-card" data-reveal>
   <h2>
     <a href={toBlogPost(slug)}>{title}</a>
   </h2>

@@ -17,15 +17,17 @@ const { goal, goals } = Astro.props;
 ---
 
 <BaseLayout title={goal.title}>
-  <h2>{goal.title}</h2>
-  <p>優先度: {goal.priority}</p>
-  <p>期間: {goal.targetPeriod}</p>
-  <ul>
-    {goal.detail.map((item) => (
-      <li>{item}</li>
-    ))}
-  </ul>
+  <section class="surface-card stack" data-reveal>
+    <h2>{goal.title}</h2>
+    <p>優先度: {goal.priority}</p>
+    <p>期間: {goal.targetPeriod}</p>
+    <ul>
+      {goal.detail.map((item) => (
+        <li>{item}</li>
+      ))}
+    </ul>
+  </section>
 
-  <h2>目標一覧</h2>
+  <h2 data-reveal>目標一覧</h2>
   <GoalList goals={goals} />
 </BaseLayout>

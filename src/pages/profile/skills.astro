@@ -9,6 +9,8 @@ const skills = profileEntry?.data.skills ?? [];
 ---
 
 <BaseLayout title="Profile Skills">
-  <p>カテゴリ数: {formatCount(skills.length)}</p>
+  <section class="surface-card stack" data-reveal>
+    <p class="blog-meta">カテゴリ数: {formatCount(skills.length)}</p>
+  </section>
   <SkillTable skills={skills} />
 </BaseLayout>

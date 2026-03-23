@@ -17,14 +17,14 @@ interface Props {
 const { certifications } = Astro.props;
 ---
 
-<ul>
+<ul class="profile-list" data-reveal>
   {certifications.map((certification) => (
-    <li>
+    <li class="profile-card">
       <strong>{certification.name}</strong>
       <p>{certification.organizer}</p>
-      <p>結果: {certification.result}</p>
-      <p>取得: {formatYearMonth(certification.acquiredDate)}</p>
-      <p>有効期限: {formatYearMonth(certification.expiryDate)}</p>
+      <p class="blog-meta">結果: {certification.result}</p>
+      <p class="blog-meta">取得: {formatYearMonth(certification.acquiredDate)}</p>
+      <p class="blog-meta">有効期限: {formatYearMonth(certification.expiryDate)}</p>
     </li>
   ))}
 </ul>

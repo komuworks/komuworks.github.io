@@ -116,7 +116,7 @@ export default function HomeHeroMotion({ blogHref, profileHref, goalsHref, typin
   }, []);
 
   return (
-    <section ref={rootRef} className="hero-motion" aria-label="ホームヒーロー">
+    <section ref={rootRef} className="hero-motion" aria-label="ホームヒーロー" data-reveal>
       <div className="hero-card">
         <div className="hero-deco" data-hero-deco-layer>
           <span data-hero-deco data-hero-orb="left" className="hero-orb hero-orb-left" />

@@ -30,7 +30,10 @@ if (!entry) {
       tags={entry.data.tags}
     />
   </section>
-  <h2>本文</h2>
-  <p class="blog-meta">日付: {formatDate(entry.data.date)}</p>
-  <p>{entry.data.body}</p>
+
+  <section class="surface-card stack" data-reveal>
+    <h2>本文</h2>
+    <p class="blog-meta">日付: {formatDate(entry.data.date)}</p>
+    <p>{entry.data.body}</p>
+  </section>
 </BaseLayout>

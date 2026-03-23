@@ -9,8 +9,8 @@ interface Props {
 const { tags, selectedTag } = Astro.props;
 ---
 
-<section aria-label="Tag Filter">
-  <p>タグで絞り込み:</p>
+<section class="surface-card" aria-label="Tag Filter" data-reveal>
+  <p class="muted">タグで絞り込み:</p>
   <ul class="tag-filter-list">
     <li>
       <a href={toBlogIndex()} aria-current={selectedTag ? undefined : 'page'}>すべて</a>

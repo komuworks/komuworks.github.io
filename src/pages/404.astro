@@ -1,8 +1,12 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { toHome } from '../lib/url';
 ---
 
 <BaseLayout title="404 Not Found">
-  <h1>404</h1>
-  <p>ページが見つかりません。</p>
+  <section class="surface-card stack" data-reveal>
+    <h2>404</h2>
+    <p>ページが見つかりません。URLをご確認ください。</p>
+    <p><a href={toHome()}>ホームへ戻る</a></p>
+  </section>
 </BaseLayout>
