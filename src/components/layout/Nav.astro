@@ -9,10 +9,50 @@ const links = [
 ];
 ---
 
-<nav class="site-nav" aria-label="Global Navigation">
-  <ul class="site-nav-list">
+<nav class="site-nav" aria-label="Global Navigation" data-site-nav>
+  <button
+    class="site-nav-toggle"
+    type="button"
+    aria-expanded="false"
+    aria-controls="global-nav-list"
+    data-site-nav-toggle
+  >
+    <span class="site-nav-toggle-label">Menu</span>
+    <span class="site-nav-toggle-icon" aria-hidden="true"></span>
+  </button>
+
+  <ul class="site-nav-list" id="global-nav-list" data-site-nav-list>
     {links.map((link) => (
       <li><a href={link.href}>{link.label}</a></li>
     ))}
   </ul>
 </nav>
+
+<script>
+  const nav = document.querySelector('[data-site-nav]');
+  const toggle = nav?.querySelector('[data-site-nav-toggle]');
+  const list = nav?.querySelector('[data-site-nav-list]');
+
+  if (toggle instanceof HTMLButtonElement && list instanceof HTMLElement) {
+    const closeMenu = () => {
+      toggle.setAttribute('aria-expanded', 'false');
+      list.setAttribute('data-open', 'false');
+    };
+
+    toggle.addEventListener('click', () => {
+      const isOpen = toggle.getAttribute('aria-expanded') === 'true';
+      toggle.setAttribute('aria-expanded', String(!isOpen));
+      list.setAttribute('data-open', String(!isOpen));
+    });
+
+    list.querySelectorAll('a').forEach((link) => {
+      link.addEventListener('click', closeMenu);
+    });
+
+    window.addEventListener('resize', () => {
+      if (window.innerWidth >= 768) {
+        closeMenu();
+      }
+    });
+  }
+</script>
