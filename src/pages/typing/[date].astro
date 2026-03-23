@@ -26,7 +26,7 @@ const { metric } = Astro.props;
 
 <BaseLayout title={`Typing ${metric.date}`}>
   <h1>タイピング詳細</h1>
-  <p>日付: {metric.date}</p>
+  <p class="blog-meta">日付: {metric.date}</p>
   <p>総入力文字数: {metric.totalChars}</p>
   <p>正確キー数: {metric.correctKeys}</p>
   <p>エラーキー数: {metric.errorKeys}</p>

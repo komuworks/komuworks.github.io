@@ -17,7 +17,7 @@ const metrics = typingEntries
 
   <TypingChart metrics={metrics} />
 
-  <ul>
+  <ul class="typing-list">
     {metrics.map((entry) => (
       <li>
         <a href={toTypingDetail(entry.date)}>{entry.date}</a>
