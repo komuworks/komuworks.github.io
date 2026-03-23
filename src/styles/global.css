@@ -361,6 +361,22 @@ a {
   height: auto;
 }
 
+.feature-photo {
+  gap: 0.75rem;
+}
+
+.feature-photo-heading {
+  margin: 0;
+}
+
+.feature-photo-media {
+  margin-inline: calc(var(--page-main-padding) * -1);
+}
+
+.feature-photo-media .responsive-photo {
+  border-radius: 0;
+}
+
 .stack {
   display: grid;
   gap: 1rem;
