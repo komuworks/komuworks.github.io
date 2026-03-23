@@ -5,7 +5,6 @@ import {
   toBlogIndex,
   toGoalList,
   toHome,
-  toLegacyHome,
   toProfileIndex,
   toTypingIndex,
 } from '../lib/url';
@@ -34,10 +33,4 @@ const [blogEntries, typingEntries] = await Promise.all([
     </ul>
   </section>
 
-  <section aria-label="旧サイト導線">
-    <h2>旧サイト</h2>
-    <p>
-      旧版は引き続き参照できます: <a href={toLegacyHome()}>old/</a>
-    </p>
-  </section>
 </BaseLayout>
