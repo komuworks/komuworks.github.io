@@ -1,6 +1,5 @@
 ---
 import type { TypingMetric } from '../../lib/typing';
-import { toTypingDetail } from '../../lib/url';
 
 interface Props {
   metrics: TypingMetric[];
@@ -17,7 +16,9 @@ const { metrics } = Astro.props;
     <option value="30">直近30日</option>
     <option value="all" selected>全期間</option>
   </select>
-  <canvas id="typing-chart" aria-label="タイピング推移" role="img"></canvas>
+  <div class="chart-wrapper">
+    <canvas id="typing-chart" aria-label="タイピング推移" role="img"></canvas>
+  </div>
 </section>
 
 <script type="module" define:vars={{ metrics }}>
@@ -81,7 +82,7 @@ const { metrics } = Astro.props;
         const index = firstPoint.index;
         const targetDate = chart.data.labels?.[index];
         if (typeof targetDate === 'string') {
-          window.location.href = toTypingDetail(targetDate);
+          window.location.href = `/typing/${encodeURIComponent(targetDate)}/`;
         }
       },
       plugins: {
@@ -130,7 +131,14 @@ const { metrics } = Astro.props;
   }
 
   #typing-chart {
-    min-height: 320px;
+    width: 100%;
+    height: 100%;
+    display: block;
+    margin-top: 0;
+  }
+
+  .chart-wrapper {
+    height: clamp(320px, 45vh, 480px);
     margin-top: 1rem;
   }
 </style>
