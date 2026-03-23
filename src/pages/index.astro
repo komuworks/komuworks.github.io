@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import HomeHeroMotion from '../components/motion/HomeHeroMotion';
 import {
   toBlogIndex,
   toGoalList,
@@ -17,9 +18,10 @@ const [blogEntries, typingEntries] = await Promise.all([
 ---
 
 <BaseLayout title="Home">
-  <h1>トップページ</h1>
-  <p>ブログ件数: {blogEntries.length}</p>
-  <p>タイピング記録件数: {typingEntries.length}</p>
+  <HomeHeroMotion client:load>
+    <span slot="blog-count">{blogEntries.length}</span>
+    <span slot="typing-count">{typingEntries.length}</span>
+  </HomeHeroMotion>
 
   <section aria-label="新サイト導線">
     <h2>新URL</h2>
