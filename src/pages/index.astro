@@ -11,37 +11,41 @@ const [blogEntries, typingEntries] = await Promise.all([
 ---
 
 <BaseLayout title="Home" showPageHeading={false} mainClass="home-main">
-  <section class="surface-card stack" data-reveal>
-    <h2>Feature Photo</h2>
-    <picture class="responsive-photo">
-      <source
-        type="image/webp"
-        srcset="
-          /images/hero-750.webp 750w,
-          /images/hero-1280.webp 1280w,
-          /images/hero-1920.webp 1920w,
-          /images/hero-2560.webp 2560w,
-          /images/hero-3840.webp 3840w,
-          /images/hero-5120.webp 5120w
-        "
-        sizes="100vw"
-      />
-      <img
-        src="/images/abarth-2560.jpg"
-        srcset="
-          /images/hero-750.jpg 750w,
-          /images/hero-1280.jpg 1280w,
-          /images/hero-1920.jpg 1920w,
-          /images/hero-2560.jpg 2560w,
-          /images/hero-3840.jpg 3840w,
-          /images/hero-5120.jpg 5120w
-        "
-        sizes="100vw"
-        alt="海沿いの防波堤に停車した車"
-        loading="eager"
-        decoding="async"
-      />
-    </picture>
+  <section class="stack feature-photo" data-reveal>
+    <div class="feature-photo-heading">
+      <h2>Feature Photo</h2>
+    </div>
+    <div class="feature-photo-media">
+      <picture class="responsive-photo">
+        <source
+          type="image/webp"
+          srcset="
+            /images/hero-750.webp 750w,
+            /images/hero-1280.webp 1280w,
+            /images/hero-1920.webp 1920w,
+            /images/hero-2560.webp 2560w,
+            /images/hero-3840.webp 3840w,
+            /images/hero-5120.webp 5120w
+          "
+          sizes="100vw"
+        />
+        <img
+          src="/images/abarth-2560.jpg"
+          srcset="
+            /images/hero-750.jpg 750w,
+            /images/hero-1280.jpg 1280w,
+            /images/hero-1920.jpg 1920w,
+            /images/hero-2560.jpg 2560w,
+            /images/hero-3840.jpg 3840w,
+            /images/hero-5120.jpg 5120w
+          "
+          sizes="100vw"
+          alt="海沿いの防波堤に停車した車"
+          loading="eager"
+          decoding="async"
+        />
+      </picture>
+    </div>
   </section>
 
   <HomeHeroMotion
