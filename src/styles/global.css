@@ -348,6 +348,19 @@ a {
   box-shadow: 0 20px 35px rgb(15 23 42 / 0.08);
 }
 
+.responsive-photo {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+}
+
+.responsive-photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
 .stack {
   display: grid;
   gap: 1rem;
