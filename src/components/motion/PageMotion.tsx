@@ -8,8 +8,21 @@ export default function PageMotion() {
   useLayoutEffect(() => {
     if (!rootRef.current) return;
 
+    const updateHeaderHeight = () => {
+      const header = document.querySelector<HTMLElement>('.site-header');
+      const headerHeight = header?.offsetHeight ?? 0;
+      document.documentElement.style.setProperty('--site-header-height', `${headerHeight}px`);
+    };
+
+    updateHeaderHeight();
+    window.addEventListener('resize', updateHeaderHeight);
+
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reducedMotion) return;
+    if (reducedMotion) {
+      return () => {
+        window.removeEventListener('resize', updateHeaderHeight);
+      };
+    }
 
     gsap.registerPlugin(ScrollTrigger);
 
@@ -37,7 +50,10 @@ export default function PageMotion() {
       });
     }, rootRef);
 
-    return () => ctx.revert();
+    return () => {
+      window.removeEventListener('resize', updateHeaderHeight);
+      ctx.revert();
+    };
   }, []);
 
   return <div ref={rootRef} aria-hidden="true" />;
