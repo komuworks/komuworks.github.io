@@ -11,13 +11,23 @@ const { tags, selectedTag } = Astro.props;
 
 <section class="surface-card" aria-label="Tag Filter" data-reveal>
   <p class="muted">タグで絞り込み:</p>
-  <ul class="tag-filter-list">
+  <ul class="tag-filter-list" data-tag-filter>
     <li>
-      <a href={toBlogIndex()} aria-current={selectedTag ? undefined : 'page'}>すべて</a>
+      <a
+        href={toBlogIndex()}
+        data-tag=""
+        aria-current={selectedTag ? undefined : 'page'}
+      >
+        すべて
+      </a>
     </li>
     {tags.map((tag) => (
       <li>
-        <a href={toBlogIndex(tag)} aria-current={selectedTag === tag ? 'page' : undefined}>
+        <a
+          href={toBlogIndex(tag)}
+          data-tag={tag}
+          aria-current={selectedTag === tag ? 'page' : undefined}
+        >
           {tag}
         </a>
       </li>
