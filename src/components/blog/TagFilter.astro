@@ -11,7 +11,7 @@ const { tags, selectedTag } = Astro.props;
 
 <section aria-label="Tag Filter">
   <p>タグで絞り込み:</p>
-  <ul>
+  <ul class="tag-filter-list">
     <li>
       <a href={toBlogIndex()} aria-current={selectedTag ? undefined : 'page'}>すべて</a>
     </li>

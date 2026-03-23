@@ -9,8 +9,12 @@ interface Props {
 const { title } = Astro.props;
 ---
 
-<header>
-  <a href={toHome()}>komuworks.github.io</a>
-  <h1>{title}</h1>
-  <Nav />
+<header class="site-header">
+  <div class="header-inner">
+    <p class="site-title">
+      <a href={toHome()}>komuworks.github.io</a>
+    </p>
+    <h1 class="page-title">{title}</h1>
+    <Nav />
+  </div>
 </header>
