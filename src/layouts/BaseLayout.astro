@@ -7,9 +7,10 @@ import '../styles/global.css';
 interface Props {
   title: string;
   showPageHeading?: boolean;
+  mainClass?: string;
 }
 
-const { title, showPageHeading = true } = Astro.props;
+const { title, showPageHeading = true, mainClass = '' } = Astro.props;
 ---
 
 <html lang="ja">
@@ -26,7 +27,7 @@ const { title, showPageHeading = true } = Astro.props;
     </div>
     <div class="site-shell" data-site-shell>
       <Header />
-      <main class="page-main">
+      <main class={`page-main ${mainClass}`.trim()}>
         {showPageHeading && (
           <section class="page-heading-wrap" data-reveal>
             <p class="page-kicker">Page Heading</p>
