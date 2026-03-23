@@ -1,6 +1,11 @@
+import { glob } from 'astro/loaders';
 import { defineCollection, z } from 'astro:content';
 
 const blog = defineCollection({
+  loader: glob({
+    base: './src/content/blog',
+    pattern: '*.json',
+  }),
   schema: z.object({
     slug: z.string(),
     title: z.string(),
@@ -12,6 +17,10 @@ const blog = defineCollection({
 });
 
 const profile = defineCollection({
+  loader: glob({
+    base: './src/content/profile',
+    pattern: 'index.json',
+  }),
   schema: z.object({
     selfIntroduction: z.object({
       name: z.string(),
@@ -64,6 +73,10 @@ const profile = defineCollection({
 });
 
 const typing = defineCollection({
+  loader: glob({
+    base: './src/content/typing',
+    pattern: '*.json',
+  }),
   schema: z.object({
     date: z.string(),
     totalChars: z.number(),

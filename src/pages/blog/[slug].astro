@@ -1,7 +1,6 @@
 ---
-import { getCollection } from 'astro:content';
+import { getCollection, getEntry } from 'astro:content';
 import ArticleCard from '../../components/blog/ArticleCard.astro';
-import TagFilter from '../../components/blog/TagFilter.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { formatDate } from '../../lib/format';
 
@@ -10,15 +9,18 @@ export async function getStaticPaths() {
 
   return blogEntries.map((entry) => ({
     params: { slug: entry.data.slug },
-    props: { entry, tags: [...new Set(blogEntries.flatMap((item) => item.data.tags))].sort() },
   }));
 }
 
-const { entry, tags } = Astro.props;
+const slug = Astro.params.slug;
+const entry = slug ? await getEntry('blog', slug) : undefined;
+
+if (!entry) {
+  throw new Error(`Blog entry not found for slug: ${slug}`);
+}
 ---
 
 <BaseLayout title={entry.data.title}>
-  <TagFilter tags={tags} selectedTag={undefined} />
   <section class="blog-list">
     <ArticleCard
       slug={entry.data.slug}
