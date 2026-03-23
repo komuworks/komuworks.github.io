@@ -11,6 +11,7 @@
   --border: rgb(148 163 184 / 0.35);
   --radius: 18px;
   --shadow: 0 30px 55px rgb(15 23 42 / 0.16);
+  --site-header-height: 0px;
 }
 
 * {
@@ -372,6 +373,19 @@ a {
 
 .feature-photo-media .responsive-photo {
   border-radius: 0;
+}
+
+@media (max-width: 767px) {
+  .feature-photo-media .responsive-photo {
+    height: calc(100svh - var(--site-header-height));
+    max-height: calc(100svh - var(--site-header-height));
+  }
+
+  .feature-photo-media .responsive-photo img {
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
 }
 
 .feature-photo-media::after {
