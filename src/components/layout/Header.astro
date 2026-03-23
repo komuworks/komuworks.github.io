@@ -1,12 +1,6 @@
 ---
 import { toHome } from '../../lib/url';
 import Nav from './Nav.astro';
-
-interface Props {
-  title: string;
-}
-
-const { title } = Astro.props;
 ---
 
 <header class="site-header" data-reveal>
@@ -15,10 +9,6 @@ const { title } = Astro.props;
       <span class="site-brand-mark">KW</span>
       <span>komuworks.github.io</span>
     </a>
-    <div class="header-title-wrap">
-      <p class="header-kicker">Personal Knowledge Hub</p>
-      <h1 class="page-title">{title}</h1>
-    </div>
     <Nav />
   </div>
 </header>

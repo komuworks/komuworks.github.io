@@ -10,7 +10,7 @@ const [blogEntries, typingEntries] = await Promise.all([
 ]);
 ---
 
-<BaseLayout title="Home">
+<BaseLayout title="Home" showPageHeading={false}>
   <HomeHeroMotion
     blogHref={toBlogIndex()}
     profileHref={toProfileIndex()}
