@@ -123,6 +123,10 @@ body {
   padding: var(--page-main-padding);
 }
 
+.page-main.home-main {
+  padding-top: 0;
+}
+
 .site-header,
 .site-footer {
   padding: clamp(1rem, 2vw, 1.6rem);
@@ -429,6 +433,7 @@ td {
 .hero-card {
   position: relative;
   overflow: hidden;
+  height: 744px;
   padding: clamp(1.25rem, 3vw, 2rem);
   border-radius: 0;
   border: 1px solid color-mix(in srgb, var(--primary) 18%, var(--border));
