@@ -129,3 +129,11 @@ p {
   flex-wrap: wrap;
   gap: 0.4rem 0.8rem;
 }
+
+.hero-motion {
+  margin: 0 0 1rem;
+}
+
+.hero-motion .hero-meta p {
+  margin-bottom: 0.5rem;
+}
