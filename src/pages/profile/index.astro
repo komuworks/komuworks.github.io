@@ -1,10 +1,15 @@
 ---
 import { getEntry } from 'astro:content';
+import CertificationList from '../../components/profile/CertificationList.astro';
 import GoalList from '../../components/profile/GoalList.astro';
 import LearningList from '../../components/profile/LearningList.astro';
+import SkillTable from '../../components/profile/SkillTable.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import { formatCount } from '../../lib/format';
 
 const profileEntry = await getEntry('profile', 'index');
+const skills = profileEntry?.data.skills ?? [];
+const certifications = profileEntry?.data.certifications ?? [];
 const goals = profileEntry?.data.goals ?? [];
 const learnings = profileEntry?.data.learnings ?? [];
 ---
@@ -16,6 +21,18 @@ const learnings = profileEntry?.data.learnings ?? [];
     <p>専門: {profileEntry?.data.selfIntroduction.specialty}</p>
     <p>志向: {profileEntry?.data.selfIntroduction.careerPreference}</p>
   </section>
+
+  <h2 data-reveal>資格</h2>
+  <section class="surface-card stack" data-reveal>
+    <p class="blog-meta">登録数: {formatCount(certifications.length)}</p>
+  </section>
+  <CertificationList certifications={certifications} />
+
+  <h2 data-reveal>スキル</h2>
+  <section class="surface-card stack" data-reveal>
+    <p class="blog-meta">カテゴリ数: {formatCount(skills.length)}</p>
+  </section>
+  <SkillTable skills={skills} />
 
   <h2 data-reveal>目標</h2>
   <GoalList goals={goals} />
