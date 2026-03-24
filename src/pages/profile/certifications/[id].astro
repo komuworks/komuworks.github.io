@@ -1,0 +1,27 @@
+---
+import { getEntry } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { formatYearMonth } from '../../../lib/format';
+
+export async function getStaticPaths() {
+  const profileEntry = await getEntry('profile', 'index');
+  const certifications = profileEntry?.data.certifications ?? [];
+
+  return certifications.map((certification) => ({
+    params: { id: certification.slug },
+    props: { certification },
+  }));
+}
+
+const { certification } = Astro.props;
+---
+
+<BaseLayout title={`Certification: ${certification.name}`}>
+  <section class="surface-card stack" data-reveal>
+    <h2>{certification.name}</h2>
+    <p>{certification.organizer}</p>
+    <p>結果: {certification.result}</p>
+    <p>取得: {formatYearMonth(certification.acquiredDate)}</p>
+    <p>有効期限: {formatYearMonth(certification.expiryDate)}</p>
+  </section>
+</BaseLayout>

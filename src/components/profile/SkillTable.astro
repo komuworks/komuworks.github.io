@@ -1,5 +1,6 @@
 ---
 import { formatExperienceYears, formatLevel } from '../../lib/format';
+import { toSkillDetail } from '../../lib/url';
 
 interface SkillItem {
   name: string;
@@ -34,7 +35,9 @@ const { skills } = Astro.props;
         <tbody>
           {skill.items.map((item) => (
             <tr>
-              <td>{item.name}</td>
+              <td>
+                <a href={toSkillDetail(skill.category, item.name)}>{item.name}</a>
+              </td>
               <td>{formatExperienceYears(item.years)}</td>
               <td>{formatLevel(item.level)}</td>
             </tr>
