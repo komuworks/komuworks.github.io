@@ -25,9 +25,7 @@ const { certifications } = Astro.props;
         <a href={toCertificationDetail(certification.slug)}>{certification.name}</a>
       </strong>
       <p>{certification.organizer}</p>
-      <p class="blog-meta">結果: {certification.result}</p>
-      <p class="blog-meta">取得: {formatYearMonth(certification.acquiredDate)}</p>
-      <p class="blog-meta">有効期限: {formatYearMonth(certification.expiryDate)}</p>
+      <p class="blog-meta">{formatYearMonth(certification.acquiredDate)} {certification.result}</p>
     </li>
   ))}
 </ul>
