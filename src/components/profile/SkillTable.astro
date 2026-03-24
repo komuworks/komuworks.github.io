@@ -36,7 +36,7 @@ const getSegmentFillRate = (level: number, segmentIndex: number): number => {
         <table>
           <thead>
             <tr>
-              <th>スキル</th>
+              <th class="col-skill">スキル</th>
               <th class="col-years">経験年数</th>
               <th class="col-level">レベル</th>
             </tr>
@@ -44,7 +44,7 @@ const getSegmentFillRate = (level: number, segmentIndex: number): number => {
           <tbody>
             {skill.items.map((item, itemIndex) => (
               <tr data-hidden={itemIndex >= defaultVisibleCount ? 'true' : undefined}>
-                <td>{item.name}</td>
+                <td class="col-skill">{item.name}</td>
                 <td class="col-years">{formatExperienceYears(item.years)}</td>
                 <td class="col-level">
                   <div class="skill-level" aria-label={`レベル ${item.level} / 10`}>
@@ -97,18 +97,26 @@ const getSegmentFillRate = (level: number, segmentIndex: number): number => {
     text-align: center;
   }
 
+
+  table {
+    table-layout: fixed;
+  }
+
+  th.col-skill,
+  td.col-skill {
+    width: 37%;
+  }
+
+  th.col-years,
   td.col-years {
-    width: 10ch;
-    min-width: 10ch;
-    max-width: 14ch;
+    width: 22%;
     text-align: right;
     white-space: nowrap;
   }
 
+  th.col-level,
   td.col-level {
-    width: 9rem;
-    min-width: 9rem;
-    max-width: 12rem;
+    width: 41%;
     text-align: center;
     white-space: nowrap;
   }
