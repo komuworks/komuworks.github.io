@@ -390,9 +390,6 @@ a {
   position: relative;
   width: 100%;
   max-width: none;
-  inline-size: 100vw;
-  margin-inline: calc(50% - 50vw);
-  max-inline-size: 100vw;
 }
 
 .feature-photo-media .responsive-photo {
