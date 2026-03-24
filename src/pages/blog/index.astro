@@ -11,6 +11,7 @@ const tags = await getBlogTags();
 
 <BaseLayout title="Blog">
   <section class="surface-card stack" data-reveal>
+    <h2>記事一覧</h2>
     <p class="blog-meta" data-blog-count>記事数: {formatCount(blogEntries.length)}</p>
     <TagFilter tags={tags} />
     <section class="blog-list" data-blog-list>
