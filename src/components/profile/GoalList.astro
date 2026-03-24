@@ -26,7 +26,6 @@ const { goals } = Astro.props;
         <h3><a href={toGoalDetail(goal.slug)}>{goal.title}</a></h3>
         <p>{goal.summary}</p>
         <p class="blog-meta">優先度: {goal.priority}</p>
-        <p class="blog-meta">期間: {goal.targetPeriod}</p>
       </li>
     ))}
   </ul>
