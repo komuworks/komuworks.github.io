@@ -66,7 +66,7 @@ const { metrics } = Astro.props;
       labels: sortedMetrics.map((item) => item.date),
       datasets: [
         {
-          label: '総入力文字数',
+          label: '入力文字数',
           data: sortedMetrics.map((item) => item.totalChars),
           borderColor: '#2563eb',
           backgroundColor: 'rgba(37, 99, 235, 0.2)',
@@ -110,7 +110,7 @@ const { metrics } = Astro.props;
           position: 'left',
           title: {
             display: true,
-            text: '総入力文字数',
+            text: '入力文字数',
           },
         },
         yRate: {
