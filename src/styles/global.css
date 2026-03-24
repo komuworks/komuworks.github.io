@@ -388,7 +388,7 @@ a {
 
 .feature-photo-media {
   position: relative;
-  width: 100vw;
+  width: 100%;
   max-width: none;
   inline-size: calc(100% + (var(--page-main-padding, 0px) * 2));
   margin-inline: calc(var(--page-main-padding, 0px) * -1);
