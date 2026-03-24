@@ -538,6 +538,9 @@ td {
 
 .hero-card {
   position: relative;
+  display: grid;
+  align-content: start;
+  gap: 0.85rem;
   overflow: hidden;
   height: 744px;
   padding: clamp(1.25rem, 3vw, 2rem);
@@ -589,7 +592,7 @@ td {
 .hero-kicker {
   position: relative;
   display: inline-flex;
-  margin: 0 0 0.65rem;
+  margin: 0;
   padding: 0.25rem 0.6rem;
   border-radius: 999px;
   border: 1px solid rgb(37 99 235 / 0.32);
@@ -604,12 +607,12 @@ td {
 .hero-stats,
 .hero-links {
   position: relative;
+  margin: 0;
 }
 
 .hero-stats {
   display: grid;
   gap: 0.65rem;
-  margin: 1rem 0 1.2rem;
 }
 
 .hero-stats p {
