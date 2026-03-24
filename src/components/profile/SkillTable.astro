@@ -17,6 +17,14 @@ interface Props {
 }
 
 const { skills } = Astro.props;
+
+const getSegmentFillRate = (level: number, segmentIndex: number): number => {
+  const normalizedLevel = Math.max(0, Math.min(level, 10));
+  const totalSegments = 5;
+  const filledSegments = (normalizedLevel / 10) * totalSegments;
+
+  return Math.max(0, Math.min(filledSegments - segmentIndex, 1));
+};
 ---
 
 <section class="surface-card stack" data-reveal>
@@ -38,7 +46,16 @@ const { skills } = Astro.props;
               <tr>
                 <td>{item.name}</td>
                 <td>{formatExperienceYears(item.years)}</td>
-                <td>{formatLevel(item.level)}</td>
+                <td>
+                  <div class="skill-level" aria-label={`レベル ${item.level} / 10`}>
+                    <div class="skill-level__rating" aria-hidden="true">
+                      {[...Array(5)].map((_, index) => (
+                        <span class="skill-level__segment" style={`--fill-rate: ${getSegmentFillRate(item.level, index)};`} />
+                      ))}
+                    </div>
+                    <span class="skill-level__text">{formatLevel(item.level)}</span>
+                  </div>
+                </td>
               </tr>
             ))}
           </tbody>
@@ -47,3 +64,41 @@ const { skills } = Astro.props;
     </section>
   ))}
 </section>
+
+<style>
+  .skill-level {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .skill-level__rating {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .skill-level__segment {
+    --segment-bg: color-mix(in srgb, var(--text) 22%, transparent);
+    --segment-fill: var(--accent);
+    position: relative;
+    width: 1rem;
+    height: 0.6rem;
+    border-radius: 0.15rem;
+    transform: skewX(-24deg);
+    overflow: hidden;
+    background: var(--segment-bg);
+  }
+
+  .skill-level__segment::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    width: calc(var(--fill-rate) * 100%);
+    background: var(--segment-fill);
+  }
+
+  .skill-level__text {
+    white-space: nowrap;
+  }
+</style>
