@@ -19,5 +19,5 @@ const { slug, title, summary, date, tags } = Astro.props;
     <a href={toBlogPost(slug)}>{title}</a>
   </h3>
   <p>{summary}</p>
-  <p class="blog-meta">タグ: {tags.map((tag) => `#${tag}`).join(' ')}</p>
+  <p class="blog-meta">{tags.map((tag) => `#${tag}`).join(' ')}</p>
 </article>
