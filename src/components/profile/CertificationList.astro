@@ -15,12 +15,17 @@ interface Props {
 }
 
 const { certifications } = Astro.props;
+const currentYearMonth = new Date().toISOString().slice(0, 7);
+const activeCertifications = certifications.filter(
+  (certification) =>
+    certification.expiryDate === null || certification.expiryDate >= currentYearMonth,
+);
 ---
 
 <section class="surface-card stack" data-reveal>
-  <p class="muted">登録資格: {formatCount(certifications.length)}</p>
+  <p class="muted">登録資格: {formatCount(activeCertifications.length)}</p>
   <ul class="profile-list">
-    {certifications.map((certification) => (
+    {activeCertifications.map((certification) => (
       <li class="profile-card">
         <p class="blog-meta">{certification.organizer}</p>
         <strong>{certification.name}</strong>
