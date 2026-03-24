@@ -22,13 +22,17 @@ const learnings = profileEntry?.data.learnings ?? [];
     <p>志向: {profileEntry?.data.selfIntroduction.careerPreference}</p>
   </section>
 
-  <h2 data-reveal>資格</h2>
+  <section class="stack" data-reveal>
+    <h2>資格</h2>
     <p class="blog-meta">登録数: {formatCount(certifications.length)}</p>
-  <CertificationList certifications={certifications} />
+    <CertificationList certifications={certifications} />
+  </section>
 
-  <h2 data-reveal>スキル</h2>
+  <section class="stack" data-reveal>
+    <h2>スキル</h2>
     <p class="blog-meta">カテゴリ数: {formatCount(skills.length)}</p>
-  <SkillTable skills={skills} />
+    <SkillTable skills={skills} />
+  </section>
 
   <h2 data-reveal>目標</h2>
   <GoalList goals={goals} />
