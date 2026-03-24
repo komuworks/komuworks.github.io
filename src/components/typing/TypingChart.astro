@@ -142,11 +142,17 @@ const { metrics } = Astro.props;
 
   function updateChart(days) {
     const filtered = filterByDays(days);
+    const correctRates = filtered.map((item) => (item.correctKeys / (item.correctKeys + item.errorKeys)) * 100);
+    const minRate = Math.min(...correctRates);
+    const maxRate = Math.max(...correctRates);
+    const range = maxRate - minRate;
+    const padding = range === 0 ? 1 : Math.max(range * 0.1, 0.5);
+
     chart.data.labels = filtered.map((item) => item.date);
     chart.data.datasets[0].data = filtered.map((item) => item.totalChars);
-    chart.data.datasets[1].data = filtered.map(
-      (item) => (item.correctKeys / (item.correctKeys + item.errorKeys)) * 100,
-    );
+    chart.data.datasets[1].data = correctRates;
+    chart.options.scales.yRate.min = Math.max(0, minRate - padding);
+    chart.options.scales.yRate.max = Math.min(100, maxRate + padding);
     chart.update();
   }
 
