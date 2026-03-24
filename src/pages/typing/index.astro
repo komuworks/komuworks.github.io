@@ -12,15 +12,45 @@ const metrics = await getTypingMetricsByDateDesc();
   <section class="stack">
     <TypingChart metrics={metrics} />
 
-    <ul class="typing-list" data-reveal>
-      {metrics.map((entry) => (
-        <li class="metric-card">
-          <a href={toTypingDetail(entry.date)}>{entry.date}</a>
-          <p class="blog-meta">
-            正タイプ率: {calcCorrectRate(entry.correctKeys, entry.errorKeys).toFixed(2)}%
-          </p>
-        </li>
-      ))}
-    </ul>
+    <section class="surface-card stack typing-records-card" data-reveal>
+      <h2>タイピング記録一覧</h2>
+      <ul class="typing-list typing-list-compact">
+        {metrics.map((entry) => (
+          <li class="typing-list-row">
+            <a href={toTypingDetail(entry.date)}>{entry.date}</a>
+            <p class="blog-meta typing-metrics-inline">
+              <span>入力文字数: {entry.totalChars}</span>
+              <span>正タイプ率: {calcCorrectRate(entry.correctKeys, entry.errorKeys).toFixed(2)}%</span>
+            </p>
+          </li>
+        ))}
+      </ul>
+    </section>
   </section>
 </BaseLayout>
+
+<style>
+  .typing-records-card {
+    gap: 0.8rem;
+  }
+
+  .typing-list-compact {
+    gap: 0;
+  }
+
+  .typing-list-row {
+    display: grid;
+    gap: 0.35rem;
+    padding: 0.8rem 0;
+  }
+
+  .typing-list-row + .typing-list-row {
+    border-top: 1px solid var(--border);
+  }
+
+  .typing-metrics-inline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem 1rem;
+  }
+</style>
