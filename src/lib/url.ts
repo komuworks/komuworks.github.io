@@ -16,9 +16,6 @@ export const toProfileIndex = (): string => '/profile/';
 
 export const toGoalDetail = (id: string): string => `/profile/goals/${encodePathSegment(id)}/`;
 
-export const toCertificationDetail = (id: string): string =>
-  `/profile/certifications/${encodePathSegment(id)}/`;
-
 export const toLearningDetail = (id: string): string =>
   `/profile/learnings/${encodePathSegment(id)}/`;
 
