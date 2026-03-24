@@ -1,6 +1,5 @@
 ---
 import { formatCount, formatYearMonth } from '../../lib/format';
-import { toCertificationDetail } from '../../lib/url';
 
 interface Certification {
   slug: string;
@@ -24,9 +23,7 @@ const { certifications } = Astro.props;
     {certifications.map((certification) => (
       <li class="profile-card">
         <p class="blog-meta">{certification.organizer}</p>
-        <strong>
-          <a href={toCertificationDetail(certification.slug)}>{certification.name}</a>
-        </strong>
+        <strong>{certification.name}</strong>
         <p>{formatYearMonth(certification.acquiredDate)} {certification.result}</p>
       </li>
     ))}
