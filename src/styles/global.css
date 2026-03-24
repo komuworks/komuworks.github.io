@@ -460,6 +460,17 @@ a {
   padding: 1rem;
 }
 
+.profile-card {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.profile-card h3,
+.profile-card strong,
+.profile-card p {
+  margin: 0;
+}
+
 .blog-card h2,
 .blog-card h3,
 h2,
