@@ -5,7 +5,6 @@ import GoalList from '../../components/profile/GoalList.astro';
 import LearningList from '../../components/profile/LearningList.astro';
 import SkillTable from '../../components/profile/SkillTable.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { formatCount } from '../../lib/format';
 
 const profileEntry = await getEntry('profile', 'index');
 const skills = profileEntry?.data.skills ?? [];
@@ -23,11 +22,9 @@ const learnings = profileEntry?.data.learnings ?? [];
   </section>
 
   <h2 data-reveal>資格</h2>
-    <p class="blog-meta">登録数: {formatCount(certifications.length)}</p>
   <CertificationList certifications={certifications} />
 
   <h2 data-reveal>スキル</h2>
-    <p class="blog-meta">カテゴリ数: {formatCount(skills.length)}</p>
   <SkillTable skills={skills} />
 
   <h2 data-reveal>目標</h2>

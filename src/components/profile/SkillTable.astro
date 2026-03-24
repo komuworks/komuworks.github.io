@@ -1,5 +1,5 @@
 ---
-import { formatExperienceYears, formatLevel } from '../../lib/format';
+import { formatCount, formatExperienceYears, formatLevel } from '../../lib/format';
 
 interface SkillItem {
   name: string;
@@ -17,30 +17,36 @@ interface Props {
 }
 
 const { skills } = Astro.props;
+const skillSummary = skills
+  .map((skill) => `${skill.category}: ${formatCount(skill.items.length)}`)
+  .join(' / ');
 ---
 
-{skills.map((skill) => (
-  <section class="surface-card stack" data-reveal>
-    <h2>{skill.category}</h2>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>スキル</th>
-            <th>経験年数</th>
-            <th>レベル</th>
-          </tr>
-        </thead>
-        <tbody>
-          {skill.items.map((item) => (
+<section class="surface-card stack" data-reveal>
+  <p class="muted">{skillSummary}</p>
+  {skills.map((skill) => (
+    <section class="stack">
+      <h3>{skill.category}</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
             <tr>
-              <td>{item.name}</td>
-              <td>{formatExperienceYears(item.years)}</td>
-              <td>{formatLevel(item.level)}</td>
+              <th>スキル</th>
+              <th>経験年数</th>
+              <th>レベル</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  </section>
-))}
+          </thead>
+          <tbody>
+            {skill.items.map((item) => (
+              <tr>
+                <td>{item.name}</td>
+                <td>{formatExperienceYears(item.years)}</td>
+                <td>{formatLevel(item.level)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  ))}
+</section>

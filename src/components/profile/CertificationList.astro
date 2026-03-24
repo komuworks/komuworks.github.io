@@ -1,5 +1,5 @@
 ---
-import { formatYearMonth } from '../../lib/format';
+import { formatCount, formatYearMonth } from '../../lib/format';
 import { toCertificationDetail } from '../../lib/url';
 
 interface Certification {
@@ -18,14 +18,17 @@ interface Props {
 const { certifications } = Astro.props;
 ---
 
-<ul class="profile-list" data-reveal>
-  {certifications.map((certification) => (
-    <li class="profile-card">
-      <p class="blog-meta">{certification.organizer}</p>
-      <strong>
-        <a href={toCertificationDetail(certification.slug)}>{certification.name}</a>
-      </strong>
-      <p>{formatYearMonth(certification.acquiredDate)} {certification.result}</p>
-    </li>
-  ))}
-</ul>
+<section class="surface-card stack" data-reveal>
+  <p class="muted">登録資格: {formatCount(certifications.length)}</p>
+  <ul class="profile-list">
+    {certifications.map((certification) => (
+      <li class="profile-card">
+        <p class="blog-meta">{certification.organizer}</p>
+        <strong>
+          <a href={toCertificationDetail(certification.slug)}>{certification.name}</a>
+        </strong>
+        <p>{formatYearMonth(certification.acquiredDate)} {certification.result}</p>
+      </li>
+    ))}
+  </ul>
+</section>
