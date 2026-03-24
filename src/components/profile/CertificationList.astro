@@ -21,10 +21,10 @@ const { certifications } = Astro.props;
 <ul class="profile-list" data-reveal>
   {certifications.map((certification) => (
     <li class="profile-card">
+      <p>{certification.organizer}</p>
       <strong>
         <a href={toCertificationDetail(certification.slug)}>{certification.name}</a>
       </strong>
-      <p>{certification.organizer}</p>
       <p class="blog-meta">{formatYearMonth(certification.acquiredDate)} {certification.result}</p>
     </li>
   ))}
