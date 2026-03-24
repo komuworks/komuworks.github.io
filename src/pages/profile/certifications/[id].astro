@@ -16,12 +16,10 @@ export async function getStaticPaths() {
 const { certification } = Astro.props;
 ---
 
-<BaseLayout title={`Certification: ${certification.name}`}>
+<BaseLayout title={`資格の詳細`}>
   <section class="surface-card stack" data-reveal>
     <h2>{certification.name}</h2>
+    <p>{formatYearMonth(certification.acquiredDate)} {certification.result}</p>
     <p>{certification.organizer}</p>
-    <p>結果: {certification.result}</p>
-    <p>取得: {formatYearMonth(certification.acquiredDate)}</p>
-    <p>有効期限: {formatYearMonth(certification.expiryDate)}</p>
   </section>
 </BaseLayout>
