@@ -17,16 +17,13 @@ interface Props {
 }
 
 const { skills } = Astro.props;
-const skillSummary = skills
-  .map((skill) => `${skill.category}: ${formatCount(skill.items.length)}`)
-  .join(' / ');
 ---
 
 <section class="surface-card stack" data-reveal>
-  <p class="muted">{skillSummary}</p>
   {skills.map((skill) => (
     <section class="stack">
       <h3>{skill.category}</h3>
+      <p class="muted">{formatCount(skill.items.length)}</p>
       <div class="table-wrap">
         <table>
           <thead>
