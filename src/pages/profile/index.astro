@@ -21,15 +21,23 @@ const learnings = profileEntry?.data.learnings ?? [];
     <p>志向: {profileEntry?.data.selfIntroduction.careerPreference}</p>
   </section>
 
-  <h2 data-reveal>資格</h2>
-  <CertificationList certifications={certifications} />
+  <section class="stack" data-reveal>
+    <h2>資格</h2>
+    <CertificationList certifications={certifications} />
+  </section>
 
-  <h2 data-reveal>スキル</h2>
-  <SkillTable skills={skills} />
+  <section class="stack" data-reveal>
+    <h2>スキル</h2>
+    <SkillTable skills={skills} />
+  </section>
 
-  <h2 data-reveal>目標</h2>
-  <GoalList goals={goals} />
+  <section class="stack" data-reveal>
+    <h2>目標</h2>
+    <GoalList goals={goals} />
+  </section>
 
-  <h2 data-reveal>学習</h2>
-  <LearningList learnings={learnings} />
+  <section class="stack" data-reveal>
+    <h2>学習</h2>
+    <LearningList learnings={learnings} />
+  </section>
 </BaseLayout>

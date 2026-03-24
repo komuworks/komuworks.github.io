@@ -13,16 +13,18 @@ const metrics = typingEntries
 ---
 
 <BaseLayout title="Typing">
-  <TypingChart metrics={metrics} />
+  <section class="stack">
+    <TypingChart metrics={metrics} />
 
-  <ul class="typing-list" data-reveal>
-    {metrics.map((entry) => (
-      <li class="metric-card">
-        <a href={toTypingDetail(entry.date)}>{entry.date}</a>
-        <p class="blog-meta">
-          正タイプ率: {calcCorrectRate(entry.correctKeys, entry.errorKeys).toFixed(2)}%
-        </p>
-      </li>
-    ))}
-  </ul>
+    <ul class="typing-list" data-reveal>
+      {metrics.map((entry) => (
+        <li class="metric-card">
+          <a href={toTypingDetail(entry.date)}>{entry.date}</a>
+          <p class="blog-meta">
+            正タイプ率: {calcCorrectRate(entry.correctKeys, entry.errorKeys).toFixed(2)}%
+          </p>
+        </li>
+      ))}
+    </ul>
+  </section>
 </BaseLayout>
