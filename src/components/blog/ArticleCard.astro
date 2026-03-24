@@ -14,10 +14,10 @@ const { slug, title, summary, date, tags } = Astro.props;
 ---
 
 <article class="blog-card" data-reveal data-article-tags={JSON.stringify(tags)}>
-  <h2>
-    <a href={toBlogPost(slug)}>{title}</a>
-  </h2>
-  <p>{summary}</p>
   <p class="blog-meta">公開日: {formatDate(date)}</p>
-  <p class="blog-meta">タグ: {tags.join(' / ')}</p>
+  <h3 class="blog-title">
+    <a href={toBlogPost(slug)}>{title}</a>
+  </h3>
+  <p>{summary}</p>
+  <p class="blog-meta">タグ: {tags.map((tag) => `#${tag}`).join(' ')}</p>
 </article>

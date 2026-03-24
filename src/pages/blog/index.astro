@@ -13,18 +13,17 @@ const tags = [...new Set(blogEntries.flatMap((entry) => entry.data.tags))].sort(
   <section class="surface-card stack" data-reveal>
     <p class="blog-meta" data-blog-count>記事数: {formatCount(blogEntries.length)}</p>
     <TagFilter tags={tags} />
-  </section>
-
-  <section class="blog-list" data-blog-list>
-    {blogEntries.map((entry) => (
-      <ArticleCard
-        slug={entry.data.slug}
-        title={entry.data.title}
-        summary={entry.data.summary}
-        date={entry.data.date}
-        tags={entry.data.tags}
-      />
-    ))}
+    <section class="blog-list" data-blog-list>
+      {blogEntries.map((entry) => (
+        <ArticleCard
+          slug={entry.data.slug}
+          title={entry.data.title}
+          summary={entry.data.summary}
+          date={entry.data.date}
+          tags={entry.data.tags}
+        />
+      ))}
+    </section>
   </section>
 </BaseLayout>
 
