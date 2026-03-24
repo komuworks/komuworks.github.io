@@ -19,10 +19,10 @@ if (!metric) {
   <section class="surface-card stack" data-reveal>
     <h2>タイピング詳細</h2>
     <p class="blog-meta">日付: {metric.date}</p>
-    <p>総入力文字数: {metric.totalChars}</p>
-    <p>正確キー数: {metric.correctKeys}</p>
-    <p>エラーキー数: {metric.errorKeys}</p>
-    <p>セッション時間: {metric.sessionMinutes.toFixed(2)} 分</p>
-    <p>正確率: {calcCorrectRate(metric.correctKeys, metric.errorKeys).toFixed(2)}%</p>
+    <p>入力文字数: {metric.totalChars}</p>
+    <p>正タイプ数: {metric.correctKeys}</p>
+    <p>誤タイプ数: {metric.errorKeys}</p>
+    <p>時間: {metric.sessionMinutes.toFixed(2)} 分</p>
+    <p>正タイプ率: {calcCorrectRate(metric.correctKeys, metric.errorKeys).toFixed(2)}%</p>
   </section>
 </BaseLayout>
