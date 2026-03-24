@@ -386,6 +386,8 @@ a {
 
 .feature-photo {
   gap: 0;
+  margin-top: calc(var(--site-header-height) * -1);
+  margin-inline: calc(var(--page-main-padding) * -1);
 }
 
 .feature-photo-media {
@@ -396,10 +398,10 @@ a {
 
 .feature-photo-media .responsive-photo {
   border-radius: 0;
-  height: calc(100svh - var(--site-header-height));
-  height: calc(100dvh - var(--site-header-height));
-  max-height: calc(100svh - var(--site-header-height));
-  max-height: calc(100dvh - var(--site-header-height));
+  height: 100svh;
+  height: 100dvh;
+  max-height: 100svh;
+  max-height: 100dvh;
 }
 
 .feature-photo-media .responsive-photo img {
