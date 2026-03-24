@@ -397,19 +397,16 @@ a {
 
 .feature-photo-media .responsive-photo {
   border-radius: 0;
+  height: calc(100svh - var(--site-header-height));
+  height: calc(100dvh - var(--site-header-height));
+  max-height: calc(100svh - var(--site-header-height));
+  max-height: calc(100dvh - var(--site-header-height));
 }
 
-@media (max-width: 767px) {
-  .feature-photo-media .responsive-photo {
-    height: calc(100svh - var(--site-header-height));
-    max-height: calc(100svh - var(--site-header-height));
-  }
-
-  .feature-photo-media .responsive-photo img {
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
-  }
+.feature-photo-media .responsive-photo img {
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
 }
 
 .feature-photo-media::after {
