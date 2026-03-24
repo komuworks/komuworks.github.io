@@ -46,17 +46,6 @@ const [blogEntries, typingEntries] = await Promise.all([
     </div>
   </section>
 
-  <HomeHeroMotion
-    blogHref={toBlogIndex()}
-    profileHref={toProfileIndex()}
-    goalsHref={toGoalList()}
-    typingHref={toTypingIndex()}
-    client:load
-  >
-    <span slot="blog-count">{blogEntries.length}</span>
-    <span slot="typing-count">{typingEntries.length}</span>
-  </HomeHeroMotion>
-
   <section class="surface-card stack" data-reveal>
     <h2>Welcome</h2>
     <p>
