@@ -25,7 +25,6 @@ const { learnings } = Astro.props;
       <li class="profile-card">
         <h3><a href={toLearningDetail(learning.slug)}>{learning.title}</a></h3>
         <p>{learning.summary}</p>
-        <p class="blog-meta">期間: {learning.period}</p>
       </li>
     ))}
   </ul>
