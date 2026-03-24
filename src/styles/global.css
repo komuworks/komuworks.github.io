@@ -390,9 +390,9 @@ a {
   position: relative;
   width: 100%;
   max-width: none;
-  inline-size: calc(100% + (var(--page-main-padding, 0px) * 2));
-  margin-inline: calc(var(--page-main-padding, 0px) * -1);
-  max-inline-size: none;
+  inline-size: 100vw;
+  margin-inline: calc(50% - 50vw);
+  max-inline-size: 100vw;
 }
 
 .feature-photo-media .responsive-photo {
