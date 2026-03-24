@@ -388,7 +388,9 @@ a {
 
 .feature-photo-media {
   position: relative;
-  margin-inline: calc(var(--page-main-padding) * -1);
+  width: 100vw;
+  max-width: none;
+  margin-inline: calc(50% - 50vw);
 }
 
 .feature-photo-media .responsive-photo {
