@@ -1,5 +1,5 @@
 ---
-import { formatCount, formatYearMonth } from '../../lib/format';
+import { formatYearMonth } from '../../lib/format';
 
 interface Certification {
   slug: string;
@@ -20,17 +20,56 @@ const activeCertifications = certifications.filter(
   (certification) =>
     certification.expiryDate === null || certification.expiryDate >= currentYearMonth,
 );
+const defaultVisibleCount = 5;
+const hiddenCertificationCount = Math.max(
+  activeCertifications.length - defaultVisibleCount,
+  0,
+);
 ---
 
 <section class="surface-card stack" data-reveal>
-  <p class="muted">登録資格: {formatCount(activeCertifications.length)}</p>
   <ul class="profile-list">
-    {activeCertifications.map((certification) => (
-      <li class="profile-card">
+    {activeCertifications.map((certification, index) => (
+      <li class="profile-card" data-hidden={index >= defaultVisibleCount ? 'true' : undefined}>
         <p class="blog-meta">{certification.organizer}</p>
         <strong>{certification.name}</strong>
         <p>{formatYearMonth(certification.acquiredDate)} {certification.result}</p>
       </li>
     ))}
   </ul>
+  {hiddenCertificationCount > 0 && (
+    <div class="show-more-wrap">
+      <button
+        type="button"
+        class="show-more-button"
+        data-expand-certifications
+      >
+        他{hiddenCertificationCount}件を表示する
+      </button>
+    </div>
+  )}
 </section>
+
+<script is:inline>
+  document.querySelectorAll('[data-expand-certifications]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const section = button.closest('section');
+      if (!section) return;
+      section.querySelectorAll('[data-hidden="true"]').forEach((item) => {
+        item.removeAttribute('data-hidden');
+      });
+      button.remove();
+    });
+  });
+</script>
+
+<style>
+  [data-hidden='true'] {
+    display: none;
+  }
+
+  .show-more-wrap {
+    display: flex;
+    justify-content: flex-end;
+  }
+</style>

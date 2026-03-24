@@ -1,5 +1,5 @@
 ---
-import { formatCount, formatExperienceYears, formatLevel } from '../../lib/format';
+import { formatExperienceYears } from '../../lib/format';
 
 interface SkillItem {
   name: string;
@@ -17,6 +17,7 @@ interface Props {
 }
 
 const { skills } = Astro.props;
+const defaultVisibleCount = 5;
 
 const getSegmentFillRate = (level: number, segmentIndex: number): number => {
   const normalizedLevel = Math.max(0, Math.min(level, 10));
@@ -28,10 +29,9 @@ const getSegmentFillRate = (level: number, segmentIndex: number): number => {
 ---
 
 <section class="surface-card stack" data-reveal>
-  {skills.map((skill) => (
+  {skills.map((skill, categoryIndex) => (
     <section class="stack">
       <h3>{skill.category}</h3>
-      <p class="muted">{formatCount(skill.items.length)}</p>
       <div class="table-wrap">
         <table>
           <thead>
@@ -42,8 +42,8 @@ const getSegmentFillRate = (level: number, segmentIndex: number): number => {
             </tr>
           </thead>
           <tbody>
-            {skill.items.map((item) => (
-              <tr>
+            {skill.items.map((item, itemIndex) => (
+              <tr data-hidden={itemIndex >= defaultVisibleCount ? 'true' : undefined}>
                 <td>{item.name}</td>
                 <td class="col-years">{formatExperienceYears(item.years)}</td>
                 <td class="col-level">
@@ -60,11 +60,39 @@ const getSegmentFillRate = (level: number, segmentIndex: number): number => {
           </tbody>
         </table>
       </div>
+      {skill.items.length > defaultVisibleCount && (
+        <div class="show-more-wrap">
+          <button
+            type="button"
+            class="show-more-button"
+            data-expand-skill-category={categoryIndex}
+          >
+            他{skill.items.length - defaultVisibleCount}件を表示する
+          </button>
+        </div>
+      )}
     </section>
   ))}
 </section>
 
+<script is:inline>
+  document.querySelectorAll('[data-expand-skill-category]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const section = button.closest('section');
+      if (!section) return;
+      section.querySelectorAll('tbody [data-hidden="true"]').forEach((row) => {
+        row.removeAttribute('data-hidden');
+      });
+      button.remove();
+    });
+  });
+</script>
+
 <style>
+  [data-hidden='true'] {
+    display: none;
+  }
+
   .col-years {
     width: 8ch;
     min-width: 8ch;
@@ -115,5 +143,10 @@ const getSegmentFillRate = (level: number, segmentIndex: number): number => {
 
   .skill-level__text {
     white-space: nowrap;
+  }
+
+  .show-more-wrap {
+    display: flex;
+    justify-content: flex-end;
   }
 </style>
