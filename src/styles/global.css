@@ -110,8 +110,8 @@ body {
 
 .site-shell {
   width: min(1120px, 94vw);
-  margin: 2rem auto;
-  border-radius: 28px;
+  margin: 0 auto;
+  border-radius: 0;
   border: 1px solid rgb(148 163 184 / 0.4);
   background: rgb(255 255 255 / 0.73);
   backdrop-filter: blur(12px);
@@ -131,10 +131,14 @@ body {
 .site-header,
 .site-footer {
   padding: clamp(1rem, 2vw, 1.6rem);
+  border-radius: 0;
   background: linear-gradient(140deg, rgb(255 255 255 / 0.92), rgb(241 245 249 / 0.9));
 }
 
 .site-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
   border-bottom: 1px solid var(--border);
 }
 
