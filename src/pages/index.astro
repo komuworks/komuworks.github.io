@@ -1,13 +1,5 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import HomeHeroMotion from '../components/motion/HomeHeroMotion';
-import { toBlogIndex, toGoalList, toProfileIndex, toTypingIndex } from '../lib/url';
-import { getCollection } from 'astro:content';
-
-const [blogEntries, typingEntries] = await Promise.all([
-  getCollection('blog'),
-  getCollection('typing'),
-]);
 ---
 
 <BaseLayout title="Home" showPageHeading={false} mainClass="home-main">
@@ -27,7 +19,7 @@ const [blogEntries, typingEntries] = await Promise.all([
           sizes="100vw"
         />
         <img
-          src="/images/abarth-2560.jpg"
+          src="/images/hero-2560.jpg"
           srcset="
             /images/hero-750.jpg 750w,
             /images/hero-1280.jpg 1280w,

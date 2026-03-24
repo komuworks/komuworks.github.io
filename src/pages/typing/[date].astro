@@ -1,22 +1,14 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { calcCorrectRate, validateMetrics } from '../../lib/typing';
-import { getCollection, getEntry } from 'astro:content';
+import { calcCorrectRate } from '../../lib/typing';
+import { getTypingMetricByDate, getTypingStaticPaths } from '../../lib/content';
 
 export async function getStaticPaths() {
-  const typingEntries = await getCollection('typing');
-
-  return typingEntries
-    .map((entry) => validateMetrics(entry.data))
-    .filter((entry): entry is NonNullable<typeof entry> => entry !== null)
-    .map((metric) => ({
-      params: { date: metric.date },
-    }));
+  return getTypingStaticPaths();
 }
 
 const date = Astro.params.date;
-const typingEntry = date ? await getEntry('typing', date) : undefined;
-const metric = typingEntry ? validateMetrics(typingEntry.data) : null;
+const metric = date ? await getTypingMetricByDate(date) : null;
 
 if (!metric) {
   throw new Error(`Typing metric not found for date: ${date}`);

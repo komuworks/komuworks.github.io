@@ -1,12 +1,12 @@
 ---
-import { getCollection } from 'astro:content';
 import ArticleCard from '../../components/blog/ArticleCard.astro';
 import TagFilter from '../../components/blog/TagFilter.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { formatCount } from '../../lib/format';
+import { getBlogEntriesByDateDesc, getBlogTags } from '../../lib/content';
 
-const blogEntries = await getCollection('blog');
-const tags = [...new Set(blogEntries.flatMap((entry) => entry.data.tags))].sort();
+const blogEntries = await getBlogEntriesByDateDesc();
+const tags = await getBlogTags();
 ---
 
 <BaseLayout title="Blog">
