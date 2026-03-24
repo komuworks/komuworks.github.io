@@ -67,6 +67,15 @@ const { metrics } = Astro.props;
           borderColor: '#2563eb',
           backgroundColor: 'rgba(37, 99, 235, 0.2)',
           tension: 0.2,
+          yAxisID: 'yChars',
+        },
+        {
+          label: '正タイプ率 (%)',
+          data: sortedMetrics.map((item) => (item.correctKeys / (item.correctKeys + item.errorKeys)) * 100),
+          borderColor: '#16a34a',
+          backgroundColor: 'rgba(22, 163, 74, 0.2)',
+          tension: 0.2,
+          yAxisID: 'yRate',
         },
       ],
     },
@@ -90,6 +99,31 @@ const { metrics } = Astro.props;
           display: true,
         },
       },
+      scales: {
+        yChars: {
+          type: 'linear',
+          display: true,
+          position: 'left',
+          title: {
+            display: true,
+            text: '総入力文字数',
+          },
+        },
+        yRate: {
+          type: 'linear',
+          display: true,
+          position: 'right',
+          min: 0,
+          max: 100,
+          grid: {
+            drawOnChartArea: false,
+          },
+          title: {
+            display: true,
+            text: '正タイプ率 (%)',
+          },
+        },
+      },
     },
   });
 
@@ -110,6 +144,9 @@ const { metrics } = Astro.props;
     const filtered = filterByDays(days);
     chart.data.labels = filtered.map((item) => item.date);
     chart.data.datasets[0].data = filtered.map((item) => item.totalChars);
+    chart.data.datasets[1].data = filtered.map(
+      (item) => (item.correctKeys / (item.correctKeys + item.errorKeys)) * 100,
+    );
     chart.update();
   }
 
