@@ -1,5 +1,9 @@
 const encodePathSegment = (value: string): string => encodeURIComponent(value);
 
+const toSkillSlug = (category: string, name: string): string => {
+  return `${category}--${name}`.toLowerCase().replace(/\s+/g, '-');
+};
+
 export const toHome = (): string => '/';
 
 export const toBlogIndex = (tag?: string): string => {
@@ -14,9 +18,14 @@ export const toBlogPost = (slug: string): string => `/blog/${encodePathSegment(s
 
 export const toProfileIndex = (): string => '/profile/';
 
-export const toGoalList = (): string => '/profile/goals/';
 
 export const toGoalDetail = (id: string): string => `/profile/goals/${encodePathSegment(id)}/`;
+
+export const toSkillDetail = (category: string, name: string): string =>
+  `/profile/skills/${encodePathSegment(toSkillSlug(category, name))}/`;
+
+export const toCertificationDetail = (id: string): string =>
+  `/profile/certifications/${encodePathSegment(id)}/`;
 
 export const toLearningDetail = (id: string): string =>
   `/profile/learnings/${encodePathSegment(id)}/`;
@@ -24,4 +33,3 @@ export const toLearningDetail = (id: string): string =>
 export const toTypingIndex = (): string => '/typing/';
 
 export const toTypingDetail = (date: string): string => `/typing/${encodePathSegment(date)}/`;
-

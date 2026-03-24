@@ -1,0 +1,37 @@
+---
+import { getEntry } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+
+export async function getStaticPaths() {
+  const toSkillSlug = (category: string, name: string): string => {
+    return `${category}--${name}`.toLowerCase().replace(/\s+/g, '-');
+  };
+  const profileEntry = await getEntry('profile', 'index');
+  const skills = profileEntry?.data.skills ?? [];
+
+  return skills.flatMap((category) =>
+    category.items.map((item) => ({
+      params: { id: toSkillSlug(category.category, item.name) },
+      props: {
+        skill: {
+          category: category.category,
+          name: item.name,
+          years: item.years,
+          level: item.level,
+        },
+      },
+    })),
+  );
+}
+
+const { skill } = Astro.props;
+---
+
+<BaseLayout title={`Skill: ${skill.name}`}>
+  <section class="surface-card stack" data-reveal>
+    <h2>{skill.name}</h2>
+    <p>カテゴリ: {skill.category}</p>
+    <p>経験年数: {skill.years}年</p>
+    <p>レベル: {skill.level}/10</p>
+  </section>
+</BaseLayout>

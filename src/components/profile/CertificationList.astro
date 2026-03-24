@@ -1,5 +1,6 @@
 ---
 import { formatYearMonth } from '../../lib/format';
+import { toCertificationDetail } from '../../lib/url';
 
 interface Certification {
   slug: string;
@@ -20,7 +21,9 @@ const { certifications } = Astro.props;
 <ul class="profile-list" data-reveal>
   {certifications.map((certification) => (
     <li class="profile-card">
-      <strong>{certification.name}</strong>
+      <strong>
+        <a href={toCertificationDetail(certification.slug)}>{certification.name}</a>
+      </strong>
       <p>{certification.organizer}</p>
       <p class="blog-meta">結果: {certification.result}</p>
       <p class="blog-meta">取得: {formatYearMonth(certification.acquiredDate)}</p>
