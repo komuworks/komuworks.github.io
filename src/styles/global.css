@@ -124,6 +124,22 @@ body {
   padding: var(--page-main-padding);
 }
 
+.page-main > * {
+  margin: 0;
+}
+
+.page-main > * + * {
+  margin-top: clamp(1rem, 2.4vw, 1.8rem);
+}
+
+.page-main > h2 + .blog-meta {
+  margin-top: 0.45rem;
+}
+
+.page-main > .blog-meta + * {
+  margin-top: 0.7rem;
+}
+
 .page-main.home-main {
   padding-top: 0;
 }
@@ -419,6 +435,10 @@ a {
 .stack {
   display: grid;
   gap: 1rem;
+}
+
+.stack > * {
+  margin: 0;
 }
 
 .blog-list,
