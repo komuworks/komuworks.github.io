@@ -20,7 +20,7 @@ const metrics = typingEntries
       <li class="metric-card">
         <a href={toTypingDetail(entry.date)}>{entry.date}</a>
         <p class="blog-meta">
-          正確率: {calcCorrectRate(entry.correctKeys, entry.errorKeys).toFixed(2)}%
+          正タイプ率: {calcCorrectRate(entry.correctKeys, entry.errorKeys).toFixed(2)}%
         </p>
       </li>
     ))}
