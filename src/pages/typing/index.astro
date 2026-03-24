@@ -1,15 +1,11 @@
 ---
 import TypingChart from '../../components/typing/TypingChart.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { calcCorrectRate, validateMetrics } from '../../lib/typing';
+import { calcCorrectRate } from '../../lib/typing';
 import { toTypingDetail } from '../../lib/url';
-import { getCollection } from 'astro:content';
+import { getTypingMetricsByDateDesc } from '../../lib/content';
 
-const typingEntries = await getCollection('typing');
-const metrics = typingEntries
-  .map((entry) => validateMetrics(entry.data))
-  .filter((entry): entry is NonNullable<typeof entry> => entry !== null)
-  .sort((a, b) => b.date.localeCompare(a.date));
+const metrics = await getTypingMetricsByDateDesc();
 ---
 
 <BaseLayout title="Typing">

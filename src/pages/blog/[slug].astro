@@ -1,19 +1,15 @@
 ---
-import { getCollection, getEntry } from 'astro:content';
 import ArticleCard from '../../components/blog/ArticleCard.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { formatDate } from '../../lib/format';
+import { getBlogEntryBySlug, getBlogStaticPaths } from '../../lib/content';
 
 export async function getStaticPaths() {
-  const blogEntries = await getCollection('blog');
-
-  return blogEntries.map((entry) => ({
-    params: { slug: entry.data.slug },
-  }));
+  return getBlogStaticPaths();
 }
 
 const slug = Astro.params.slug;
-const entry = slug ? await getEntry('blog', slug) : undefined;
+const entry = slug ? await getBlogEntryBySlug(slug) : undefined;
 
 if (!entry) {
   throw new Error(`Blog entry not found for slug: ${slug}`);
