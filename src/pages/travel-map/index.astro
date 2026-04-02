@@ -66,7 +66,7 @@ try {
         <p role="alert">地図データを読み込めませんでした</p>
       ) : (
         <>
-          <p>マウスホイールで拡大縮小できます（しきい値: 2.5）。</p>
+          <p>マウスホイールで拡大縮小、ドラッグで地図を移動できます（しきい値: 2.5）。</p>
           <div id="travel-map-legend" class="travel-map-legend" aria-label="Map status legend"></div>
           <p id="travel-map-info" class="travel-map-info" aria-live="polite">地域にホバーまたはフォーカスすると詳細を表示します。</p>
           <div id="travel-map" class="travel-map" aria-label="Visited areas map"></div>
@@ -447,6 +447,10 @@ try {
   let scale = 1;
   let translateX = 0;
   let translateY = 0;
+  let isDragging = false;
+  let activePointerId = null;
+  let dragStartX = 0;
+  let dragStartY = 0;
 
   const updateScale = () => {
     const clamped = Math.max(MIN_SCALE, Math.min(MAX_SCALE, scale));
@@ -494,6 +498,44 @@ try {
     { passive: false }
   );
 
+  mapRoot.addEventListener('pointerdown', (event) => {
+    if (!event.isPrimary) return;
+    isDragging = true;
+    activePointerId = event.pointerId;
+    dragStartX = event.clientX;
+    dragStartY = event.clientY;
+    mapRoot.setPointerCapture(event.pointerId);
+    mapRoot.classList.add('travel-map--dragging');
+  });
+
+  mapRoot.addEventListener('pointermove', (event) => {
+    if (!isDragging || event.pointerId !== activePointerId) return;
+    const svgRect = svg.getBoundingClientRect();
+    if (svgRect.width === 0 || svgRect.height === 0) return;
+
+    const deltaX = ((event.clientX - dragStartX) / svgRect.width) * width;
+    const deltaY = ((event.clientY - dragStartY) / svgRect.height) * height;
+    dragStartX = event.clientX;
+    dragStartY = event.clientY;
+    translateX += deltaX;
+    translateY += deltaY;
+    updateScale();
+  });
+
+  const stopDragging = (event) => {
+    if (!isDragging || event.pointerId !== activePointerId) return;
+    isDragging = false;
+    if (mapRoot.hasPointerCapture(event.pointerId)) {
+      mapRoot.releasePointerCapture(event.pointerId);
+    }
+    activePointerId = null;
+    mapRoot.classList.remove('travel-map--dragging');
+  };
+
+  mapRoot.addEventListener('pointerup', stopDragging);
+  mapRoot.addEventListener('pointercancel', stopDragging);
+  mapRoot.addEventListener('pointerleave', stopDragging);
+
   updateScale();
 </script>
 
@@ -509,6 +551,12 @@ try {
     border: 1px solid color-mix(in srgb, var(--text) 16%, transparent);
     background: #05131f;
     aspect-ratio: 16 / 9;
+    cursor: grab;
+    touch-action: none;
+  }
+
+  .travel-map.travel-map--dragging {
+    cursor: grabbing;
   }
 
   .travel-map-info {
