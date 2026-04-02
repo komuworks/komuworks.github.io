@@ -7,6 +7,7 @@ const geoJsonDir = resolve(process.cwd(), 'public/geojson');
 const dataFileNames = {
   admin0: 'World Bank Official Boundaries - Admin 0.json',
   admin1: 'World Bank Official Boundaries - Admin 1.json',
+  admin1Simplified: 'World Bank Official Boundaries - Admin 1.simplified.json',
   visitedStatus: 'visited-status-admin1.json'
 };
 
@@ -14,6 +15,7 @@ let mapData:
   | {
       admin0: unknown;
       admin1: unknown;
+      admin1Simplified: unknown | null;
       visitedStatus: unknown;
     }
   | null = null;
@@ -25,10 +27,12 @@ try {
     readFile(resolve(geoJsonDir, dataFileNames.admin1), 'utf-8'),
     readFile(resolve(geoJsonDir, dataFileNames.visitedStatus), 'utf-8')
   ]);
+  const admin1SimplifiedRaw = await readFile(resolve(geoJsonDir, dataFileNames.admin1Simplified), 'utf-8').catch(() => null);
 
   mapData = {
     admin0: JSON.parse(admin0Raw),
     admin1: JSON.parse(admin1Raw),
+    admin1Simplified: admin1SimplifiedRaw ? JSON.parse(admin1SimplifiedRaw) : null,
     visitedStatus: JSON.parse(visitedStatusRaw)
   };
 } catch (error) {
@@ -74,7 +78,11 @@ try {
 
   const mapData = JSON.parse(dataElement.textContent ?? '{}');
   const admin0Features = mapData?.admin0?.features ?? [];
-  const admin1Features = mapData?.admin1?.features ?? [];
+  const admin1RawFeatures = mapData?.admin1?.features ?? [];
+  const admin1SimplifiedFeatures = mapData?.admin1Simplified?.features ?? [];
+  const shouldPreferSimplifiedAdmin1 = window.matchMedia('(max-width: 768px)').matches;
+  const admin1Features =
+    shouldPreferSimplifiedAdmin1 && admin1SimplifiedFeatures.length > 0 ? admin1SimplifiedFeatures : admin1RawFeatures;
   const visitedStatusPayload = mapData?.visitedStatus ?? {};
   const statusMeta = visitedStatusPayload?.statusMeta ?? {};
   const admin1StatusById = visitedStatusPayload?.statuses ?? {};
@@ -189,6 +197,7 @@ try {
   const zoomLayer = document.createElementNS(svgNamespace, 'g');
   const admin0Layer = document.createElementNS(svgNamespace, 'g');
   const admin1Layer = document.createElementNS(svgNamespace, 'g');
+  let admin1LayerMounted = false;
 
   const createPath = (d, className) => {
     const path = document.createElementNS(svgNamespace, 'path');
@@ -226,25 +235,42 @@ try {
     [...countryStatusCandidates.entries()].map(([countryCode, statuses]) => [countryCode, aggregateStatus(statuses)])
   );
 
-  for (const feature of admin1Features) {
-    const d = geometryToPath(feature.geometry);
-    if (!d) continue;
+  const renderAdmin1Layer = () => {
+    if (admin1LayerMounted) return;
 
-    const admin1Id = feature?.properties?.[idKey];
-    const status = typeof admin1Id === 'string' ? admin1StatusById[admin1Id] ?? 'unknown' : 'unknown';
-    const path = createPath(d, 'admin1');
-    const fill = statusMeta?.[status]?.color ?? statusMeta?.unknown?.color ?? '#9E9E9E';
-    const countryName = feature?.properties?.NAM_0 ?? 'Unknown country';
-    const regionName = feature?.properties?.NAM_1 ?? 'Unknown region';
-    const areaLabel = `${countryName} / ${regionName}`;
-    path.setAttribute('aria-label', `${areaLabel} - ${getStatusLabel(status)}`);
-    path.addEventListener('mouseenter', () => setInfoText(areaLabel, status));
-    path.addEventListener('focus', () => setInfoText(areaLabel, status));
-    path.addEventListener('mouseleave', resetInfoText);
-    path.addEventListener('blur', resetInfoText);
-    path.style.fill = fill;
-    admin1Layer.append(path);
-  }
+    for (const feature of admin1Features) {
+      const d = geometryToPath(feature.geometry);
+      if (!d) continue;
+
+      const admin1Id = feature?.properties?.[idKey];
+      const status = typeof admin1Id === 'string' ? admin1StatusById[admin1Id] ?? 'unknown' : 'unknown';
+      const path = createPath(d, 'admin1');
+      const fill = statusMeta?.[status]?.color ?? statusMeta?.unknown?.color ?? '#9E9E9E';
+      const countryName = feature?.properties?.NAM_0 ?? 'Unknown country';
+      const regionName = feature?.properties?.NAM_1 ?? 'Unknown region';
+      const areaLabel = `${countryName} / ${regionName}`;
+      path.setAttribute('aria-label', `${areaLabel} - ${getStatusLabel(status)}`);
+      path.addEventListener('mouseenter', () => setInfoText(areaLabel, status));
+      path.addEventListener('focus', () => setInfoText(areaLabel, status));
+      path.addEventListener('mouseleave', resetInfoText);
+      path.addEventListener('blur', resetInfoText);
+      path.style.fill = fill;
+      path.setAttribute('tabindex', '0');
+      admin1Layer.append(path);
+    }
+
+    if (!admin1Layer.isConnected) {
+      zoomLayer.prepend(admin1Layer);
+    }
+    admin1LayerMounted = true;
+  };
+
+  const unmountAdmin1Layer = () => {
+    if (!admin1LayerMounted) return;
+    admin1Layer.replaceChildren();
+    admin1Layer.remove();
+    admin1LayerMounted = false;
+  };
 
   for (const feature of admin0Features) {
     const d = geometryToPath(feature.geometry);
@@ -264,7 +290,7 @@ try {
     admin0Layer.append(path);
   }
 
-  zoomLayer.append(admin1Layer, admin0Layer);
+  zoomLayer.append(admin0Layer);
   svg.append(zoomLayer);
   mapRoot.append(svg);
 
@@ -276,10 +302,14 @@ try {
     zoomLayer.setAttribute('transform', `scale(${clamped})`);
 
     const showAdmin1 = clamped >= ADMIN1_VISIBLE_ZOOM;
-    admin1Layer.style.display = showAdmin1 ? 'block' : 'none';
-    for (const path of admin1Layer.querySelectorAll('path')) {
-      path.setAttribute('tabindex', showAdmin1 ? '0' : '-1');
+    if (showAdmin1) {
+      renderAdmin1Layer();
+    } else {
+      unmountAdmin1Layer();
     }
+
+    admin1Layer.style.pointerEvents = showAdmin1 ? 'auto' : 'none';
+    admin0Layer.style.pointerEvents = showAdmin1 ? 'none' : 'auto';
     for (const path of admin0Layer.querySelectorAll('path')) {
       path.setAttribute('tabindex', showAdmin1 ? '-1' : '0');
     }
