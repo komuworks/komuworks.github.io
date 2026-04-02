@@ -1,0 +1,55 @@
+---
+import { readFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const geoJsonDir = resolve(process.cwd(), 'public/geojson');
+const dataFileNames = {
+  admin0: 'World Bank Official Boundaries - Admin 0.json',
+  admin1: 'World Bank Official Boundaries - Admin 1.json',
+  visitedStatus: 'visited-status-admin1.json'
+};
+
+let mapData:
+  | {
+      admin0: unknown;
+      admin1: unknown;
+      visitedStatus: unknown;
+    }
+  | null = null;
+let mapLoadError = false;
+
+try {
+  const [admin0Raw, admin1Raw, visitedStatusRaw] = await Promise.all([
+    readFile(resolve(geoJsonDir, dataFileNames.admin0), 'utf-8'),
+    readFile(resolve(geoJsonDir, dataFileNames.admin1), 'utf-8'),
+    readFile(resolve(geoJsonDir, dataFileNames.visitedStatus), 'utf-8')
+  ]);
+
+  mapData = {
+    admin0: JSON.parse(admin0Raw),
+    admin1: JSON.parse(admin1Raw),
+    visitedStatus: JSON.parse(visitedStatusRaw)
+  };
+} catch (error) {
+  console.error('Failed to load travel map geojson data.', error);
+  mapLoadError = true;
+}
+---
+
+<BaseLayout title="Travel Map">
+  <section class="surface-card stack" data-reveal>
+    <h2>Travel Map</h2>
+
+    {
+      mapLoadError || !mapData ? (
+        <p role="alert">地図データを読み込めませんでした</p>
+      ) : (
+        <>
+          <p>地図データの読み込みに成功しました。</p>
+          <script id="travel-map-data" type="application/json" set:html={JSON.stringify(mapData)}></script>
+        </>
+      )
+    }
+  </section>
+</BaseLayout>
