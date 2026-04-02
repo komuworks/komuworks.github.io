@@ -81,7 +81,7 @@ try {
   const ADMIN1_VISIBLE_ZOOM = 2.5;
   const MIN_SCALE = 1;
   const MAX_SCALE = 48;
-  const SCALE_STEP = 0.18;
+  const ZOOM_SPEED = 0.0018;
 
   const dataElement = document.getElementById('travel-map-data');
   const mapRoot = document.getElementById('travel-map');
@@ -480,7 +480,9 @@ try {
     'wheel',
     (event) => {
       event.preventDefault();
-      const nextScale = scale + (event.deltaY < 0 ? SCALE_STEP : -SCALE_STEP);
+      const wheelDelta = Math.max(-120, Math.min(120, event.deltaY));
+      const zoomFactor = Math.exp(-wheelDelta * ZOOM_SPEED);
+      const nextScale = scale * zoomFactor;
       const clampedNextScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, nextScale));
       if (clampedNextScale === scale) {
         return;
