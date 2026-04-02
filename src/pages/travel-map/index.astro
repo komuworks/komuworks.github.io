@@ -3,40 +3,56 @@ import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 
-const geoJsonDir = resolve(process.cwd(), 'public/geojson');
+const mapDataDir = resolve(process.cwd(), 'public/geojson');
 const dataFileNames = {
-  admin0: 'World Bank Official Boundaries - Admin 0.json',
-  admin1: 'World Bank Official Boundaries - Admin 1.json',
-  admin1Simplified: 'World Bank Official Boundaries - Admin 1.simplified.json',
+  admin0Topo: 'World Bank Official Boundaries - Admin 0.topo.json',
+  admin1Topo: 'World Bank Official Boundaries - Admin 1.topo.json',
+  admin1SimplifiedTopo: 'World Bank Official Boundaries - Admin 1.simplified.topo.json',
+  // Legacy fallback (GeoJSON)
+  admin0Geo: 'World Bank Official Boundaries - Admin 0.json',
+  admin1Geo: 'World Bank Official Boundaries - Admin 1.json',
+  admin1SimplifiedGeo: 'World Bank Official Boundaries - Admin 1.simplified.json',
   visitedStatus: 'visited-status-admin1.json'
 };
 
 let mapData:
   | {
-      admin0: unknown;
-      admin1: unknown;
-      admin1Simplified: unknown | null;
+      admin0Topology: unknown;
+      admin1Topology: unknown;
+      admin1SimplifiedTopology: unknown | null;
       visitedStatus: unknown;
     }
   | null = null;
 let mapLoadError = false;
 
 try {
-  const [admin0Raw, admin1Raw, visitedStatusRaw] = await Promise.all([
-    readFile(resolve(geoJsonDir, dataFileNames.admin0), 'utf-8'),
-    readFile(resolve(geoJsonDir, dataFileNames.admin1), 'utf-8'),
-    readFile(resolve(geoJsonDir, dataFileNames.visitedStatus), 'utf-8')
+  const visitedStatusRaw = await readFile(resolve(mapDataDir, dataFileNames.visitedStatus), 'utf-8');
+
+  const readJsonWithFallback = async (primaryFileName: string, fallbackFileName: string) => {
+    const primaryRaw = await readFile(resolve(mapDataDir, primaryFileName), 'utf-8').catch(() => null);
+    if (primaryRaw) return JSON.parse(primaryRaw);
+
+    const fallbackRaw = await readFile(resolve(mapDataDir, fallbackFileName), 'utf-8');
+    return JSON.parse(fallbackRaw);
+  };
+
+  const [admin0Topology, admin1Topology] = await Promise.all([
+    readJsonWithFallback(dataFileNames.admin0Topo, dataFileNames.admin0Geo),
+    readJsonWithFallback(dataFileNames.admin1Topo, dataFileNames.admin1Geo)
   ]);
-  const admin1SimplifiedRaw = await readFile(resolve(geoJsonDir, dataFileNames.admin1Simplified), 'utf-8').catch(() => null);
+  const admin1SimplifiedTopology = await readJsonWithFallback(
+    dataFileNames.admin1SimplifiedTopo,
+    dataFileNames.admin1SimplifiedGeo
+  ).catch(() => null);
 
   mapData = {
-    admin0: JSON.parse(admin0Raw),
-    admin1: JSON.parse(admin1Raw),
-    admin1Simplified: admin1SimplifiedRaw ? JSON.parse(admin1SimplifiedRaw) : null,
+    admin0Topology,
+    admin1Topology,
+    admin1SimplifiedTopology,
     visitedStatus: JSON.parse(visitedStatusRaw)
   };
 } catch (error) {
-  console.error('Failed to load travel map geojson data.', error);
+  console.error('Failed to load travel map topology data.', error);
   mapLoadError = true;
 }
 ---
@@ -77,9 +93,143 @@ try {
   }
 
   const mapData = JSON.parse(dataElement.textContent ?? '{}');
-  const admin0Features = mapData?.admin0?.features ?? [];
-  const admin1RawFeatures = mapData?.admin1?.features ?? [];
-  const admin1SimplifiedFeatures = mapData?.admin1Simplified?.features ?? [];
+  const topologyToFeatureCollection = (topology) => {
+    if (!topology || typeof topology !== 'object') return [];
+
+    // Backward-compatibility: legacy GeoJSON payloads
+    if ('features' in topology && Array.isArray(topology.features)) {
+      return topology.features;
+    }
+
+    if (topology.type !== 'Topology' || !Array.isArray(topology.arcs) || !topology.objects || typeof topology.objects !== 'object') {
+      return [];
+    }
+
+    const transform = topology.transform;
+    const decodedArcs = topology.arcs.map((arc) => {
+      if (!Array.isArray(arc)) return [];
+      let x = 0;
+      let y = 0;
+
+      return arc.map((point) => {
+        if (!Array.isArray(point) || point.length < 2) return [0, 0];
+        x += point[0];
+        y += point[1];
+
+        if (transform?.scale && transform?.translate) {
+          return [x * transform.scale[0] + transform.translate[0], y * transform.scale[1] + transform.translate[1]];
+        }
+
+        return [x, y];
+      });
+    });
+
+    const getArcCoordinates = (arcIndex) => {
+      if (typeof arcIndex !== 'number') return [];
+      if (arcIndex >= 0) {
+        return decodedArcs[arcIndex] ?? [];
+      }
+
+      const reversedArc = decodedArcs[~arcIndex] ?? [];
+      return [...reversedArc].reverse();
+    };
+
+    const mergeArcs = (arcIndices) => {
+      const coordinates = [];
+
+      for (const [index, arcIndex] of arcIndices.entries()) {
+        const arc = getArcCoordinates(arcIndex);
+        if (arc.length === 0) continue;
+
+        coordinates.push(...(index === 0 ? arc : arc.slice(1)));
+      }
+
+      return coordinates;
+    };
+
+    const topologyGeometryToGeoJson = (geometry) => {
+      if (!geometry || typeof geometry !== 'object') return null;
+
+      if (geometry.type === 'Polygon') {
+        return {
+          type: 'Polygon',
+          coordinates: (geometry.arcs ?? []).map((ringArcIndices) => mergeArcs(ringArcIndices))
+        };
+      }
+
+      if (geometry.type === 'MultiPolygon') {
+        return {
+          type: 'MultiPolygon',
+          coordinates: (geometry.arcs ?? []).map((polygonArcIndices) =>
+            polygonArcIndices.map((ringArcIndices) => mergeArcs(ringArcIndices))
+          )
+        };
+      }
+
+      if (geometry.type === 'Point') {
+        const [x = 0, y = 0] = geometry.coordinates ?? [];
+        if (transform?.scale && transform?.translate) {
+          return {
+            type: 'Point',
+            coordinates: [x * transform.scale[0] + transform.translate[0], y * transform.scale[1] + transform.translate[1]]
+          };
+        }
+
+        return { type: 'Point', coordinates: [x, y] };
+      }
+
+      if (geometry.type === 'MultiPoint') {
+        const coordinates = (geometry.coordinates ?? []).map(([x = 0, y = 0]) => {
+          if (transform?.scale && transform?.translate) {
+            return [x * transform.scale[0] + transform.translate[0], y * transform.scale[1] + transform.translate[1]];
+          }
+          return [x, y];
+        });
+
+        return { type: 'MultiPoint', coordinates };
+      }
+
+      return null;
+    };
+
+    const objectKeys = Object.keys(topology.objects);
+    if (objectKeys.length === 0) return [];
+
+    const firstObject = topology.objects[objectKeys[0]];
+    if (!firstObject || typeof firstObject !== 'object') return [];
+
+    if (firstObject.type === 'GeometryCollection') {
+      return (firstObject.geometries ?? [])
+        .map((geometry) => {
+          const geoJsonGeometry = topologyGeometryToGeoJson(geometry);
+          if (!geoJsonGeometry) return null;
+
+          return {
+            type: 'Feature',
+            id: geometry.id,
+            properties: geometry.properties ?? {},
+            geometry: geoJsonGeometry
+          };
+        })
+        .filter(Boolean);
+    }
+
+    const geoJsonGeometry = topologyGeometryToGeoJson(firstObject);
+    if (!geoJsonGeometry) return [];
+
+    return [
+      {
+        type: 'Feature',
+        id: firstObject.id,
+        properties: firstObject.properties ?? {},
+        geometry: geoJsonGeometry
+      }
+    ];
+  };
+
+  const admin0Features = topologyToFeatureCollection(mapData?.admin0Topology);
+  const admin1RawFeatures = topologyToFeatureCollection(mapData?.admin1Topology);
+  const admin1SimplifiedFeatures = topologyToFeatureCollection(mapData?.admin1SimplifiedTopology);
   const shouldPreferSimplifiedAdmin1 = window.matchMedia('(max-width: 768px)').matches;
   const admin1Features =
     shouldPreferSimplifiedAdmin1 && admin1SimplifiedFeatures.length > 0 ? admin1SimplifiedFeatures : admin1RawFeatures;
