@@ -48,6 +48,7 @@ try {
         <>
           <p>マウスホイールで拡大縮小できます（しきい値: 2.5）。</p>
           <div id="travel-map-legend" class="travel-map-legend" aria-label="Map status legend"></div>
+          <p id="travel-map-info" class="travel-map-info" aria-live="polite">地域にホバーまたはフォーカスすると詳細を表示します。</p>
           <div id="travel-map" class="travel-map" aria-label="Visited areas map"></div>
           <script id="travel-map-data" type="application/json" set:html={JSON.stringify(mapData)}></script>
         </>
@@ -65,8 +66,9 @@ try {
   const dataElement = document.getElementById('travel-map-data');
   const mapRoot = document.getElementById('travel-map');
   const legendRoot = document.getElementById('travel-map-legend');
+  const infoRoot = document.getElementById('travel-map-info');
 
-  if (!dataElement || !mapRoot || !legendRoot) {
+  if (!dataElement || !mapRoot || !legendRoot || !infoRoot) {
     throw new Error('Travel map initialization failed.');
   }
 
@@ -76,6 +78,14 @@ try {
   const visitedStatusPayload = mapData?.visitedStatus ?? {};
   const statusMeta = visitedStatusPayload?.statusMeta ?? {};
   const admin1StatusById = visitedStatusPayload?.statuses ?? {};
+  const statusDisplayName = {
+    lived: '居住',
+    stayed: '宿泊',
+    visited: '訪問',
+    passed: '通過',
+    want_to_go: '行きたい',
+    unknown: '未設定'
+  };
   const idKey = typeof visitedStatusPayload?.idKey === 'string' ? visitedStatusPayload.idKey : 'ADM1CD_c';
   const statusPriority = ['lived', 'stayed', 'visited', 'passed', 'want_to_go', 'unknown'];
   const statusRank = new Map(statusPriority.map((status, index) => [status, index]));
@@ -107,7 +117,7 @@ try {
     swatch.className = 'travel-map-legend__swatch';
     swatch.style.backgroundColor = meta.color;
     const label = document.createElement('span');
-    label.textContent = meta.label;
+    label.textContent = statusDisplayName[status] ?? meta.label ?? statusDisplayName.unknown;
     item.append(swatch, label);
     legendRoot.append(item);
   }
@@ -184,7 +194,19 @@ try {
     const path = document.createElementNS(svgNamespace, 'path');
     path.setAttribute('d', d);
     path.setAttribute('class', className);
+    path.setAttribute('tabindex', '-1');
     return path;
+  };
+
+  const getStatusLabel = (status) =>
+    statusDisplayName[status] ?? statusMeta?.[status]?.label ?? statusDisplayName.unknown;
+
+  const setInfoText = (regionName, status) => {
+    infoRoot.textContent = `${regionName}：${getStatusLabel(status)}`;
+  };
+
+  const resetInfoText = () => {
+    infoRoot.textContent = '地域にホバーまたはフォーカスすると詳細を表示します。';
   };
 
   const countryStatusCandidates = new Map();
@@ -212,6 +234,14 @@ try {
     const status = typeof admin1Id === 'string' ? admin1StatusById[admin1Id] ?? 'unknown' : 'unknown';
     const path = createPath(d, 'admin1');
     const fill = statusMeta?.[status]?.color ?? statusMeta?.unknown?.color ?? '#9E9E9E';
+    const countryName = feature?.properties?.NAM_0 ?? 'Unknown country';
+    const regionName = feature?.properties?.NAM_1 ?? 'Unknown region';
+    const areaLabel = `${countryName} / ${regionName}`;
+    path.setAttribute('aria-label', `${areaLabel} - ${getStatusLabel(status)}`);
+    path.addEventListener('mouseenter', () => setInfoText(areaLabel, status));
+    path.addEventListener('focus', () => setInfoText(areaLabel, status));
+    path.addEventListener('mouseleave', resetInfoText);
+    path.addEventListener('blur', resetInfoText);
     path.style.fill = fill;
     admin1Layer.append(path);
   }
@@ -224,6 +254,12 @@ try {
     const countryStatus = typeof countryCode === 'string' ? countryStatusByIso2.get(countryCode) ?? 'unknown' : 'unknown';
     const path = createPath(d, 'admin0');
     const fill = statusMeta?.[countryStatus]?.color ?? statusMeta?.unknown?.color ?? '#9E9E9E';
+    const countryName = feature?.properties?.NAM_0 ?? 'Unknown country';
+    path.setAttribute('aria-label', `${countryName} - ${getStatusLabel(countryStatus)}`);
+    path.addEventListener('mouseenter', () => setInfoText(countryName, countryStatus));
+    path.addEventListener('focus', () => setInfoText(countryName, countryStatus));
+    path.addEventListener('mouseleave', resetInfoText);
+    path.addEventListener('blur', resetInfoText);
     path.style.fill = fill;
     admin0Layer.append(path);
   }
@@ -241,6 +277,13 @@ try {
 
     const showAdmin1 = clamped >= ADMIN1_VISIBLE_ZOOM;
     admin1Layer.style.display = showAdmin1 ? 'block' : 'none';
+    for (const path of admin1Layer.querySelectorAll('path')) {
+      path.setAttribute('tabindex', showAdmin1 ? '0' : '-1');
+    }
+    for (const path of admin0Layer.querySelectorAll('path')) {
+      path.setAttribute('tabindex', showAdmin1 ? '-1' : '0');
+    }
+    resetInfoText();
 
     admin0Layer.classList.toggle('admin0--light-overlay', showAdmin1);
     admin0Layer.classList.toggle('admin0--strong', !showAdmin1);
@@ -273,6 +316,18 @@ try {
     aspect-ratio: 16 / 9;
   }
 
+  .travel-map-info {
+    margin: 0;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid color-mix(in srgb, var(--text) 16%, transparent);
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    min-height: 2.25rem;
+    display: flex;
+    align-items: center;
+    background: color-mix(in srgb, var(--surface, #ffffff) 84%, transparent);
+  }
+
   .travel-map-legend {
     display: flex;
     flex-wrap: wrap;
@@ -302,6 +357,13 @@ try {
   .admin1 {
     stroke: color-mix(in srgb, #111827 65%, transparent);
     stroke-width: 0.6;
+  }
+
+  .admin0:focus-visible,
+  .admin1:focus-visible {
+    stroke: #f8fafc;
+    stroke-width: 1.4;
+    outline: none;
   }
 
   .admin0 {
