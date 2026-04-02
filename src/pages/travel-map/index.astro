@@ -445,11 +445,13 @@ try {
   mapRoot.append(svg);
 
   let scale = 1;
+  let translateX = 0;
+  let translateY = 0;
 
   const updateScale = () => {
     const clamped = Math.max(MIN_SCALE, Math.min(MAX_SCALE, scale));
     scale = clamped;
-    zoomLayer.setAttribute('transform', `scale(${clamped})`);
+    zoomLayer.setAttribute('transform', `matrix(${clamped} 0 0 ${clamped} ${translateX} ${translateY})`);
 
     const showAdmin1 = clamped >= ADMIN1_VISIBLE_ZOOM;
     if (showAdmin1) {
@@ -473,7 +475,20 @@ try {
     'wheel',
     (event) => {
       event.preventDefault();
-      scale += event.deltaY < 0 ? SCALE_STEP : -SCALE_STEP;
+      const nextScale = scale + (event.deltaY < 0 ? SCALE_STEP : -SCALE_STEP);
+      const clampedNextScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, nextScale));
+      if (clampedNextScale === scale) {
+        return;
+      }
+
+      const svgRect = svg.getBoundingClientRect();
+      const pointerX = ((event.clientX - svgRect.left) / svgRect.width) * width;
+      const pointerY = ((event.clientY - svgRect.top) / svgRect.height) * height;
+      const scaleRatio = clampedNextScale / scale;
+
+      translateX = pointerX - (pointerX - translateX) * scaleRatio;
+      translateY = pointerY - (pointerY - translateY) * scaleRatio;
+      scale = clampedNextScale;
       updateScale();
     },
     { passive: false }

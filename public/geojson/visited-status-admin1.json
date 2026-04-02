@@ -27,5 +27,10 @@
       "color": "#9E9E9E"
     }
   },
-  "statuses": {}
+  "statuses": {
+    "JPN024": "lived",
+    "JPN038": "visited",
+    "JPN040": "stayed",
+    "JPN041": "visited"
+  }
 }
