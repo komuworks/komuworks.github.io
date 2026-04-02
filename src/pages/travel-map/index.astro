@@ -552,6 +552,9 @@ try {
   .admin1 {
     stroke: color-mix(in srgb, #111827 65%, transparent);
     stroke-width: 0.6;
+    transition:
+      filter 140ms ease,
+      opacity 140ms ease;
   }
 
   .admin0:focus-visible,
@@ -564,6 +567,17 @@ try {
   .admin0 {
     stroke: #f8fafc;
     vector-effect: non-scaling-stroke;
+    transition:
+      filter 140ms ease,
+      opacity 140ms ease;
+  }
+
+  .admin0:hover,
+  .admin1:hover,
+  .admin0:focus-visible,
+  .admin1:focus-visible {
+    filter: brightness(1.2) saturate(1.08);
+    opacity: 1;
   }
 
   .admin0--strong .admin0 {
