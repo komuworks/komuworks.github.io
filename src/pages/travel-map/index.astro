@@ -38,7 +38,7 @@ try {
 ---
 
 <BaseLayout title="Travel Map">
-  <section class="surface-card stack" data-reveal>
+  <section class="surface-card stack travel-map-card" data-reveal>
     <h2>Travel Map</h2>
 
     {
@@ -46,10 +46,203 @@ try {
         <p role="alert">地図データを読み込めませんでした</p>
       ) : (
         <>
-          <p>地図データの読み込みに成功しました。</p>
+          <p>マウスホイールで拡大縮小できます（しきい値: 2.5）。</p>
+          <div id="travel-map" class="travel-map" aria-label="Visited areas map"></div>
           <script id="travel-map-data" type="application/json" set:html={JSON.stringify(mapData)}></script>
         </>
       )
     }
   </section>
 </BaseLayout>
+
+<script>
+  const ADMIN1_VISIBLE_ZOOM = 2.5;
+  const MIN_SCALE = 1;
+  const MAX_SCALE = 8;
+  const SCALE_STEP = 0.18;
+
+  const dataElement = document.getElementById('travel-map-data');
+  const mapRoot = document.getElementById('travel-map');
+
+  if (!dataElement || !mapRoot) {
+    throw new Error('Travel map initialization failed.');
+  }
+
+  const mapData = JSON.parse(dataElement.textContent ?? '{}');
+  const admin0Features = mapData?.admin0?.features ?? [];
+  const admin1Features = mapData?.admin1?.features ?? [];
+  const visitedStatus = new Map(Object.entries(mapData?.visitedStatus ?? {}));
+
+  const bounds = { minLon: Infinity, minLat: Infinity, maxLon: -Infinity, maxLat: -Infinity };
+  const walkCoordinates = (coordinates, cb) => {
+    if (typeof coordinates[0] === 'number' && typeof coordinates[1] === 'number') {
+      cb(coordinates[0], coordinates[1]);
+      return;
+    }
+
+    for (const child of coordinates) {
+      walkCoordinates(child, cb);
+    }
+  };
+
+  for (const feature of [...admin0Features, ...admin1Features]) {
+    walkCoordinates(feature.geometry.coordinates, (lon, lat) => {
+      bounds.minLon = Math.min(bounds.minLon, lon);
+      bounds.maxLon = Math.max(bounds.maxLon, lon);
+      bounds.minLat = Math.min(bounds.minLat, lat);
+      bounds.maxLat = Math.max(bounds.maxLat, lat);
+    });
+  }
+
+  const width = 1200;
+  const height = 640;
+  const padding = 20;
+  const scaleX = (width - padding * 2) / (bounds.maxLon - bounds.minLon);
+  const scaleY = (height - padding * 2) / (bounds.maxLat - bounds.minLat);
+  const fitScale = Math.min(scaleX, scaleY);
+
+  const project = (lon, lat) => {
+    const x = padding + (lon - bounds.minLon) * fitScale;
+    const y = height - padding - (lat - bounds.minLat) * fitScale;
+    return [x, y];
+  };
+
+  const polygonToPath = (polygonCoordinates) =>
+    polygonCoordinates
+      .map((ring) => {
+        const path = ring
+          .map(([lon, lat], index) => {
+            const [x, y] = project(lon, lat);
+            return `${index === 0 ? 'M' : 'L'}${x.toFixed(2)},${y.toFixed(2)}`;
+          })
+          .join(' ');
+        return `${path} Z`;
+      })
+      .join(' ');
+
+  const geometryToPath = (geometry) => {
+    if (geometry.type === 'Polygon') {
+      return polygonToPath(geometry.coordinates);
+    }
+
+    if (geometry.type === 'MultiPolygon') {
+      return geometry.coordinates.map(polygonToPath).join(' ');
+    }
+
+    return '';
+  };
+
+  const svgNamespace = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(svgNamespace, 'svg');
+  svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+  svg.classList.add('travel-map-svg');
+
+  const zoomLayer = document.createElementNS(svgNamespace, 'g');
+  const admin0Layer = document.createElementNS(svgNamespace, 'g');
+  const admin1Layer = document.createElementNS(svgNamespace, 'g');
+
+  const createPath = (d, className) => {
+    const path = document.createElementNS(svgNamespace, 'path');
+    path.setAttribute('d', d);
+    path.setAttribute('class', className);
+    return path;
+  };
+
+  for (const feature of admin1Features) {
+    const d = geometryToPath(feature.geometry);
+    if (!d) continue;
+
+    const countryCode = feature?.properties?.iso2Code;
+    const admin1Code = feature?.properties?.shapeGroup;
+    const admin1Name = feature?.properties?.shapeName;
+    const key = `${countryCode}-${admin1Code}-${admin1Name}`;
+    const visited = visitedStatus.get(key) === true;
+
+    const path = createPath(d, visited ? 'admin1 admin1--visited' : 'admin1');
+    admin1Layer.append(path);
+  }
+
+  for (const feature of admin0Features) {
+    const d = geometryToPath(feature.geometry);
+    if (!d) continue;
+
+    admin0Layer.append(createPath(d, 'admin0'));
+  }
+
+  zoomLayer.append(admin1Layer, admin0Layer);
+  svg.append(zoomLayer);
+  mapRoot.append(svg);
+
+  let scale = 1;
+
+  const updateScale = () => {
+    const clamped = Math.max(MIN_SCALE, Math.min(MAX_SCALE, scale));
+    scale = clamped;
+    zoomLayer.setAttribute('transform', `scale(${clamped})`);
+
+    const showAdmin1 = clamped >= ADMIN1_VISIBLE_ZOOM;
+    admin1Layer.style.display = showAdmin1 ? 'block' : 'none';
+
+    admin0Layer.classList.toggle('admin0--light-overlay', showAdmin1);
+    admin0Layer.classList.toggle('admin0--strong', !showAdmin1);
+  };
+
+  mapRoot.addEventListener(
+    'wheel',
+    (event) => {
+      event.preventDefault();
+      scale += event.deltaY < 0 ? SCALE_STEP : -SCALE_STEP;
+      updateScale();
+    },
+    { passive: false }
+  );
+
+  updateScale();
+</script>
+
+<style>
+  .travel-map-card {
+    gap: 1rem;
+  }
+
+  .travel-map {
+    width: 100%;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--text) 16%, transparent);
+    background: #05131f;
+    aspect-ratio: 16 / 9;
+  }
+
+  .travel-map-svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .admin1 {
+    fill: color-mix(in srgb, #84cc16 15%, #4f46e5 30%);
+    stroke: color-mix(in srgb, #111827 65%, transparent);
+    stroke-width: 0.6;
+  }
+
+  .admin1--visited {
+    fill: #f97316;
+  }
+
+  .admin0 {
+    fill: none;
+    stroke: #f8fafc;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .admin0--strong .admin0 {
+    stroke-width: 0.95;
+    opacity: 0.92;
+  }
+
+  .admin0--light-overlay .admin0 {
+    stroke-width: 0.55;
+    opacity: 0.45;
+  }
+</style>
