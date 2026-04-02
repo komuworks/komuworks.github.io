@@ -28,9 +28,25 @@
     }
   },
   "statuses": {
-    "JPN024": "lived",
-    "JPN038": "visited",
-    "JPN040": "stayed",
-    "JPN041": "visited"
+    "JPN024": {
+      "status": "lived",
+      "nameJa": "",
+      "memo": ""
+    },
+    "JPN038": {
+      "status": "visited",
+      "nameJa": "",
+      "memo": ""
+    },
+    "JPN040": {
+      "status": "stayed",
+      "nameJa": "",
+      "memo": ""
+    },
+    "JPN041": {
+      "status": "visited",
+      "nameJa": "",
+      "memo": ""
+    }
   }
 }
