@@ -47,6 +47,7 @@ try {
       ) : (
         <>
           <p>マウスホイールで拡大縮小できます（しきい値: 2.5）。</p>
+          <div id="travel-map-legend" class="travel-map-legend" aria-label="Map status legend"></div>
           <div id="travel-map" class="travel-map" aria-label="Visited areas map"></div>
           <script id="travel-map-data" type="application/json" set:html={JSON.stringify(mapData)}></script>
         </>
@@ -63,15 +64,53 @@ try {
 
   const dataElement = document.getElementById('travel-map-data');
   const mapRoot = document.getElementById('travel-map');
+  const legendRoot = document.getElementById('travel-map-legend');
 
-  if (!dataElement || !mapRoot) {
+  if (!dataElement || !mapRoot || !legendRoot) {
     throw new Error('Travel map initialization failed.');
   }
 
   const mapData = JSON.parse(dataElement.textContent ?? '{}');
   const admin0Features = mapData?.admin0?.features ?? [];
   const admin1Features = mapData?.admin1?.features ?? [];
-  const visitedStatus = new Map(Object.entries(mapData?.visitedStatus ?? {}));
+  const visitedStatusPayload = mapData?.visitedStatus ?? {};
+  const statusMeta = visitedStatusPayload?.statusMeta ?? {};
+  const admin1StatusById = visitedStatusPayload?.statuses ?? {};
+  const idKey = typeof visitedStatusPayload?.idKey === 'string' ? visitedStatusPayload.idKey : 'ADM1CD_c';
+  const statusPriority = ['lived', 'stayed', 'visited', 'passed', 'want_to_go', 'unknown'];
+  const statusRank = new Map(statusPriority.map((status, index) => [status, index]));
+
+  const aggregateStatus = (statuses) => {
+    let bestStatus = 'unknown';
+    let bestRank = statusRank.get(bestStatus);
+
+    for (const status of statuses) {
+      const normalizedStatus = typeof status === 'string' ? status : 'unknown';
+      const rank = statusRank.get(normalizedStatus);
+      if (rank === undefined) continue;
+      if (bestRank === undefined || rank < bestRank) {
+        bestStatus = normalizedStatus;
+        bestRank = rank;
+      }
+    }
+
+    return bestStatus;
+  };
+
+  for (const status of statusPriority) {
+    const meta = statusMeta?.[status];
+    if (!meta) continue;
+
+    const item = document.createElement('div');
+    item.className = 'travel-map-legend__item';
+    const swatch = document.createElement('span');
+    swatch.className = 'travel-map-legend__swatch';
+    swatch.style.backgroundColor = meta.color;
+    const label = document.createElement('span');
+    label.textContent = meta.label;
+    item.append(swatch, label);
+    legendRoot.append(item);
+  }
 
   const bounds = { minLon: Infinity, minLat: Infinity, maxLon: -Infinity, maxLat: -Infinity };
   const walkCoordinates = (coordinates, cb) => {
@@ -148,17 +187,32 @@ try {
     return path;
   };
 
+  const countryStatusCandidates = new Map();
+  for (const feature of admin1Features) {
+    const countryCode = feature?.properties?.ISO_A2;
+    const admin1Id = feature?.properties?.[idKey];
+    if (typeof countryCode !== 'string' || typeof admin1Id !== 'string') continue;
+
+    const status = admin1StatusById[admin1Id] ?? 'unknown';
+    if (!countryStatusCandidates.has(countryCode)) {
+      countryStatusCandidates.set(countryCode, []);
+    }
+    countryStatusCandidates.get(countryCode).push(status);
+  }
+
+  const countryStatusByIso2 = new Map(
+    [...countryStatusCandidates.entries()].map(([countryCode, statuses]) => [countryCode, aggregateStatus(statuses)])
+  );
+
   for (const feature of admin1Features) {
     const d = geometryToPath(feature.geometry);
     if (!d) continue;
 
-    const countryCode = feature?.properties?.iso2Code;
-    const admin1Code = feature?.properties?.shapeGroup;
-    const admin1Name = feature?.properties?.shapeName;
-    const key = `${countryCode}-${admin1Code}-${admin1Name}`;
-    const visited = visitedStatus.get(key) === true;
-
-    const path = createPath(d, visited ? 'admin1 admin1--visited' : 'admin1');
+    const admin1Id = feature?.properties?.[idKey];
+    const status = typeof admin1Id === 'string' ? admin1StatusById[admin1Id] ?? 'unknown' : 'unknown';
+    const path = createPath(d, 'admin1');
+    const fill = statusMeta?.[status]?.color ?? statusMeta?.unknown?.color ?? '#9E9E9E';
+    path.style.fill = fill;
     admin1Layer.append(path);
   }
 
@@ -166,7 +220,12 @@ try {
     const d = geometryToPath(feature.geometry);
     if (!d) continue;
 
-    admin0Layer.append(createPath(d, 'admin0'));
+    const countryCode = feature?.properties?.ISO_A2;
+    const countryStatus = typeof countryCode === 'string' ? countryStatusByIso2.get(countryCode) ?? 'unknown' : 'unknown';
+    const path = createPath(d, 'admin0');
+    const fill = statusMeta?.[countryStatus]?.color ?? statusMeta?.unknown?.color ?? '#9E9E9E';
+    path.style.fill = fill;
+    admin0Layer.append(path);
   }
 
   zoomLayer.append(admin1Layer, admin0Layer);
@@ -214,6 +273,26 @@ try {
     aspect-ratio: 16 / 9;
   }
 
+  .travel-map-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem 1rem;
+    font-size: 0.875rem;
+  }
+
+  .travel-map-legend__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+
+  .travel-map-legend__swatch {
+    width: 0.85rem;
+    height: 0.85rem;
+    border-radius: 0.2rem;
+    border: 1px solid color-mix(in srgb, #0f172a 25%, transparent);
+  }
+
   .travel-map-svg {
     width: 100%;
     height: 100%;
@@ -221,17 +300,11 @@ try {
   }
 
   .admin1 {
-    fill: color-mix(in srgb, #84cc16 15%, #4f46e5 30%);
     stroke: color-mix(in srgb, #111827 65%, transparent);
     stroke-width: 0.6;
   }
 
-  .admin1--visited {
-    fill: #f97316;
-  }
-
   .admin0 {
-    fill: none;
     stroke: #f8fafc;
     vector-effect: non-scaling-stroke;
   }
