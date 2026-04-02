@@ -22,3 +22,5 @@ export const toLearningDetail = (id: string): string =>
 export const toTypingIndex = (): string => '/typing/';
 
 export const toTypingDetail = (date: string): string => `/typing/${encodePathSegment(date)}/`;
+
+export const toTravelMapIndex = (): string => '/travel-map/';
