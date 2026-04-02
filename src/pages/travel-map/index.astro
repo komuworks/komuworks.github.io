@@ -587,17 +587,17 @@ try {
     border: 1px solid color-mix(in srgb, #0f172a 25%, transparent);
   }
 
-  .travel-map-svg {
+  :global(.travel-map-svg) {
     width: 100%;
     height: 100%;
     display: block;
   }
 
-  .travel-map-svg path {
+  :global(.travel-map-svg path) {
     -webkit-tap-highlight-color: transparent;
   }
 
-  .admin1 {
+  :global(.admin1) {
     stroke: #f8fafc;
     stroke-width: 0.65;
     vector-effect: non-scaling-stroke;
@@ -606,14 +606,14 @@ try {
       opacity 140ms ease;
   }
 
-  .admin0:focus,
-  .admin1:focus,
-  .admin0:focus-visible,
-  .admin1:focus-visible {
+  :global(.admin0:focus),
+  :global(.admin1:focus),
+  :global(.admin0:focus-visible),
+  :global(.admin1:focus-visible) {
     outline: none;
   }
 
-  .admin0 {
+  :global(.admin0) {
     stroke: #f8fafc;
     vector-effect: non-scaling-stroke;
     transition:
@@ -621,20 +621,20 @@ try {
       opacity 140ms ease;
   }
 
-  .admin0:hover,
-  .admin1:hover,
-  .admin0:focus-visible,
-  .admin1:focus-visible {
+  :global(.admin0:hover),
+  :global(.admin1:hover),
+  :global(.admin0:focus-visible),
+  :global(.admin1:focus-visible) {
     filter: brightness(1.2) saturate(1.08);
     opacity: 1;
   }
 
-  .admin0--strong .admin0 {
+  :global(.admin0--strong .admin0) {
     stroke-width: 0.95;
     opacity: 0.92;
   }
 
-  .admin0--light-overlay .admin0 {
+  :global(.admin0--light-overlay .admin0) {
     stroke-width: 0.55;
     opacity: 0.45;
   }
