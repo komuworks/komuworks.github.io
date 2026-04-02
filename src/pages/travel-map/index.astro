@@ -410,7 +410,8 @@ try {
     }
 
     if (!admin1Layer.isConnected) {
-      zoomLayer.prepend(admin1Layer);
+      // Keep admin1 above admin0 so subdivisions remain visible when zoomed in.
+      zoomLayer.append(admin1Layer);
     }
     admin1LayerMounted = true;
   };
