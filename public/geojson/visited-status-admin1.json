@@ -1,0 +1,31 @@
+{
+  "idKey": "ADM1CD_c",
+  "updatedAt": "2026-04-02T00:00:00Z",
+  "statusMeta": {
+    "lived": {
+      "label": "Lived",
+      "color": "#1565C0"
+    },
+    "stayed": {
+      "label": "Stayed",
+      "color": "#1E88E5"
+    },
+    "visited": {
+      "label": "Visited",
+      "color": "#43A047"
+    },
+    "passed": {
+      "label": "Passed",
+      "color": "#FB8C00"
+    },
+    "want_to_go": {
+      "label": "Want to go",
+      "color": "#8E24AA"
+    },
+    "unknown": {
+      "label": "Unknown",
+      "color": "#9E9E9E"
+    }
+  },
+  "statuses": {}
+}
