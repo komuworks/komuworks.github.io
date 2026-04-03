@@ -189,6 +189,8 @@ const mapLoadError = false;
 
   const width = 1200;
   const height = 640;
+  const RENDER_PADDING_X = 20;
+  const REPEAT_WIDTH = width - RENDER_PADDING_X * 2;
 
   const svgNamespace = 'http://www.w3.org/2000/svg';
   const svg = document.createElementNS(svgNamespace, 'svg');
@@ -198,9 +200,9 @@ const mapLoadError = false;
   const tileContainer = document.createElementNS(svgNamespace, 'g');
   const zoomLayer = document.createElementNS(svgNamespace, 'g');
   const tileDefinitions = [
-    { key: 'left', offsetX: -width },
+    { key: 'left', offsetX: -REPEAT_WIDTH },
     { key: 'center', offsetX: 0 },
-    { key: 'right', offsetX: width }
+    { key: 'right', offsetX: REPEAT_WIDTH }
   ];
   const tileLayers = tileDefinitions.map(({ key, offsetX }) => {
     const tileLayer = document.createElementNS(svgNamespace, 'g');
@@ -353,7 +355,7 @@ const mapLoadError = false;
   let dragStartY = 0;
 
   const normalizeTranslateX = () => {
-    const worldWidth = width * scale;
+    const worldWidth = REPEAT_WIDTH * scale;
     if (!Number.isFinite(worldWidth) || worldWidth <= 0) return;
 
     const normalizedOffset = ((-translateX % worldWidth) + worldWidth) % worldWidth;
@@ -505,7 +507,7 @@ const mapLoadError = false;
       renderLegend();
       rerenderAdmin0Layers();
       scale = INITIAL_SCALE;
-      translateX = width / 2 - INITIAL_CENTER_X * scale;
+      translateX = REPEAT_WIDTH / 2 - INITIAL_CENTER_X * scale;
       translateY = height / 2 - INITIAL_CENTER_Y * scale;
       updateScale();
       setLoadingState(false);
