@@ -352,10 +352,30 @@ try {
   svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
   svg.classList.add('travel-map-svg');
 
+  const tileContainer = document.createElementNS(svgNamespace, 'g');
   const zoomLayer = document.createElementNS(svgNamespace, 'g');
-  const admin0Layer = document.createElementNS(svgNamespace, 'g');
-  const admin1Layer = document.createElementNS(svgNamespace, 'g');
-  let admin1LayerMounted = false;
+  const tileDefinitions = [
+    { key: 'left', offsetX: -width },
+    { key: 'center', offsetX: 0 },
+    { key: 'right', offsetX: width }
+  ];
+  const tileLayers = tileDefinitions.map(({ key, offsetX }) => {
+    const tileLayer = document.createElementNS(svgNamespace, 'g');
+    tileLayer.setAttribute('data-tile', key);
+    tileLayer.setAttribute('transform', `translate(${offsetX}, 0)`);
+
+    const admin0Layer = document.createElementNS(svgNamespace, 'g');
+    const admin1Layer = document.createElementNS(svgNamespace, 'g');
+
+    tileLayer.append(admin0Layer);
+
+    return {
+      tileLayer,
+      admin0Layer,
+      admin1Layer,
+      admin1LayerMounted: false
+    };
+  });
 
   const createPath = (d, className) => {
     const path = document.createElementNS(svgNamespace, 'path');
@@ -393,9 +413,26 @@ try {
     [...countryStatusCandidates.entries()].map(([countryCode, statuses]) => [countryCode, aggregateStatus(statuses)])
   );
 
-  const renderAdmin1Layer = () => {
-    if (admin1LayerMounted) return;
+  const populateAdmin0Layer = (admin0Layer) => {
+    for (const feature of admin0Features) {
+      const d = geometryToPath(feature.geometry);
+      if (!d) continue;
 
+      const countryCode = feature?.properties?.ISO_A2;
+      const countryStatus =
+        typeof countryCode === 'string' ? countryStatusByIso2.get(countryCode) ?? 'unknown' : 'unknown';
+      const path = createPath(d, 'admin0');
+      const fill = statusMeta?.[countryStatus]?.color ?? statusMeta?.unknown?.color ?? '#9E9E9E';
+      const countryName = feature?.properties?.NAM_0 ?? 'Unknown country';
+      path.setAttribute('aria-label', `${countryName} - ${getStatusLabel(countryStatus)}`);
+      path.addEventListener('mouseenter', () => setInfoText(countryName, countryStatus));
+      path.addEventListener('mouseleave', resetInfoText);
+      path.style.fill = fill;
+      admin0Layer.append(path);
+    }
+  };
+
+  const populateAdmin1Layer = (admin1Layer) => {
     for (const feature of admin1Features) {
       const d = geometryToPath(feature.geometry);
       if (!d) continue;
@@ -413,39 +450,36 @@ try {
       path.style.fill = fill;
       admin1Layer.append(path);
     }
+  };
 
-    if (!admin1Layer.isConnected) {
-      // Keep admin1 above admin0 so subdivisions remain visible when zoomed in.
-      zoomLayer.append(admin1Layer);
+  const renderAdmin1Layer = () => {
+    for (const tile of tileLayers) {
+      if (tile.admin1LayerMounted) continue;
+      populateAdmin1Layer(tile.admin1Layer);
+      if (!tile.admin1Layer.isConnected) {
+        // Keep admin1 above admin0 so subdivisions remain visible when zoomed in.
+        tile.tileLayer.append(tile.admin1Layer);
+      }
+      tile.admin1LayerMounted = true;
     }
-    admin1LayerMounted = true;
   };
 
   const unmountAdmin1Layer = () => {
-    if (!admin1LayerMounted) return;
-    admin1Layer.replaceChildren();
-    admin1Layer.remove();
-    admin1LayerMounted = false;
+    for (const tile of tileLayers) {
+      if (!tile.admin1LayerMounted) continue;
+      tile.admin1Layer.replaceChildren();
+      tile.admin1Layer.remove();
+      tile.admin1LayerMounted = false;
+    }
   };
 
-  for (const feature of admin0Features) {
-    const d = geometryToPath(feature.geometry);
-    if (!d) continue;
-
-    const countryCode = feature?.properties?.ISO_A2;
-    const countryStatus = typeof countryCode === 'string' ? countryStatusByIso2.get(countryCode) ?? 'unknown' : 'unknown';
-    const path = createPath(d, 'admin0');
-    const fill = statusMeta?.[countryStatus]?.color ?? statusMeta?.unknown?.color ?? '#9E9E9E';
-    const countryName = feature?.properties?.NAM_0 ?? 'Unknown country';
-    path.setAttribute('aria-label', `${countryName} - ${getStatusLabel(countryStatus)}`);
-    path.addEventListener('mouseenter', () => setInfoText(countryName, countryStatus));
-    path.addEventListener('mouseleave', resetInfoText);
-    path.style.fill = fill;
-    admin0Layer.append(path);
+  for (const tile of tileLayers) {
+    populateAdmin0Layer(tile.admin0Layer);
+    zoomLayer.append(tile.tileLayer);
   }
 
-  zoomLayer.append(admin0Layer);
-  svg.append(zoomLayer);
+  tileContainer.append(zoomLayer);
+  svg.append(tileContainer);
   mapRoot.append(svg);
 
   let scale = 1;
@@ -468,7 +502,7 @@ try {
     const clamped = Math.max(MIN_SCALE, Math.min(MAX_SCALE, scale));
     scale = clamped;
     normalizeTranslateX();
-    zoomLayer.setAttribute('transform', `matrix(${clamped} 0 0 ${clamped} ${translateX} ${translateY})`);
+    tileContainer.setAttribute('transform', `matrix(${clamped} 0 0 ${clamped} ${translateX} ${translateY})`);
 
     const showAdmin1 = clamped >= ADMIN1_VISIBLE_ZOOM;
     if (showAdmin1) {
@@ -477,12 +511,13 @@ try {
       unmountAdmin1Layer();
     }
 
-    admin1Layer.style.pointerEvents = showAdmin1 ? 'auto' : 'none';
-    admin0Layer.style.pointerEvents = showAdmin1 ? 'none' : 'auto';
+    for (const tile of tileLayers) {
+      tile.admin1Layer.style.pointerEvents = showAdmin1 ? 'auto' : 'none';
+      tile.admin0Layer.style.pointerEvents = showAdmin1 ? 'none' : 'auto';
+      tile.admin0Layer.classList.toggle('admin0--light-overlay', showAdmin1);
+      tile.admin0Layer.classList.toggle('admin0--strong', !showAdmin1);
+    }
     resetInfoText();
-
-    admin0Layer.classList.toggle('admin0--light-overlay', showAdmin1);
-    admin0Layer.classList.toggle('admin0--strong', !showAdmin1);
   };
 
   mapRoot.addEventListener(
