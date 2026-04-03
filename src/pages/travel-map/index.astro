@@ -286,7 +286,9 @@ try {
     return Math.log(Math.tan(Math.PI / 4 + rad / 2));
   };
 
-  const bounds = { minLon: Infinity, minY: Infinity, maxLon: -Infinity, maxY: -Infinity };
+  const mercatorX = (lonDeg) => (lonDeg * Math.PI) / 180;
+
+  const bounds = { minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity };
   const walkCoordinates = (coordinates, cb) => {
     if (typeof coordinates[0] === 'number' && typeof coordinates[1] === 'number') {
       cb(coordinates[0], coordinates[1]);
@@ -300,9 +302,10 @@ try {
 
   for (const feature of [...admin0Features, ...admin1Features]) {
     walkCoordinates(feature.geometry.coordinates, (lon, lat) => {
+      const mx = mercatorX(lon);
       const my = mercatorY(lat);
-      bounds.minLon = Math.min(bounds.minLon, lon);
-      bounds.maxLon = Math.max(bounds.maxLon, lon);
+      bounds.minX = Math.min(bounds.minX, mx);
+      bounds.maxX = Math.max(bounds.maxX, mx);
       bounds.minY = Math.min(bounds.minY, my);
       bounds.maxY = Math.max(bounds.maxY, my);
     });
@@ -311,12 +314,13 @@ try {
   const width = 1200;
   const height = 640;
   const padding = 20;
-  const scaleX = (width - padding * 2) / (bounds.maxLon - bounds.minLon);
+  const scaleX = (width - padding * 2) / (bounds.maxX - bounds.minX);
   const scaleY = (height - padding * 2) / (bounds.maxY - bounds.minY);
   const fitScale = Math.min(scaleX, scaleY);
 
   const project = (lon, lat) => {
-    const x = padding + (lon - bounds.minLon) * fitScale;
+    const xMerc = mercatorX(lon);
+    const x = padding + (xMerc - bounds.minX) * fitScale;
     const yMerc = mercatorY(lat);
     const y = height - padding - (yMerc - bounds.minY) * fitScale;
     return [x, y];
