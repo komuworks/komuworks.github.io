@@ -63,16 +63,17 @@ const mapLoadError = false;
     throw new Error(`Failed to load ${path}`);
   };
 
-  // --- 状態管理: admin0 初期描画で必ず参照される変数（loadInitialMapData で初期化） ---
+  // --- 状態管理: 変更されるデータ（初期値は安全な空値） ---
   let admin0Features = [];
+  let admin1Features = [];
   let visitedStatusPayload = {};
   let statusMeta = {};
   let admin1StatusById = {};
   let idKey = 'ADM1CD_c';
   let countryStatusByIso2 = new Map();
+  let baseDataLoaded = false;
 
   // --- 状態管理: admin1 詳細レイヤーの遅延ロード段階 ---
-  let admin1Features = [];
   let admin1Loaded = false;
   let admin1LoadRequested = false;
   let admin1LoadFailed = false;
@@ -141,6 +142,7 @@ const mapLoadError = false;
   };
 
   const renderLegend = () => {
+    if (!baseDataLoaded || !isObjectRecord(statusMeta)) return;
     legendRoot.replaceChildren();
     for (const status of statusPriority) {
       const meta = statusMeta?.[status];
@@ -159,6 +161,10 @@ const mapLoadError = false;
   };
 
   const updateCountryStatusMap = () => {
+    if (!baseDataLoaded || !Array.isArray(admin1Features) || admin1Features.length === 0) {
+      countryStatusByIso2 = new Map();
+      return;
+    }
     const countryStatusCandidates = new Map();
     for (const feature of admin1Features) {
       const countryCode = feature?.p?.ISO_A2;
@@ -289,6 +295,7 @@ const mapLoadError = false;
   };
 
   const rerenderAdmin0Layers = () => {
+    if (!baseDataLoaded || !Array.isArray(admin0Features) || !isObjectRecord(statusMeta)) return;
     for (const tile of tileLayers) {
       tile.admin0Layer.replaceChildren();
       populateAdmin0Layer(tile.admin0Layer);
@@ -350,14 +357,14 @@ const mapLoadError = false;
   };
 
   const ensureAdmin1Loaded = async () => {
-    if (admin1Loaded || admin1LoadRequested) return;
+    if (!baseDataLoaded || admin1Loaded || admin1LoadRequested) return;
 
     admin1LoadRequested = true;
     admin1LoadFailed = false;
     setLoadingState(true, '詳細地図データを読み込み中...');
     try {
       const admin1MapData = await fetchJson(DATA_FILES.admin1Render);
-      admin1Features = admin1MapData?.features ?? [];
+      admin1Features = Array.isArray(admin1MapData?.features) ? admin1MapData.features : [];
       admin1Loaded = true;
       updateCountryStatusMap();
       rerenderAdmin0Layers();
@@ -464,6 +471,7 @@ const mapLoadError = false;
   const loadInitialMapData = async () => {
     setLoadingState(true);
     setErrorState(false);
+    baseDataLoaded = false;
     try {
       // admin0 初期描画で参照される状態を先に確定させる
       const [admin0RenderData, visitedStatus] = await Promise.all([
@@ -476,7 +484,7 @@ const mapLoadError = false;
         svg.setAttribute('viewBox', `0 0 ${renderMeta.width} ${renderMeta.height}`);
       }
 
-      admin0Features = admin0RenderData?.features ?? [];
+      admin0Features = Array.isArray(admin0RenderData?.features) ? admin0RenderData.features : [];
       visitedStatusPayload = visitedStatus ?? {};
       statusMeta = visitedStatusPayload?.statusMeta ?? {};
       admin1StatusById = buildAdmin1StatusById(visitedStatusPayload?.statuses);
@@ -486,6 +494,7 @@ const mapLoadError = false;
       admin1Loaded = false;
       admin1LoadRequested = false;
       admin1LoadFailed = false;
+      baseDataLoaded = true;
       updateCountryStatusMap();
 
       // 初回描画（legend/admin0/scale）は上の初期化完了後に実行する
@@ -494,6 +503,7 @@ const mapLoadError = false;
       updateScale();
       setLoadingState(false);
     } catch {
+      baseDataLoaded = false;
       setLoadingState(false);
       setErrorState(true);
     }
