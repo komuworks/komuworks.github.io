@@ -280,7 +280,13 @@ try {
     legendRoot.append(item);
   }
 
-  const bounds = { minLon: Infinity, minLat: Infinity, maxLon: -Infinity, maxLat: -Infinity };
+  const mercatorY = (latDeg) => {
+    const clampedLat = Math.max(-85, Math.min(85, latDeg));
+    const rad = (clampedLat * Math.PI) / 180;
+    return Math.log(Math.tan(Math.PI / 4 + rad / 2));
+  };
+
+  const bounds = { minLon: Infinity, minY: Infinity, maxLon: -Infinity, maxY: -Infinity };
   const walkCoordinates = (coordinates, cb) => {
     if (typeof coordinates[0] === 'number' && typeof coordinates[1] === 'number') {
       cb(coordinates[0], coordinates[1]);
@@ -294,10 +300,11 @@ try {
 
   for (const feature of [...admin0Features, ...admin1Features]) {
     walkCoordinates(feature.geometry.coordinates, (lon, lat) => {
+      const my = mercatorY(lat);
       bounds.minLon = Math.min(bounds.minLon, lon);
       bounds.maxLon = Math.max(bounds.maxLon, lon);
-      bounds.minLat = Math.min(bounds.minLat, lat);
-      bounds.maxLat = Math.max(bounds.maxLat, lat);
+      bounds.minY = Math.min(bounds.minY, my);
+      bounds.maxY = Math.max(bounds.maxY, my);
     });
   }
 
@@ -305,12 +312,13 @@ try {
   const height = 640;
   const padding = 20;
   const scaleX = (width - padding * 2) / (bounds.maxLon - bounds.minLon);
-  const scaleY = (height - padding * 2) / (bounds.maxLat - bounds.minLat);
+  const scaleY = (height - padding * 2) / (bounds.maxY - bounds.minY);
   const fitScale = Math.min(scaleX, scaleY);
 
   const project = (lon, lat) => {
     const x = padding + (lon - bounds.minLon) * fitScale;
-    const y = height - padding - (lat - bounds.minLat) * fitScale;
+    const yMerc = mercatorY(lat);
+    const y = height - padding - (yMerc - bounds.minY) * fitScale;
     return [x, y];
   };
 
