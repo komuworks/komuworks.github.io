@@ -456,9 +456,18 @@ try {
   let dragStartX = 0;
   let dragStartY = 0;
 
+  const normalizeTranslateX = () => {
+    const worldWidth = width * scale;
+    if (!Number.isFinite(worldWidth) || worldWidth <= 0) return;
+
+    const normalizedOffset = ((-translateX % worldWidth) + worldWidth) % worldWidth;
+    translateX = -normalizedOffset;
+  };
+
   const updateScale = () => {
     const clamped = Math.max(MIN_SCALE, Math.min(MAX_SCALE, scale));
     scale = clamped;
+    normalizeTranslateX();
     zoomLayer.setAttribute('transform', `matrix(${clamped} 0 0 ${clamped} ${translateX} ${translateY})`);
 
     const showAdmin1 = clamped >= ADMIN1_VISIBLE_ZOOM;
