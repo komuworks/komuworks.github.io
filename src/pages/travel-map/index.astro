@@ -322,8 +322,52 @@ try {
     return [x, y];
   };
 
+  const DATELINE_THRESHOLD = 180;
+
+  const pointsEqual = (a, b) => a?.[0] === b?.[0] && a?.[1] === b?.[1];
+
+  const closeRing = (ring) => {
+    if (ring.length === 0) return ring;
+    return pointsEqual(ring[0], ring[ring.length - 1]) ? ring : [...ring, [...ring[0]]];
+  };
+
+  const splitRingOnDateline = (ring, threshold = DATELINE_THRESHOLD) => {
+    if (!Array.isArray(ring) || ring.length < 2) return [ring];
+
+    const workingRing = closeRing(ring);
+    const splitRings = [];
+    let currentRing = [[...workingRing[0]]];
+
+    for (let index = 0; index < workingRing.length - 1; index += 1) {
+      const [lon1, lat1] = workingRing[index];
+      const [lon2, lat2] = workingRing[index + 1];
+      const deltaLon = lon2 - lon1;
+
+      if (Math.abs(deltaLon) > threshold) {
+        const wrappedDeltaLon = deltaLon > 0 ? deltaLon - 360 : deltaLon + 360;
+        const boundaryLon = deltaLon > 0 ? -180 : 180;
+        const t = wrappedDeltaLon === 0 ? 0 : (boundaryLon - lon1) / wrappedDeltaLon;
+        const interpolatedLat = lat1 + (lat2 - lat1) * t;
+
+        const edgeEndPoint = [boundaryLon, interpolatedLat];
+        const edgeStartPoint = [boundaryLon === 180 ? -180 : 180, interpolatedLat];
+
+        currentRing.push(edgeEndPoint);
+        splitRings.push(closeRing(currentRing));
+        currentRing = [edgeStartPoint, [lon2, lat2]];
+      } else {
+        currentRing.push([lon2, lat2]);
+      }
+    }
+
+    splitRings.push(closeRing(currentRing));
+
+    return splitRings.filter((candidateRing) => candidateRing.length >= 4);
+  };
+
   const polygonToPath = (polygonCoordinates) =>
     polygonCoordinates
+      .flatMap((ring) => splitRingOnDateline(ring))
       .map((ring) => {
         const path = ring
           .map(([lon, lat], index) => {
