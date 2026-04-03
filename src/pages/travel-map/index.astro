@@ -63,14 +63,20 @@ const mapLoadError = false;
     throw new Error(`Failed to load ${path}`);
   };
 
-  const admin0Features = topologyToFeatureCollection(mapData?.admin0Topology);
-  const admin1RawFeatures = topologyToFeatureCollection(mapData?.admin1Topology);
-  const admin1SimplifiedFeatures = topologyToFeatureCollection(mapData?.admin1SimplifiedTopology);
-  const shouldPreferSimplifiedAdmin1 = window.matchMedia('(max-width: 768px)').matches;
-  const admin1Features =
-    shouldPreferSimplifiedAdmin1 && admin1SimplifiedFeatures.length > 0 ? admin1SimplifiedFeatures : admin1RawFeatures;
-  const visitedStatusPayload = mapData?.visitedStatus ?? {};
-  const statusMeta = visitedStatusPayload?.statusMeta ?? {};
+  // --- 状態管理: admin0 初期描画で必ず参照される変数（loadInitialMapData で初期化） ---
+  let admin0Features = [];
+  let visitedStatusPayload = {};
+  let statusMeta = {};
+  let admin1StatusById = {};
+  let idKey = 'ADM1CD_c';
+  let countryStatusByIso2 = new Map();
+
+  // --- 状態管理: admin1 詳細レイヤーの遅延ロード段階 ---
+  let admin1Features = [];
+  let admin1Loaded = false;
+  let admin1LoadRequested = false;
+  let admin1LoadFailed = false;
+
   const statusDisplayName = {
     lived: '居住',
     stayed: '宿泊',
@@ -79,25 +85,28 @@ const mapLoadError = false;
     want_to_go: '行きたい',
     unknown: '未設定'
   };
-  let idKey = 'ADM1CD_c';
   const statusPriority = ['lived', 'stayed', 'visited', 'passed', 'want_to_go', 'unknown'];
   const statusRank = new Map(statusPriority.map((status, index) => [status, index]));
   const statusPrioritySet = new Set(statusPriority);
+
+  // ステータス正規化の単一ソース（呼び出し側では必ずこの関数を使用）
   const normalizeStatus = (status) => {
     if (typeof status !== 'string') return 'unknown';
-    const normalizedStatus = status.trim().toLowerCase();
+    const normalizedStatus = status.trim().toLowerCase().replace(/\s+/g, '_');
     return statusPrioritySet.has(normalizedStatus) ? normalizedStatus : 'unknown';
   };
+
   const isObjectRecord = (value) => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
-  const rawAdmin1StatusById =
-    visitedStatusPayload?.statuses && isObjectRecord(visitedStatusPayload.statuses) ? visitedStatusPayload.statuses : {};
-  const admin1StatusById = Object.fromEntries(
-    Object.entries(rawAdmin1StatusById).map(([admin1Id, value]) => {
-      const rawStatus =
-        typeof value === 'string' ? value : isObjectRecord(value) ? value.status : undefined;
-      return [admin1Id, normalizeStatus(rawStatus)];
-    })
-  );
+  const buildAdmin1StatusById = (statuses) => {
+    const rawStatuses = isObjectRecord(statuses) ? statuses : {};
+    return Object.fromEntries(
+      Object.entries(rawStatuses).map(([admin1Id, value]) => {
+        const rawStatus =
+          typeof value === 'string' ? value : isObjectRecord(value) ? value.status : undefined;
+        return [admin1Id, normalizeStatus(rawStatus)];
+      })
+    );
+  };
 
   const aggregateStatus = (statuses) => {
     let bestStatus = 'unknown';
@@ -116,6 +125,21 @@ const mapLoadError = false;
     return bestStatus;
   };
 
+  const getAdmin1Status = (admin1Id) => {
+    const rawStatus = admin1StatusById?.[admin1Id];
+    if (typeof rawStatus === 'string') {
+      return normalizeStatus(rawStatus);
+    }
+
+    if (isObjectRecord(rawStatus)) {
+      const rawStatus =
+        typeof rawStatus.status === 'string' ? rawStatus.status : undefined;
+      return normalizeStatus(rawStatus);
+    }
+
+    return 'unknown';
+  };
+
   const renderLegend = () => {
     legendRoot.replaceChildren();
     for (const status of statusPriority) {
@@ -132,24 +156,6 @@ const mapLoadError = false;
       item.append(swatch, label);
       legendRoot.append(item);
     }
-  };
-
-  const normalizeStatus = (value) => {
-    if (typeof value !== 'string') return 'unknown';
-    return value.toLowerCase().trim().replace(/\s+/g, '_');
-  };
-
-  const getAdmin1Status = (admin1Id) => {
-    const rawStatus = admin1StatusById?.[admin1Id];
-    if (typeof rawStatus === 'string') {
-      return normalizeStatus(rawStatus);
-    }
-
-    if (rawStatus && typeof rawStatus === 'object') {
-      return normalizeStatus(rawStatus.status);
-    }
-
-    return 'unknown';
   };
 
   const updateCountryStatusMap = () => {
@@ -459,6 +465,7 @@ const mapLoadError = false;
     setLoadingState(true);
     setErrorState(false);
     try {
+      // admin0 初期描画で参照される状態を先に確定させる
       const [admin0RenderData, visitedStatus] = await Promise.all([
         fetchJson(DATA_FILES.admin0Render),
         fetchJson(DATA_FILES.visitedStatus)
@@ -472,8 +479,16 @@ const mapLoadError = false;
       admin0Features = admin0RenderData?.features ?? [];
       visitedStatusPayload = visitedStatus ?? {};
       statusMeta = visitedStatusPayload?.statusMeta ?? {};
-      admin1StatusById = visitedStatusPayload?.statuses ?? {};
+      admin1StatusById = buildAdmin1StatusById(visitedStatusPayload?.statuses);
       idKey = typeof visitedStatusPayload?.idKey === 'string' ? visitedStatusPayload.idKey : 'ADM1CD_c';
+      countryStatusByIso2 = new Map();
+      admin1Features = [];
+      admin1Loaded = false;
+      admin1LoadRequested = false;
+      admin1LoadFailed = false;
+      updateCountryStatusMap();
+
+      // 初回描画（legend/admin0/scale）は上の初期化完了後に実行する
       renderLegend();
       rerenderAdmin0Layers();
       updateScale();
