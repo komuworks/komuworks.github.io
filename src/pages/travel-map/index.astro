@@ -1,79 +1,24 @@
 ---
-import { readFile } from 'node:fs/promises';
-import { resolve } from 'node:path';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-
-const mapDataDir = resolve(process.cwd(), 'public/geojson');
-const dataFileNames = {
-  admin0Topo: 'World Bank Official Boundaries - Admin 0.topo.json',
-  admin1Topo: 'World Bank Official Boundaries - Admin 1.topo.json',
-  admin1SimplifiedTopo: 'World Bank Official Boundaries - Admin 1.simplified.topo.json',
-  // Legacy fallback (GeoJSON)
-  admin0Geo: 'World Bank Official Boundaries - Admin 0.json',
-  admin1Geo: 'World Bank Official Boundaries - Admin 1.json',
-  admin1SimplifiedGeo: 'World Bank Official Boundaries - Admin 1.simplified.json',
-  visitedStatus: 'visited-status-admin1.json'
-};
-
-let mapData:
-  | {
-      admin0Topology: unknown;
-      admin1Topology: unknown;
-      admin1SimplifiedTopology: unknown | null;
-      visitedStatus: unknown;
-    }
-  | null = null;
-let mapLoadError = false;
-
-try {
-  const visitedStatusRaw = await readFile(resolve(mapDataDir, dataFileNames.visitedStatus), 'utf-8');
-
-  const readJsonWithFallback = async (primaryFileName: string, fallbackFileName: string) => {
-    const primaryRaw = await readFile(resolve(mapDataDir, primaryFileName), 'utf-8').catch(() => null);
-    if (primaryRaw) return JSON.parse(primaryRaw);
-
-    const fallbackRaw = await readFile(resolve(mapDataDir, fallbackFileName), 'utf-8');
-    return JSON.parse(fallbackRaw);
-  };
-
-  const [admin0Topology, admin1Topology] = await Promise.all([
-    readJsonWithFallback(dataFileNames.admin0Topo, dataFileNames.admin0Geo),
-    readJsonWithFallback(dataFileNames.admin1Topo, dataFileNames.admin1Geo)
-  ]);
-  const admin1SimplifiedTopology = await readJsonWithFallback(
-    dataFileNames.admin1SimplifiedTopo,
-    dataFileNames.admin1SimplifiedGeo
-  ).catch(() => null);
-
-  mapData = {
-    admin0Topology,
-    admin1Topology,
-    admin1SimplifiedTopology,
-    visitedStatus: JSON.parse(visitedStatusRaw)
-  };
-} catch (error) {
-  console.error('Failed to load travel map topology data.', error);
-  mapLoadError = true;
-}
+const mapLoadError = false;
 ---
 
 <BaseLayout title="Travel Map">
   <section class="surface-card stack travel-map-card" data-reveal>
     <h2>Travel Map</h2>
 
-    {
-      mapLoadError || !mapData ? (
-        <p role="alert">地図データを読み込めませんでした</p>
-      ) : (
-        <>
-          <p>マウスホイールで拡大縮小、ドラッグで地図を移動できます（しきい値: 2.5）。</p>
-          <div id="travel-map-legend" class="travel-map-legend" aria-label="Map status legend"></div>
-          <p id="travel-map-info" class="travel-map-info" aria-live="polite">地域にホバーすると詳細を表示します。</p>
-          <div id="travel-map" class="travel-map" aria-label="Visited areas map"></div>
-          <script id="travel-map-data" type="application/json" set:html={JSON.stringify(mapData)}></script>
-        </>
-      )
-    }
+    {mapLoadError ? (
+      <p role="alert">地図データを読み込めませんでした</p>
+    ) : (
+      <>
+        <p>マウスホイールで拡大縮小、ドラッグで地図を移動できます（しきい値: 2.5）。</p>
+        <p id="travel-map-loading" class="travel-map-loading" aria-live="polite">地図データを読み込み中...</p>
+        <p id="travel-map-error" class="travel-map-error" role="alert" hidden>地図データを読み込めませんでした</p>
+        <div id="travel-map-legend" class="travel-map-legend" aria-label="Map status legend"></div>
+        <p id="travel-map-info" class="travel-map-info" aria-live="polite">地域にホバーすると詳細を表示します。</p>
+        <div id="travel-map" class="travel-map" aria-label="Visited areas map"></div>
+      </>
+    )}
   </section>
 </BaseLayout>
 
@@ -82,17 +27,56 @@ try {
   const MIN_SCALE = 1;
   const MAX_SCALE = 48;
   const ZOOM_SPEED = 0.0018;
+  const DATA_FILES = {
+    admin0Topo: '/geojson/World Bank Official Boundaries - Admin 0.topo.json',
+    admin1Topo: '/geojson/World Bank Official Boundaries - Admin 1.topo.json',
+    admin1SimplifiedTopo: '/geojson/World Bank Official Boundaries - Admin 1.simplified.topo.json',
+    admin0Geo: '/geojson/World Bank Official Boundaries - Admin 0.json',
+    admin1Geo: '/geojson/World Bank Official Boundaries - Admin 1.json',
+    admin1SimplifiedGeo: '/geojson/World Bank Official Boundaries - Admin 1.simplified.json',
+    visitedStatus: '/geojson/visited-status-admin1.json'
+  };
 
-  const dataElement = document.getElementById('travel-map-data');
   const mapRoot = document.getElementById('travel-map');
   const legendRoot = document.getElementById('travel-map-legend');
   const infoRoot = document.getElementById('travel-map-info');
+  const loadingRoot = document.getElementById('travel-map-loading');
+  const errorRoot = document.getElementById('travel-map-error');
 
-  if (!dataElement || !mapRoot || !legendRoot || !infoRoot) {
+  if (!mapRoot || !legendRoot || !infoRoot || !loadingRoot || !errorRoot) {
     throw new Error('Travel map initialization failed.');
   }
 
-  const mapData = JSON.parse(dataElement.textContent ?? '{}');
+  const setLoadingState = (isLoading, message = '地図データを読み込み中...') => {
+    loadingRoot.hidden = !isLoading;
+    loadingRoot.textContent = message;
+  };
+
+  const setErrorState = (hasError, message = '地図データを読み込めませんでした') => {
+    errorRoot.hidden = !hasError;
+    errorRoot.textContent = message;
+  };
+
+  const fetchJsonWithFallback = async (primaryPath, fallbackPath, { required = true } = {}) => {
+    const primaryResponse = await fetch(primaryPath);
+    if (primaryResponse.ok) {
+      return primaryResponse.json();
+    }
+
+    if (!fallbackPath) {
+      if (!required) return null;
+      throw new Error(`Failed to load ${primaryPath}`);
+    }
+
+    const fallbackResponse = await fetch(fallbackPath);
+    if (fallbackResponse.ok) {
+      return fallbackResponse.json();
+    }
+
+    if (!required) return null;
+    throw new Error(`Failed to load ${primaryPath} and ${fallbackPath}`);
+  };
+
   const topologyToFeatureCollection = (topology) => {
     if (!topology || typeof topology !== 'object') return [];
 
@@ -227,15 +211,14 @@ try {
     ];
   };
 
-  const admin0Features = topologyToFeatureCollection(mapData?.admin0Topology);
-  const admin1RawFeatures = topologyToFeatureCollection(mapData?.admin1Topology);
-  const admin1SimplifiedFeatures = topologyToFeatureCollection(mapData?.admin1SimplifiedTopology);
-  const shouldPreferSimplifiedAdmin1 = window.matchMedia('(max-width: 768px)').matches;
-  const admin1Features =
-    shouldPreferSimplifiedAdmin1 && admin1SimplifiedFeatures.length > 0 ? admin1SimplifiedFeatures : admin1RawFeatures;
-  const visitedStatusPayload = mapData?.visitedStatus ?? {};
-  const statusMeta = visitedStatusPayload?.statusMeta ?? {};
-  const admin1StatusById = visitedStatusPayload?.statuses ?? {};
+  let admin0Features = [];
+  let admin1Features = [];
+  let admin1Loaded = false;
+  let admin1LoadRequested = false;
+  let admin1LoadFailed = false;
+  let visitedStatusPayload = {};
+  let statusMeta = {};
+  let admin1StatusById = {};
   const statusDisplayName = {
     lived: '居住',
     stayed: '宿泊',
@@ -244,9 +227,10 @@ try {
     want_to_go: '行きたい',
     unknown: '未設定'
   };
-  const idKey = typeof visitedStatusPayload?.idKey === 'string' ? visitedStatusPayload.idKey : 'ADM1CD_c';
+  let idKey = 'ADM1CD_c';
   const statusPriority = ['lived', 'stayed', 'visited', 'passed', 'want_to_go', 'unknown'];
   const statusRank = new Map(statusPriority.map((status, index) => [status, index]));
+  let countryStatusByIso2 = new Map();
 
   const aggregateStatus = (statuses) => {
     let bestStatus = 'unknown';
@@ -265,20 +249,42 @@ try {
     return bestStatus;
   };
 
-  for (const status of statusPriority) {
-    const meta = statusMeta?.[status];
-    if (!meta) continue;
+  const renderLegend = () => {
+    legendRoot.replaceChildren();
+    for (const status of statusPriority) {
+      const meta = statusMeta?.[status];
+      if (!meta) continue;
 
-    const item = document.createElement('div');
-    item.className = 'travel-map-legend__item';
-    const swatch = document.createElement('span');
-    swatch.className = 'travel-map-legend__swatch';
-    swatch.style.backgroundColor = meta.color;
-    const label = document.createElement('span');
-    label.textContent = statusDisplayName[status] ?? meta.label ?? statusDisplayName.unknown;
-    item.append(swatch, label);
-    legendRoot.append(item);
-  }
+      const item = document.createElement('div');
+      item.className = 'travel-map-legend__item';
+      const swatch = document.createElement('span');
+      swatch.className = 'travel-map-legend__swatch';
+      swatch.style.backgroundColor = meta.color;
+      const label = document.createElement('span');
+      label.textContent = statusDisplayName[status] ?? meta.label ?? statusDisplayName.unknown;
+      item.append(swatch, label);
+      legendRoot.append(item);
+    }
+  };
+
+  const updateCountryStatusMap = () => {
+    const countryStatusCandidates = new Map();
+    for (const feature of admin1Features) {
+      const countryCode = feature?.properties?.ISO_A2;
+      const admin1Id = feature?.properties?.[idKey];
+      if (typeof countryCode !== 'string' || typeof admin1Id !== 'string') continue;
+
+      const status = admin1StatusById[admin1Id] ?? 'unknown';
+      if (!countryStatusCandidates.has(countryCode)) {
+        countryStatusCandidates.set(countryCode, []);
+      }
+      countryStatusCandidates.get(countryCode).push(status);
+    }
+
+    countryStatusByIso2 = new Map(
+      [...countryStatusCandidates.entries()].map(([countryCode, statuses]) => [countryCode, aggregateStatus(statuses)])
+    );
+  };
 
   const mercatorY = (latDeg) => {
     const clampedLat = Math.max(-85, Math.min(85, latDeg));
@@ -300,28 +306,49 @@ try {
     }
   };
 
-  for (const feature of [...admin0Features, ...admin1Features]) {
-    walkCoordinates(feature.geometry.coordinates, (lon, lat) => {
-      const mx = mercatorX(lon);
-      const my = mercatorY(lat);
-      bounds.minX = Math.min(bounds.minX, mx);
-      bounds.maxX = Math.max(bounds.maxX, mx);
-      bounds.minY = Math.min(bounds.minY, my);
-      bounds.maxY = Math.max(bounds.maxY, my);
-    });
-  }
+  const updateBoundsFromFeatures = (features) => {
+    for (const feature of features) {
+      walkCoordinates(feature.geometry.coordinates, (lon, lat) => {
+        const mx = mercatorX(lon);
+        const my = mercatorY(lat);
+        bounds.minX = Math.min(bounds.minX, mx);
+        bounds.maxX = Math.max(bounds.maxX, mx);
+        bounds.minY = Math.min(bounds.minY, my);
+        bounds.maxY = Math.max(bounds.maxY, my);
+      });
+    }
+  };
 
   // Keep the horizontal world extent fixed to [-180, 180] so repeated tiles
   // connect seamlessly at the antimeridian.
   bounds.minX = mercatorX(-180);
   bounds.maxX = mercatorX(180);
+  if (!Number.isFinite(bounds.minY) || !Number.isFinite(bounds.maxY)) {
+    bounds.minY = mercatorY(-85);
+    bounds.maxY = mercatorY(85);
+  }
 
   const width = 1200;
   const height = 640;
   const padding = 20;
-  const scaleX = (width - padding * 2) / (bounds.maxX - bounds.minX);
-  const scaleY = (height - padding * 2) / (bounds.maxY - bounds.minY);
-  const fitScale = Math.min(scaleX, scaleY);
+  let fitScale = 1;
+
+  const recalculateProjectionBounds = (features) => {
+    bounds.minX = Infinity;
+    bounds.minY = Infinity;
+    bounds.maxX = -Infinity;
+    bounds.maxY = -Infinity;
+    updateBoundsFromFeatures(features);
+    bounds.minX = mercatorX(-180);
+    bounds.maxX = mercatorX(180);
+    if (!Number.isFinite(bounds.minY) || !Number.isFinite(bounds.maxY)) {
+      bounds.minY = mercatorY(-85);
+      bounds.maxY = mercatorY(85);
+    }
+    const scaleX = (width - padding * 2) / (bounds.maxX - bounds.minX);
+    const scaleY = (height - padding * 2) / (bounds.maxY - bounds.minY);
+    fitScale = Math.min(scaleX, scaleY);
+  };
 
   const project = (lon, lat) => {
     const xMerc = mercatorX(lon);
@@ -459,23 +486,6 @@ try {
     infoRoot.textContent = '地域にホバーすると詳細を表示します。';
   };
 
-  const countryStatusCandidates = new Map();
-  for (const feature of admin1Features) {
-    const countryCode = feature?.properties?.ISO_A2;
-    const admin1Id = feature?.properties?.[idKey];
-    if (typeof countryCode !== 'string' || typeof admin1Id !== 'string') continue;
-
-    const status = admin1StatusById[admin1Id] ?? 'unknown';
-    if (!countryStatusCandidates.has(countryCode)) {
-      countryStatusCandidates.set(countryCode, []);
-    }
-    countryStatusCandidates.get(countryCode).push(status);
-  }
-
-  const countryStatusByIso2 = new Map(
-    [...countryStatusCandidates.entries()].map(([countryCode, statuses]) => [countryCode, aggregateStatus(statuses)])
-  );
-
   const populateAdmin0Layer = (admin0Layer) => {
     for (const feature of admin0Features) {
       const d = geometryToPath(feature.geometry);
@@ -536,8 +546,14 @@ try {
     }
   };
 
+  const rerenderAdmin0Layers = () => {
+    for (const tile of tileLayers) {
+      tile.admin0Layer.replaceChildren();
+      populateAdmin0Layer(tile.admin0Layer);
+    }
+  };
+
   for (const tile of tileLayers) {
-    populateAdmin0Layer(tile.admin0Layer);
     zoomLayer.append(tile.tileLayer);
   }
 
@@ -561,6 +577,36 @@ try {
     translateX = -normalizedOffset;
   };
 
+  const ensureAdmin1Loaded = async () => {
+    if (admin1Loaded || admin1LoadRequested) return;
+
+    admin1LoadRequested = true;
+    admin1LoadFailed = false;
+    setLoadingState(true, '詳細地図データを読み込み中...');
+    try {
+      const [admin1Topology, admin1SimplifiedTopology] = await Promise.all([
+        fetchJsonWithFallback(DATA_FILES.admin1Topo, DATA_FILES.admin1Geo),
+        fetchJsonWithFallback(DATA_FILES.admin1SimplifiedTopo, DATA_FILES.admin1SimplifiedGeo, { required: false })
+      ]);
+      const admin1RawFeatures = topologyToFeatureCollection(admin1Topology);
+      const admin1SimplifiedFeatures = topologyToFeatureCollection(admin1SimplifiedTopology);
+      const shouldPreferSimplifiedAdmin1 = window.matchMedia('(max-width: 768px)').matches;
+      admin1Features =
+        shouldPreferSimplifiedAdmin1 && admin1SimplifiedFeatures.length > 0 ? admin1SimplifiedFeatures : admin1RawFeatures;
+      admin1Loaded = true;
+      updateCountryStatusMap();
+      rerenderAdmin0Layers();
+      if (scale >= ADMIN1_VISIBLE_ZOOM) {
+        renderAdmin1Layer();
+      }
+      setLoadingState(false);
+    } catch {
+      admin1LoadFailed = true;
+      setLoadingState(false);
+      setErrorState(true);
+    }
+  };
+
   const updateScale = () => {
     const clamped = Math.max(MIN_SCALE, Math.min(MAX_SCALE, scale));
     scale = clamped;
@@ -569,7 +615,11 @@ try {
 
     const showAdmin1 = clamped >= ADMIN1_VISIBLE_ZOOM;
     if (showAdmin1) {
-      renderAdmin1Layer();
+      if (admin1Loaded) {
+        renderAdmin1Layer();
+      } else if (!admin1LoadFailed) {
+        void ensureAdmin1Loaded();
+      }
     } else {
       unmountAdmin1Layer();
     }
@@ -646,7 +696,31 @@ try {
   mapRoot.addEventListener('pointercancel', stopDragging);
   mapRoot.addEventListener('pointerleave', stopDragging);
 
-  updateScale();
+  const loadInitialMapData = async () => {
+    setLoadingState(true);
+    setErrorState(false);
+    try {
+      const [admin0Topology, visitedStatus] = await Promise.all([
+        fetchJsonWithFallback(DATA_FILES.admin0Topo, DATA_FILES.admin0Geo),
+        fetchJsonWithFallback(DATA_FILES.visitedStatus)
+      ]);
+      admin0Features = topologyToFeatureCollection(admin0Topology);
+      visitedStatusPayload = visitedStatus ?? {};
+      statusMeta = visitedStatusPayload?.statusMeta ?? {};
+      admin1StatusById = visitedStatusPayload?.statuses ?? {};
+      idKey = typeof visitedStatusPayload?.idKey === 'string' ? visitedStatusPayload.idKey : 'ADM1CD_c';
+      recalculateProjectionBounds(admin0Features);
+      renderLegend();
+      rerenderAdmin0Layers();
+      updateScale();
+      setLoadingState(false);
+    } catch {
+      setLoadingState(false);
+      setErrorState(true);
+    }
+  };
+
+  void loadInitialMapData();
 </script>
 
 <style>
@@ -680,6 +754,17 @@ try {
     display: flex;
     align-items: center;
     background: color-mix(in srgb, var(--surface, #ffffff) 84%, transparent);
+  }
+
+  .travel-map-loading,
+  .travel-map-error {
+    margin: 0;
+    font-size: 0.9rem;
+  }
+
+  .travel-map-error {
+    color: #dc2626;
+    font-weight: 600;
   }
 
   .travel-map-legend {
