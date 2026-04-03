@@ -28,12 +28,14 @@ const mapLoadError = false;
   const MAX_SCALE = 48;
   const ZOOM_SPEED = 0.0018;
   const DATA_FILES = {
+    admin0SimplifiedTopo: '/geojson/World Bank Official Boundaries - Admin 0.simplified.topo.json',
     admin0Topo: '/geojson/World Bank Official Boundaries - Admin 0.topo.json',
-    admin1Topo: '/geojson/World Bank Official Boundaries - Admin 1.topo.json',
     admin1SimplifiedTopo: '/geojson/World Bank Official Boundaries - Admin 1.simplified.topo.json',
+    admin1Topo: '/geojson/World Bank Official Boundaries - Admin 1.topo.json',
+    admin0SimplifiedGeo: '/geojson/World Bank Official Boundaries - Admin 0.simplified.json',
     admin0Geo: '/geojson/World Bank Official Boundaries - Admin 0.json',
-    admin1Geo: '/geojson/World Bank Official Boundaries - Admin 1.json',
     admin1SimplifiedGeo: '/geojson/World Bank Official Boundaries - Admin 1.simplified.json',
+    admin1Geo: '/geojson/World Bank Official Boundaries - Admin 1.json',
     visitedStatus: '/geojson/visited-status-admin1.json'
   };
 
@@ -75,6 +77,19 @@ const mapLoadError = false;
 
     if (!required) return null;
     throw new Error(`Failed to load ${primaryPath} and ${fallbackPath}`);
+  };
+
+  const fetchJsonFromCandidates = async (paths, { required = true } = {}) => {
+    for (const path of paths) {
+      if (!path) continue;
+      const response = await fetch(path);
+      if (response.ok) {
+        return response.json();
+      }
+    }
+
+    if (!required) return null;
+    throw new Error(`Failed to load any map data from: ${paths.join(', ')}`);
   };
 
   const topologyToFeatureCollection = (topology) => {
@@ -584,15 +599,13 @@ const mapLoadError = false;
     admin1LoadFailed = false;
     setLoadingState(true, '詳細地図データを読み込み中...');
     try {
-      const [admin1Topology, admin1SimplifiedTopology] = await Promise.all([
-        fetchJsonWithFallback(DATA_FILES.admin1Topo, DATA_FILES.admin1Geo),
-        fetchJsonWithFallback(DATA_FILES.admin1SimplifiedTopo, DATA_FILES.admin1SimplifiedGeo, { required: false })
+      const admin1MapData = await fetchJsonFromCandidates([
+        DATA_FILES.admin1SimplifiedTopo,
+        DATA_FILES.admin1Topo,
+        DATA_FILES.admin1SimplifiedGeo,
+        DATA_FILES.admin1Geo
       ]);
-      const admin1RawFeatures = topologyToFeatureCollection(admin1Topology);
-      const admin1SimplifiedFeatures = topologyToFeatureCollection(admin1SimplifiedTopology);
-      const shouldPreferSimplifiedAdmin1 = window.matchMedia('(max-width: 768px)').matches;
-      admin1Features =
-        shouldPreferSimplifiedAdmin1 && admin1SimplifiedFeatures.length > 0 ? admin1SimplifiedFeatures : admin1RawFeatures;
+      admin1Features = topologyToFeatureCollection(admin1MapData);
       admin1Loaded = true;
       updateCountryStatusMap();
       rerenderAdmin0Layers();
@@ -701,7 +714,12 @@ const mapLoadError = false;
     setErrorState(false);
     try {
       const [admin0Topology, visitedStatus] = await Promise.all([
-        fetchJsonWithFallback(DATA_FILES.admin0Topo, DATA_FILES.admin0Geo),
+        fetchJsonFromCandidates([
+          DATA_FILES.admin0SimplifiedTopo,
+          DATA_FILES.admin0Topo,
+          DATA_FILES.admin0SimplifiedGeo,
+          DATA_FILES.admin0Geo
+        ]),
         fetchJsonWithFallback(DATA_FILES.visitedStatus)
       ]);
       admin0Features = topologyToFeatureCollection(admin0Topology);
