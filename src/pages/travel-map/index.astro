@@ -26,6 +26,10 @@ const mapLoadError = false;
   const ADMIN1_VISIBLE_ZOOM = 2.5;
   const MIN_SCALE = 1;
   const MAX_SCALE = 48;
+  // 東京中心相当の経験値チューニング値（初期表示のズーム/中心座標）
+  const INITIAL_SCALE = 4.2;
+  const INITIAL_CENTER_X = 932;
+  const INITIAL_CENTER_Y = 252;
   const ZOOM_SPEED = 0.0018;
   const DATA_FILES = {
     admin0Render: '/geojson/travel-map-admin0.render.json',
@@ -500,6 +504,9 @@ const mapLoadError = false;
       // 初回描画（legend/admin0/scale）は上の初期化完了後に実行する
       renderLegend();
       rerenderAdmin0Layers();
+      scale = INITIAL_SCALE;
+      translateX = width / 2 - INITIAL_CENTER_X * scale;
+      translateY = height / 2 - INITIAL_CENTER_Y * scale;
       updateScale();
       setLoadingState(false);
     } catch {
