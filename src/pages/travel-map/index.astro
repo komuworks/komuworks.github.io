@@ -246,19 +246,19 @@ try {
   const idKey = typeof visitedStatusPayload?.idKey === 'string' ? visitedStatusPayload.idKey : 'ADM1CD_c';
   const statusPriority = ['lived', 'stayed', 'visited', 'passed', 'want_to_go', 'unknown'];
   const statusRank = new Map(statusPriority.map((status, index) => [status, index]));
+  const statusPrioritySet = new Set(statusPriority);
   const normalizeStatus = (status) => {
     if (typeof status !== 'string') return 'unknown';
-    const normalizedStatus = status.toLowerCase();
-    return statusRank.has(normalizedStatus) ? normalizedStatus : 'unknown';
+    const normalizedStatus = status.trim().toLowerCase();
+    return statusPrioritySet.has(normalizedStatus) ? normalizedStatus : 'unknown';
   };
+  const isObjectRecord = (value) => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
   const rawAdmin1StatusById =
-    visitedStatusPayload?.statuses && typeof visitedStatusPayload.statuses === 'object'
-      ? visitedStatusPayload.statuses
-      : {};
+    visitedStatusPayload?.statuses && isObjectRecord(visitedStatusPayload.statuses) ? visitedStatusPayload.statuses : {};
   const admin1StatusById = Object.fromEntries(
     Object.entries(rawAdmin1StatusById).map(([admin1Id, value]) => {
       const rawStatus =
-        typeof value === 'string' ? value : value && typeof value === 'object' ? value.status : undefined;
+        typeof value === 'string' ? value : isObjectRecord(value) ? value.status : undefined;
       return [admin1Id, normalizeStatus(rawStatus)];
     })
   );
