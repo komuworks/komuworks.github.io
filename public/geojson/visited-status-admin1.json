@@ -28,25 +28,255 @@
     }
   },
   "statuses": {
+    "JPN001": {
+      "status": "Unknown",
+      "nameJa": "愛知県",
+      "memo": ""
+    },
+    "JPN002": {
+      "status": "Unknown",
+      "nameJa": "秋田県",
+      "memo": ""
+    },
+    "JPN003": {
+      "status": "Unknown",
+      "nameJa": "青森県",
+      "memo": ""
+    },
+    "JPN004": {
+      "status": "Unknown",
+      "nameJa": "愛媛県",
+      "memo": ""
+    },
+    "JPN005": {
+      "status": "Unknown",
+      "nameJa": "岐阜県",
+      "memo": ""
+    },
+    "JPN006": {
+      "status": "Unknown",
+      "nameJa": "群馬県",
+      "memo": ""
+    },
+    "JPN007": {
+      "status": "Unknown",
+      "nameJa": "広島県",
+      "memo": ""
+    },
+    "JPN008": {
+      "status": "Unknown",
+      "nameJa": "北海道",
+      "memo": ""
+    },
+    "JPN009": {
+      "status": "Unknown",
+      "nameJa": "福井県",
+      "memo": ""
+    },
+    "JPN010": {
+      "status": "Unknown",
+      "nameJa": "福岡県",
+      "memo": ""
+    },
+    "JPN011": {
+      "status": "Unknown",
+      "nameJa": "福島県",
+      "memo": ""
+    },
+    "JPN012": {
+      "status": "Unknown",
+      "nameJa": "兵庫県",
+      "memo": ""
+    },
+    "JPN013": {
+      "status": "Unknown",
+      "nameJa": "茨城県",
+      "memo": ""
+    },
+    "JPN014": {
+      "status": "Unknown",
+      "nameJa": "石川県",
+      "memo": ""
+    },
+    "JPN015": {
+      "status": "Unknown",
+      "nameJa": "岩手県",
+      "memo": ""
+    },
+    "JPN016": {
+      "status": "Unknown",
+      "nameJa": "香川県",
+      "memo": ""
+    },
+    "JPN017": {
+      "status": "Unknown",
+      "nameJa": "鹿児島県",
+      "memo": ""
+    },
+    "JPN018": {
+      "status": "Unknown",
+      "nameJa": "神奈川県",
+      "memo": ""
+    },
+    "JPN019": {
+      "status": "Unknown",
+      "nameJa": "高知県",
+      "memo": ""
+    },
+    "JPN020": {
+      "status": "Unknown",
+      "nameJa": "熊本県",
+      "memo": ""
+    },
+    "JPN021": {
+      "status": "Unknown",
+      "nameJa": "京都府",
+      "memo": ""
+    },
+    "JPN022": {
+      "status": "Unknown",
+      "nameJa": "三重県",
+      "memo": ""
+    },
+    "JPN023": {
+      "status": "Unknown",
+      "nameJa": "宮城県",
+      "memo": ""
+    },
     "JPN024": {
-      "status": "lived",
-      "nameJa": "",
+      "status": "Lived",
+      "nameJa": "宮崎県",
+      "memo": "出身地。生まれてから21歳まで宮崎県で過ごした。"
+    },
+    "JPN025": {
+      "status": "Unknown",
+      "nameJa": "長野県",
+      "memo": ""
+    },
+    "JPN026": {
+      "status": "Unknown",
+      "nameJa": "長崎県",
+      "memo": ""
+    },
+    "JPN027": {
+      "status": "Unknown",
+      "nameJa": "奈良県",
+      "memo": ""
+    },
+    "JPN028": {
+      "status": "Unknown",
+      "nameJa": "新潟県",
+      "memo": ""
+    },
+    "JPN029": {
+      "status": "Unknown",
+      "nameJa": "岡山県",
+      "memo": ""
+    },
+    "JPN030": {
+      "status": "Unknown",
+      "nameJa": "沖縄県",
+      "memo": "Stayed"
+    },
+    "JPN031": {
+      "status": "Unknown",
+      "nameJa": "大分県",
+      "memo": ""
+    },
+    "JPN032": {
+      "status": "Unknown",
+      "nameJa": "大阪府",
+      "memo": ""
+    },
+    "JPN033": {
+      "status": "Unknown",
+      "nameJa": "佐賀県",
+      "memo": ""
+    },
+    "JPN034": {
+      "status": "Lived",
+      "nameJa": "埼玉県",
+      "memo": "21歳の時、就職と同時に埼玉県に引っ越した。"
+    },
+    "JPN035": {
+      "status": "Unknown",
+      "nameJa": "滋賀県",
+      "memo": ""
+    },
+    "JPN036": {
+      "status": "Unknown",
+      "nameJa": "島根県",
+      "memo": ""
+    },
+    "JPN037": {
+      "status": "Unknown",
+      "nameJa": "静岡県",
       "memo": ""
     },
     "JPN038": {
-      "status": "visited",
-      "nameJa": "",
+      "status": "Unknown",
+      "nameJa": "千葉県",
+      "memo": ""
+    },
+    "JPN039": {
+      "status": "Unknown",
+      "nameJa": "徳島県",
       "memo": ""
     },
     "JPN040": {
-      "status": "stayed",
-      "nameJa": "",
+      "status": "Unknown",
+      "nameJa": "東京都",
       "memo": ""
     },
     "JPN041": {
-      "status": "visited",
-      "nameJa": "",
+      "status": "Unknown",
+      "nameJa": "栃木県",
       "memo": ""
-    }
+    },
+    "JPN042": {
+      "status": "Unknown",
+      "nameJa": "鳥取県",
+      "memo": ""
+    },
+    "JPN043": {
+      "status": "Unknown",
+      "nameJa": "富山県",
+      "memo": ""
+    },
+    "JPN044": {
+      "status": "Unknown",
+      "nameJa": "和歌山県",
+      "memo": ""
+    },
+    "JPN045": {
+      "status": "Unknown",
+      "nameJa": "山形県",
+      "memo": ""
+    },
+    "JPN046": {
+      "status": "Unknown",
+      "nameJa": "山口県",
+      "memo": ""
+    },
+    "JPN047": {
+      "status": "Unknown",
+      "nameJa": "山梨県",
+      "memo": ""
+    },
+    "USA005": {
+      "status": "Stayed",
+      "nameJa": "カリフォルニア",
+      "memo": "3歳の頃、ロサンゼルスへ旅行に行った。ホームステイ先の子が誕生日で、真っ青なケーキにカルチャーショックを受けた。"
+    },
+    "TWN001": {
+      "status": "Stayed",
+      "nameJa": "台湾",
+      "memo": "18歳の頃、台北へ旅行に行った。"
+    },
+    "GUM001": {
+      "status": "Stayed",
+      "nameJa": "グアム",
+      "memo": "22歳の頃、旅行でスカイダイビングとスキューバダイビング、セスナの操縦体験をした。スカイダイビングは今後二度としないことを誓った。"
+    },
   }
 }
