@@ -226,14 +226,14 @@ const mapLoadError = false;
     ];
   };
 
-  let admin0Features = [];
-  let admin1Features = [];
-  let admin1Loaded = false;
-  let admin1LoadRequested = false;
-  let admin1LoadFailed = false;
-  let visitedStatusPayload = {};
-  let statusMeta = {};
-  let admin1StatusById = {};
+  const admin0Features = topologyToFeatureCollection(mapData?.admin0Topology);
+  const admin1RawFeatures = topologyToFeatureCollection(mapData?.admin1Topology);
+  const admin1SimplifiedFeatures = topologyToFeatureCollection(mapData?.admin1SimplifiedTopology);
+  const shouldPreferSimplifiedAdmin1 = window.matchMedia('(max-width: 768px)').matches;
+  const admin1Features =
+    shouldPreferSimplifiedAdmin1 && admin1SimplifiedFeatures.length > 0 ? admin1SimplifiedFeatures : admin1RawFeatures;
+  const visitedStatusPayload = mapData?.visitedStatus ?? {};
+  const statusMeta = visitedStatusPayload?.statusMeta ?? {};
   const statusDisplayName = {
     lived: '居住',
     stayed: '宿泊',
@@ -245,14 +245,29 @@ const mapLoadError = false;
   let idKey = 'ADM1CD_c';
   const statusPriority = ['lived', 'stayed', 'visited', 'passed', 'want_to_go', 'unknown'];
   const statusRank = new Map(statusPriority.map((status, index) => [status, index]));
-  let countryStatusByIso2 = new Map();
+  const statusPrioritySet = new Set(statusPriority);
+  const normalizeStatus = (status) => {
+    if (typeof status !== 'string') return 'unknown';
+    const normalizedStatus = status.trim().toLowerCase();
+    return statusPrioritySet.has(normalizedStatus) ? normalizedStatus : 'unknown';
+  };
+  const isObjectRecord = (value) => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+  const rawAdmin1StatusById =
+    visitedStatusPayload?.statuses && isObjectRecord(visitedStatusPayload.statuses) ? visitedStatusPayload.statuses : {};
+  const admin1StatusById = Object.fromEntries(
+    Object.entries(rawAdmin1StatusById).map(([admin1Id, value]) => {
+      const rawStatus =
+        typeof value === 'string' ? value : isObjectRecord(value) ? value.status : undefined;
+      return [admin1Id, normalizeStatus(rawStatus)];
+    })
+  );
 
   const aggregateStatus = (statuses) => {
     let bestStatus = 'unknown';
     let bestRank = statusRank.get(bestStatus);
 
     for (const status of statuses) {
-      const normalizedStatus = typeof status === 'string' ? status : 'unknown';
+      const normalizedStatus = normalizeStatus(status);
       const rank = statusRank.get(normalizedStatus);
       if (rank === undefined) continue;
       if (bestRank === undefined || rank < bestRank) {
