@@ -28,14 +28,8 @@ const mapLoadError = false;
   const MAX_SCALE = 48;
   const ZOOM_SPEED = 0.0018;
   const DATA_FILES = {
-    admin0SimplifiedTopo: '/geojson/World Bank Official Boundaries - Admin 0.simplified.topo.json',
-    admin0Topo: '/geojson/World Bank Official Boundaries - Admin 0.topo.json',
-    admin1SimplifiedTopo: '/geojson/World Bank Official Boundaries - Admin 1.simplified.topo.json',
-    admin1Topo: '/geojson/World Bank Official Boundaries - Admin 1.topo.json',
-    admin0SimplifiedGeo: '/geojson/World Bank Official Boundaries - Admin 0.simplified.json',
-    admin0Geo: '/geojson/World Bank Official Boundaries - Admin 0.json',
-    admin1SimplifiedGeo: '/geojson/World Bank Official Boundaries - Admin 1.simplified.json',
-    admin1Geo: '/geojson/World Bank Official Boundaries - Admin 1.json',
+    admin0Render: '/geojson/travel-map-admin0.render.json',
+    admin1Render: '/geojson/travel-map-admin1.render.json',
     visitedStatus: '/geojson/visited-status-admin1.json'
   };
 
@@ -59,171 +53,14 @@ const mapLoadError = false;
     errorRoot.textContent = message;
   };
 
-  const fetchJsonWithFallback = async (primaryPath, fallbackPath, { required = true } = {}) => {
-    const primaryResponse = await fetch(primaryPath);
-    if (primaryResponse.ok) {
-      return primaryResponse.json();
-    }
-
-    if (!fallbackPath) {
-      if (!required) return null;
-      throw new Error(`Failed to load ${primaryPath}`);
-    }
-
-    const fallbackResponse = await fetch(fallbackPath);
-    if (fallbackResponse.ok) {
-      return fallbackResponse.json();
+  const fetchJson = async (path, { required = true } = {}) => {
+    const response = await fetch(path);
+    if (response.ok) {
+      return response.json();
     }
 
     if (!required) return null;
-    throw new Error(`Failed to load ${primaryPath} and ${fallbackPath}`);
-  };
-
-  const fetchJsonFromCandidates = async (paths, { required = true } = {}) => {
-    for (const path of paths) {
-      if (!path) continue;
-      const response = await fetch(path);
-      if (response.ok) {
-        return response.json();
-      }
-    }
-
-    if (!required) return null;
-    throw new Error(`Failed to load any map data from: ${paths.join(', ')}`);
-  };
-
-  const topologyToFeatureCollection = (topology) => {
-    if (!topology || typeof topology !== 'object') return [];
-
-    // Backward-compatibility: legacy GeoJSON payloads
-    if ('features' in topology && Array.isArray(topology.features)) {
-      return topology.features;
-    }
-
-    if (topology.type !== 'Topology' || !Array.isArray(topology.arcs) || !topology.objects || typeof topology.objects !== 'object') {
-      return [];
-    }
-
-    const transform = topology.transform;
-    const decodedArcs = topology.arcs.map((arc) => {
-      if (!Array.isArray(arc)) return [];
-      let x = 0;
-      let y = 0;
-
-      return arc.map((point) => {
-        if (!Array.isArray(point) || point.length < 2) return [0, 0];
-        x += point[0];
-        y += point[1];
-
-        if (transform?.scale && transform?.translate) {
-          return [x * transform.scale[0] + transform.translate[0], y * transform.scale[1] + transform.translate[1]];
-        }
-
-        return [x, y];
-      });
-    });
-
-    const getArcCoordinates = (arcIndex) => {
-      if (typeof arcIndex !== 'number') return [];
-      if (arcIndex >= 0) {
-        return decodedArcs[arcIndex] ?? [];
-      }
-
-      const reversedArc = decodedArcs[~arcIndex] ?? [];
-      return [...reversedArc].reverse();
-    };
-
-    const mergeArcs = (arcIndices) => {
-      const coordinates = [];
-
-      for (const [index, arcIndex] of arcIndices.entries()) {
-        const arc = getArcCoordinates(arcIndex);
-        if (arc.length === 0) continue;
-
-        coordinates.push(...(index === 0 ? arc : arc.slice(1)));
-      }
-
-      return coordinates;
-    };
-
-    const topologyGeometryToGeoJson = (geometry) => {
-      if (!geometry || typeof geometry !== 'object') return null;
-
-      if (geometry.type === 'Polygon') {
-        return {
-          type: 'Polygon',
-          coordinates: (geometry.arcs ?? []).map((ringArcIndices) => mergeArcs(ringArcIndices))
-        };
-      }
-
-      if (geometry.type === 'MultiPolygon') {
-        return {
-          type: 'MultiPolygon',
-          coordinates: (geometry.arcs ?? []).map((polygonArcIndices) =>
-            polygonArcIndices.map((ringArcIndices) => mergeArcs(ringArcIndices))
-          )
-        };
-      }
-
-      if (geometry.type === 'Point') {
-        const [x = 0, y = 0] = geometry.coordinates ?? [];
-        if (transform?.scale && transform?.translate) {
-          return {
-            type: 'Point',
-            coordinates: [x * transform.scale[0] + transform.translate[0], y * transform.scale[1] + transform.translate[1]]
-          };
-        }
-
-        return { type: 'Point', coordinates: [x, y] };
-      }
-
-      if (geometry.type === 'MultiPoint') {
-        const coordinates = (geometry.coordinates ?? []).map(([x = 0, y = 0]) => {
-          if (transform?.scale && transform?.translate) {
-            return [x * transform.scale[0] + transform.translate[0], y * transform.scale[1] + transform.translate[1]];
-          }
-          return [x, y];
-        });
-
-        return { type: 'MultiPoint', coordinates };
-      }
-
-      return null;
-    };
-
-    const objectKeys = Object.keys(topology.objects);
-    if (objectKeys.length === 0) return [];
-
-    const firstObject = topology.objects[objectKeys[0]];
-    if (!firstObject || typeof firstObject !== 'object') return [];
-
-    if (firstObject.type === 'GeometryCollection') {
-      return (firstObject.geometries ?? [])
-        .map((geometry) => {
-          const geoJsonGeometry = topologyGeometryToGeoJson(geometry);
-          if (!geoJsonGeometry) return null;
-
-          return {
-            type: 'Feature',
-            id: geometry.id,
-            properties: geometry.properties ?? {},
-            geometry: geoJsonGeometry
-          };
-        })
-        .filter(Boolean);
-    }
-
-    const geoJsonGeometry = topologyGeometryToGeoJson(firstObject);
-    if (!geoJsonGeometry) return [];
-
-    return [
-      {
-        type: 'Feature',
-        id: firstObject.id,
-        properties: firstObject.properties ?? {},
-        geometry: geoJsonGeometry
-      }
-    ];
+    throw new Error(`Failed to load ${path}`);
   };
 
   let admin0Features = [];
@@ -282,14 +119,32 @@ const mapLoadError = false;
     }
   };
 
+  const normalizeStatus = (value) => {
+    if (typeof value !== 'string') return 'unknown';
+    return value.toLowerCase().trim().replace(/\s+/g, '_');
+  };
+
+  const getAdmin1Status = (admin1Id) => {
+    const rawStatus = admin1StatusById?.[admin1Id];
+    if (typeof rawStatus === 'string') {
+      return normalizeStatus(rawStatus);
+    }
+
+    if (rawStatus && typeof rawStatus === 'object') {
+      return normalizeStatus(rawStatus.status);
+    }
+
+    return 'unknown';
+  };
+
   const updateCountryStatusMap = () => {
     const countryStatusCandidates = new Map();
     for (const feature of admin1Features) {
-      const countryCode = feature?.properties?.ISO_A2;
-      const admin1Id = feature?.properties?.[idKey];
+      const countryCode = feature?.p?.ISO_A2;
+      const admin1Id = feature?.p?.[idKey];
       if (typeof countryCode !== 'string' || typeof admin1Id !== 'string') continue;
 
-      const status = admin1StatusById[admin1Id] ?? 'unknown';
+      const status = getAdmin1Status(admin1Id);
       if (!countryStatusCandidates.has(countryCode)) {
         countryStatusCandidates.set(countryCode, []);
       }
@@ -301,156 +156,8 @@ const mapLoadError = false;
     );
   };
 
-  const mercatorY = (latDeg) => {
-    const clampedLat = Math.max(-85, Math.min(85, latDeg));
-    const rad = (clampedLat * Math.PI) / 180;
-    return Math.log(Math.tan(Math.PI / 4 + rad / 2));
-  };
-
-  const mercatorX = (lonDeg) => (lonDeg * Math.PI) / 180;
-
-  const bounds = { minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity };
-  const walkCoordinates = (coordinates, cb) => {
-    if (typeof coordinates[0] === 'number' && typeof coordinates[1] === 'number') {
-      cb(coordinates[0], coordinates[1]);
-      return;
-    }
-
-    for (const child of coordinates) {
-      walkCoordinates(child, cb);
-    }
-  };
-
-  const updateBoundsFromFeatures = (features) => {
-    for (const feature of features) {
-      walkCoordinates(feature.geometry.coordinates, (lon, lat) => {
-        const mx = mercatorX(lon);
-        const my = mercatorY(lat);
-        bounds.minX = Math.min(bounds.minX, mx);
-        bounds.maxX = Math.max(bounds.maxX, mx);
-        bounds.minY = Math.min(bounds.minY, my);
-        bounds.maxY = Math.max(bounds.maxY, my);
-      });
-    }
-  };
-
-  // Keep the horizontal world extent fixed to [-180, 180] so repeated tiles
-  // connect seamlessly at the antimeridian.
-  bounds.minX = mercatorX(-180);
-  bounds.maxX = mercatorX(180);
-  if (!Number.isFinite(bounds.minY) || !Number.isFinite(bounds.maxY)) {
-    bounds.minY = mercatorY(-85);
-    bounds.maxY = mercatorY(85);
-  }
-
   const width = 1200;
   const height = 640;
-  const padding = 20;
-  let fitScale = 1;
-
-  const recalculateProjectionBounds = (features) => {
-    bounds.minX = Infinity;
-    bounds.minY = Infinity;
-    bounds.maxX = -Infinity;
-    bounds.maxY = -Infinity;
-    updateBoundsFromFeatures(features);
-    bounds.minX = mercatorX(-180);
-    bounds.maxX = mercatorX(180);
-    if (!Number.isFinite(bounds.minY) || !Number.isFinite(bounds.maxY)) {
-      bounds.minY = mercatorY(-85);
-      bounds.maxY = mercatorY(85);
-    }
-    const scaleX = (width - padding * 2) / (bounds.maxX - bounds.minX);
-    const scaleY = (height - padding * 2) / (bounds.maxY - bounds.minY);
-    fitScale = Math.min(scaleX, scaleY);
-  };
-
-  const project = (lon, lat) => {
-    const xMerc = mercatorX(lon);
-    const x = padding + (xMerc - bounds.minX) * fitScale;
-    const yMerc = mercatorY(lat);
-    const y = height - padding - (yMerc - bounds.minY) * fitScale;
-    return [x, y];
-  };
-
-  const DATELINE_THRESHOLD = 180;
-  const EPSILON = 1e-6;
-
-  const pointsEqual = (a, b) => a?.[0] === b?.[0] && a?.[1] === b?.[1];
-
-  const closeRing = (ring) => {
-    if (ring.length === 0) return ring;
-    return pointsEqual(ring[0], ring[ring.length - 1]) ? ring : [...ring, [...ring[0]]];
-  };
-
-  const splitRingOnDateline = (ring, threshold = DATELINE_THRESHOLD) => {
-    if (!Array.isArray(ring) || ring.length < 2) return [ring];
-
-    const workingRing = closeRing(ring);
-    const splitRings = [];
-    let currentRing = [[...workingRing[0]]];
-
-    for (let index = 0; index < workingRing.length - 1; index += 1) {
-      const [lon1, lat1] = workingRing[index];
-      const [lon2, lat2] = workingRing[index + 1];
-      const deltaLon = lon2 - lon1;
-
-      if (Math.abs(deltaLon) > threshold) {
-        const wrappedDeltaLon = deltaLon > 0 ? deltaLon - 360 : deltaLon + 360;
-        const boundaryLon = deltaLon > 0 ? -180 : 180;
-        const tRaw = wrappedDeltaLon === 0 ? 0 : (boundaryLon - lon1) / wrappedDeltaLon;
-        const t = Math.min(1, Math.max(0, tRaw));
-        const interpolatedLat = lat1 + (lat2 - lat1) * t;
-
-        const snappedBoundaryLon = boundaryLon > 0 ? 180 : -180;
-        const oppositeBoundaryLon = snappedBoundaryLon === 180 ? -180 : 180;
-        const edgeEndPoint = [snappedBoundaryLon, interpolatedLat];
-        const edgeStartPoint = [oppositeBoundaryLon, interpolatedLat];
-
-        const lastPoint = currentRing[currentRing.length - 1];
-        if (!pointsEqual(lastPoint, edgeEndPoint)) {
-          currentRing.push(edgeEndPoint);
-        }
-        splitRings.push(closeRing(currentRing));
-        currentRing = [edgeStartPoint];
-        if (Math.abs(lon2 - edgeStartPoint[0]) > EPSILON || Math.abs(lat2 - edgeStartPoint[1]) > EPSILON) {
-          currentRing.push([lon2, lat2]);
-        }
-      } else {
-        currentRing.push([lon2, lat2]);
-      }
-    }
-
-    splitRings.push(closeRing(currentRing));
-
-    return splitRings.filter((candidateRing) => candidateRing.length >= 4);
-  };
-
-  const polygonToPath = (polygonCoordinates) =>
-    polygonCoordinates
-      .flatMap((ring) => splitRingOnDateline(ring))
-      .map((ring) => {
-        const path = ring
-          .map(([lon, lat], index) => {
-            const [x, y] = project(lon, lat);
-            return `${index === 0 ? 'M' : 'L'}${x.toFixed(2)},${y.toFixed(2)}`;
-          })
-          .join(' ');
-        return `${path} Z`;
-      })
-      .join(' ');
-
-  const geometryToPath = (geometry) => {
-    if (geometry.type === 'Polygon') {
-      return polygonToPath(geometry.coordinates);
-    }
-
-    if (geometry.type === 'MultiPolygon') {
-      return geometry.coordinates.map(polygonToPath).join(' ');
-    }
-
-    return '';
-  };
 
   const svgNamespace = 'http://www.w3.org/2000/svg';
   const svg = document.createElementNS(svgNamespace, 'svg');
@@ -503,18 +210,18 @@ const mapLoadError = false;
 
   const populateAdmin0Layer = (admin0Layer) => {
     for (const feature of admin0Features) {
-      const d = geometryToPath(feature.geometry);
+      const d = feature?.d;
       if (!d) continue;
 
-      const countryCode = feature?.properties?.ISO_A2;
+      const countryCode = feature?.p?.ISO_A2;
       const countryStatus =
         typeof countryCode === 'string' ? countryStatusByIso2.get(countryCode) ?? 'unknown' : 'unknown';
       const path = createPath(d, 'admin0');
       const fill = statusMeta?.[countryStatus]?.color ?? statusMeta?.unknown?.color ?? '#9E9E9E';
-      const countryName = feature?.properties?.NAM_0 ?? 'Unknown country';
+      const countryName = feature?.p?.NAM_0 ?? 'Unknown country';
       path.setAttribute('aria-label', `${countryName} - ${getStatusLabel(countryStatus)}`);
-      path.addEventListener('mouseenter', () => setInfoText(countryName, countryStatus));
-      path.addEventListener('mouseleave', resetInfoText);
+      path.dataset.hoverLabel = countryName;
+      path.dataset.hoverStatus = countryStatus;
       path.style.fill = fill;
       admin0Layer.append(path);
     }
@@ -522,19 +229,19 @@ const mapLoadError = false;
 
   const populateAdmin1Layer = (admin1Layer) => {
     for (const feature of admin1Features) {
-      const d = geometryToPath(feature.geometry);
+      const d = feature?.d;
       if (!d) continue;
 
-      const admin1Id = feature?.properties?.[idKey];
-      const status = typeof admin1Id === 'string' ? admin1StatusById[admin1Id] ?? 'unknown' : 'unknown';
+      const admin1Id = feature?.p?.[idKey];
+      const status = typeof admin1Id === 'string' ? getAdmin1Status(admin1Id) : 'unknown';
       const path = createPath(d, 'admin1');
       const fill = statusMeta?.[status]?.color ?? statusMeta?.unknown?.color ?? '#9E9E9E';
-      const countryName = feature?.properties?.NAM_0 ?? 'Unknown country';
-      const regionName = feature?.properties?.NAM_1 ?? 'Unknown region';
+      const countryName = feature?.p?.NAM_0 ?? 'Unknown country';
+      const regionName = feature?.p?.NAM_1 ?? 'Unknown region';
       const areaLabel = `${countryName} / ${regionName}`;
       path.setAttribute('aria-label', `${areaLabel} - ${getStatusLabel(status)}`);
-      path.addEventListener('mouseenter', () => setInfoText(areaLabel, status));
-      path.addEventListener('mouseleave', resetInfoText);
+      path.dataset.hoverLabel = areaLabel;
+      path.dataset.hoverStatus = status;
       path.style.fill = fill;
       admin1Layer.append(path);
     }
@@ -545,7 +252,6 @@ const mapLoadError = false;
       if (tile.admin1LayerMounted) continue;
       populateAdmin1Layer(tile.admin1Layer);
       if (!tile.admin1Layer.isConnected) {
-        // Keep admin1 above admin0 so subdivisions remain visible when zoomed in.
         tile.tileLayer.append(tile.admin1Layer);
       }
       tile.admin1LayerMounted = true;
@@ -576,6 +282,36 @@ const mapLoadError = false;
   svg.append(tileContainer);
   mapRoot.append(svg);
 
+  const findInteractivePath = (node) => {
+    if (!(node instanceof Element)) return null;
+    const path = node.closest('path.admin0, path.admin1');
+    if (!path || !zoomLayer.contains(path)) return null;
+    return path;
+  };
+
+  zoomLayer.addEventListener('pointerover', (event) => {
+    const path = findInteractivePath(event.target);
+    if (!path) return;
+
+    const relatedPath = findInteractivePath(event.relatedTarget);
+    if (relatedPath === path) return;
+
+    const label = path.dataset.hoverLabel;
+    const status = path.dataset.hoverStatus ?? 'unknown';
+    if (label) {
+      setInfoText(label, status);
+    }
+  });
+
+  zoomLayer.addEventListener('pointerout', (event) => {
+    const path = findInteractivePath(event.target);
+    if (!path) return;
+
+    const relatedPath = findInteractivePath(event.relatedTarget);
+    if (relatedPath) return;
+    resetInfoText();
+  });
+
   let scale = 1;
   let translateX = 0;
   let translateY = 0;
@@ -599,13 +335,8 @@ const mapLoadError = false;
     admin1LoadFailed = false;
     setLoadingState(true, '詳細地図データを読み込み中...');
     try {
-      const admin1MapData = await fetchJsonFromCandidates([
-        DATA_FILES.admin1SimplifiedTopo,
-        DATA_FILES.admin1Topo,
-        DATA_FILES.admin1SimplifiedGeo,
-        DATA_FILES.admin1Geo
-      ]);
-      admin1Features = topologyToFeatureCollection(admin1MapData);
+      const admin1MapData = await fetchJson(DATA_FILES.admin1Render);
+      admin1Features = admin1MapData?.features ?? [];
       admin1Loaded = true;
       updateCountryStatusMap();
       rerenderAdmin0Layers();
@@ -713,21 +444,21 @@ const mapLoadError = false;
     setLoadingState(true);
     setErrorState(false);
     try {
-      const [admin0Topology, visitedStatus] = await Promise.all([
-        fetchJsonFromCandidates([
-          DATA_FILES.admin0SimplifiedTopo,
-          DATA_FILES.admin0Topo,
-          DATA_FILES.admin0SimplifiedGeo,
-          DATA_FILES.admin0Geo
-        ]),
-        fetchJsonWithFallback(DATA_FILES.visitedStatus)
+      const [admin0RenderData, visitedStatus] = await Promise.all([
+        fetchJson(DATA_FILES.admin0Render),
+        fetchJson(DATA_FILES.visitedStatus)
       ]);
-      admin0Features = topologyToFeatureCollection(admin0Topology);
+
+      const renderMeta = admin0RenderData?.meta ?? {};
+      if (typeof renderMeta.width === 'number' && typeof renderMeta.height === 'number') {
+        svg.setAttribute('viewBox', `0 0 ${renderMeta.width} ${renderMeta.height}`);
+      }
+
+      admin0Features = admin0RenderData?.features ?? [];
       visitedStatusPayload = visitedStatus ?? {};
       statusMeta = visitedStatusPayload?.statusMeta ?? {};
       admin1StatusById = visitedStatusPayload?.statuses ?? {};
       idKey = typeof visitedStatusPayload?.idKey === 'string' ? visitedStatusPayload.idKey : 'ADM1CD_c';
-      recalculateProjectionBounds(admin0Features);
       renderLegend();
       rerenderAdmin0Layers();
       updateScale();
