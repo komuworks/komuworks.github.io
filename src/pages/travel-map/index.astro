@@ -311,6 +311,11 @@ try {
     });
   }
 
+  // Keep the horizontal world extent fixed to [-180, 180] so repeated tiles
+  // connect seamlessly at the antimeridian.
+  bounds.minX = mercatorX(-180);
+  bounds.maxX = mercatorX(180);
+
   const width = 1200;
   const height = 640;
   const padding = 20;
@@ -327,6 +332,7 @@ try {
   };
 
   const DATELINE_THRESHOLD = 180;
+  const EPSILON = 1e-6;
 
   const pointsEqual = (a, b) => a?.[0] === b?.[0] && a?.[1] === b?.[1];
 
@@ -350,15 +356,24 @@ try {
       if (Math.abs(deltaLon) > threshold) {
         const wrappedDeltaLon = deltaLon > 0 ? deltaLon - 360 : deltaLon + 360;
         const boundaryLon = deltaLon > 0 ? -180 : 180;
-        const t = wrappedDeltaLon === 0 ? 0 : (boundaryLon - lon1) / wrappedDeltaLon;
+        const tRaw = wrappedDeltaLon === 0 ? 0 : (boundaryLon - lon1) / wrappedDeltaLon;
+        const t = Math.min(1, Math.max(0, tRaw));
         const interpolatedLat = lat1 + (lat2 - lat1) * t;
 
-        const edgeEndPoint = [boundaryLon, interpolatedLat];
-        const edgeStartPoint = [boundaryLon === 180 ? -180 : 180, interpolatedLat];
+        const snappedBoundaryLon = boundaryLon > 0 ? 180 : -180;
+        const oppositeBoundaryLon = snappedBoundaryLon === 180 ? -180 : 180;
+        const edgeEndPoint = [snappedBoundaryLon, interpolatedLat];
+        const edgeStartPoint = [oppositeBoundaryLon, interpolatedLat];
 
-        currentRing.push(edgeEndPoint);
+        const lastPoint = currentRing[currentRing.length - 1];
+        if (!pointsEqual(lastPoint, edgeEndPoint)) {
+          currentRing.push(edgeEndPoint);
+        }
         splitRings.push(closeRing(currentRing));
-        currentRing = [edgeStartPoint, [lon2, lat2]];
+        currentRing = [edgeStartPoint];
+        if (Math.abs(lon2 - edgeStartPoint[0]) > EPSILON || Math.abs(lat2 - edgeStartPoint[1]) > EPSILON) {
+          currentRing.push([lon2, lat2]);
+        }
       } else {
         currentRing.push([lon2, lat2]);
       }
